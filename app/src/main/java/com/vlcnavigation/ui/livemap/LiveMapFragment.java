@@ -20,6 +20,8 @@ import com.vlcnavigation.R;
 
 import java.io.ByteArrayOutputStream;
 
+import timber.log.Timber;
+
 public class LiveMapFragment extends Fragment {
 
     // FIXME: https://github.com/brandonlw/magstripereader
@@ -52,16 +54,24 @@ public class LiveMapFragment extends Fragment {
         try
         {
             _bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING) * 8;
+
+            Timber.d("Current settings:" + '\n' +
+                    "FREQUENCY | CHANNEL_CONFIG | AUDIO_ENCODING | BUFFER_SIZE"+ '\n' +
+                    "%9s | %14s | %14s | %11s", FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, _bufferSize);
+
             _audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, _bufferSize);
 
-            _audioRecord.startRecording();
-            _task = new MonitorAudioTask();
-            _task.execute(null, null, null);
+            if(_audioRecord != null)
+            {
+                _audioRecord.startRecording();
+                _task = new MonitorAudioTask();
+                _task.execute(null, null, null);
+            }
 
         }
         catch (Exception ex)
         {
-            //Do nothing
+            Timber.e(ex);
         }
 
 
