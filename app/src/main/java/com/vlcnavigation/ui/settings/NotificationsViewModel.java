@@ -1,4 +1,4 @@
-package com.vlcnavigation.ui.notifications;
+package com.vlcnavigation.ui.settings;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

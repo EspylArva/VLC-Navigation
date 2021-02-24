@@ -1,4 +1,4 @@
-package com.vlcnavigation.ui.dashboard;
+package com.vlcnavigation.ui.fft;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
