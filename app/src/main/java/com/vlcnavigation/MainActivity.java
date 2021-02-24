@@ -10,11 +10,16 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Timber.plant(new CustomDebugTree());
+
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -27,4 +32,14 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
     }
 
+    public class CustomDebugTree extends Timber.DebugTree {
+        @Override
+        protected String createStackElementTag(StackTraceElement element) {
+            return String.format("[%s:%s | %s]",
+                    super.createStackElementTag(element),
+                    element.getLineNumber(),
+                    element.getMethodName()
+            );
+        }
+    }
 }
