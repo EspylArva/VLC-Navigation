@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_live_map">
 
     <fragment
-        android:id="@+id/navigation_home"
+        android:id="@+id/navigation_live_map"
         android:name="com.vlcnavigation.ui.livemap.LiveMapFragment"
         android:label="@string/title_live_map"
         tools:layout="@layout/fragment_live_map" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="com.vlcnavigation.ui.fft.DashboardFragment"
+        android:id="@+id/navigation_fft"
+        android:name="com.vlcnavigation.ui.fft.FFTFragment"
         android:label="@string/title_fft"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_fft" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.vlcnavigation.ui.settings.NotificationsFragment"
+        android:id="@+id/navigation_settings"
+        android:name="com.vlcnavigation.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_settings" />
 </navigation>
