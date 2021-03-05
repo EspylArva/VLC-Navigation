@@ -59,7 +59,8 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
     public static class LightHolder extends RecyclerView.ViewHolder
     {
         TextView lbl_light_description;
-        TextInputEditText txt_posX, txt_posY, txt_distance;
+        TextInputEditText txt_posX, txt_posY;//, txt_distance;
+        TextView lbl_distance;
 
         private double posX, posY, distance;
 
@@ -72,14 +73,17 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.lbl_light_description = itemView.findViewById(R.id.lbl_light_description);
             this.txt_posX = itemView.findViewById(R.id.txt_light_positionX);
             this.txt_posY = itemView.findViewById(R.id.txt_light_positionY);
-            this.txt_distance = itemView.findViewById(R.id.txt_light_distance);
+//            this.txt_distance = itemView.findViewById(R.id.txt_light_distance);
+            this.lbl_light_description = itemView.findViewById(R.id.txt_light_distance);
+
         }
 
         public void refreshUI()
         {
             this.txt_posX.setText(String.valueOf(posX));
             this.txt_posY.setText(String.valueOf(posY));
-            this.txt_distance.setText(String.valueOf(distance));
+//            this.txt_distance.setText(String.valueOf(distance));
+            this.lbl_light_description.setText(String.valueOf(distance));
         }
 
         public void setLbl_light_description(String description) { this.lbl_light_description.setText(description); }

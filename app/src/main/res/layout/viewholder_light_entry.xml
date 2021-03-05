@@ -7,7 +7,11 @@
 
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
+
     android:background="@drawable/border"
     android:padding="15dp">
 
@@ -36,7 +40,7 @@
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/container_light_position"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -58,6 +62,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txt_light_positionX"
                 android:hint="@string/posX"
+                android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -75,6 +80,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txt_light_positionY"
                 android:hint="@string/posY"
+                android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -87,15 +93,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minWidth="20dp"
-        app:layout_constraintTop_toBottomOf="@id/container_light_distance"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-        <com.google.android.material.textfield.TextInputEditText
+        app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
+        <TextView
             android:id="@+id/txt_light_distance"
+            android:inputType="numberDecimal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="@string/distance_to_captor"/>
     </com.google.android.material.textfield.TextInputLayout>
+
 
 </LinearLayout>

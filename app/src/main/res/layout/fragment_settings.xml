@@ -76,6 +76,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txt_addLight_xPos"
                 android:hint="@string/posX"
+                android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -96,6 +97,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txt_addLight_yPos"
                 android:hint="@string/posY"
+                android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
