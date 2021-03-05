@@ -1,9 +1,14 @@
 <resources>
     <string name="app_name">VLC Navigation</string>
-    <string name="title_live_map">Carte des positions</string>
-    <string name="title_fft">TFFs</string>
-    <string name="title_settings">Paramètres</string>
+    <string name="title_live_map">Map of positions</string>
+    <string name="title_fft">FFTs</string>
+    <string name="title_settings">Settings</string>
+
     <string name="lorem">Lorem ipsum</string>
-    <string name="position">Position:</string>
-    <string name="distance_to_captor">Distance to captor:</string>
+
+    <string name="distance_to_captor">Distance to captor</string>
+    <string name="add_a_light">Add a light</string>
+    <string name="posX">Position X</string>
+    <string name="posY">Position Y</string>
+    <string name="description">Description</string>
 </resources>
