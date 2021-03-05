@@ -118,14 +118,20 @@ public class SettingsFragment extends Fragment {
                     container_newLightYPos.setErrorEnabled(false);
 
                     // UX
-                    Toast.makeText(getContext(), String.format("Successfully added a new light!"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
-                    container_newLightXPos.setErrorEnabled(true);
-                    container_newLightXPos.setError("Position X is required");
-                    container_newLightYPos.setErrorEnabled(true);
-                    container_newLightYPos.setError("Position Y is required");
+                    if(txt_newLightXPos.getText().length() > 0)
+                    {
+                        container_newLightXPos.setErrorEnabled(true);
+                        container_newLightXPos.setError(getResources().getString(R.string.x_null));
+                    } else { }
+                    if(txt_newLightYPos.getText().length() > 0)
+                    {
+                        container_newLightYPos.setErrorEnabled(true);
+                        container_newLightYPos.setError(getResources().getString(R.string.y_null));
+                    } else { }
                 }
             }
         });
@@ -133,36 +139,39 @@ public class SettingsFragment extends Fragment {
         container_newLightXPos.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+            @Override
+            public void afterTextChanged(Editable s) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    container_newLightXPos.setError("Position X is required");
+                    container_newLightXPos.setError(getResources().getString(R.string.x_null));
                     container_newLightXPos.setErrorEnabled(true);
                 }
             }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
         });
-
         container_newLightYPos.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
+            @Override
+            public void afterTextChanged(Editable s) {}
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    container_newLightYPos.setError("Position X is required");
+                    container_newLightYPos.setError(getResources().getString(R.string.y_null));
                     container_newLightYPos.setErrorEnabled(true);
                 }
             }
+        });
 
+        textView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void afterTextChanged(Editable s) {
-
+            public void onClick(View v) {
+                Timber.d("%s light detected", settingsViewModel.getListOfLights().getValue().size());
+                for (Light light : settingsViewModel.getListOfLights().getValue())
+                {
+                    Timber.d(light.toString());
+                }
             }
         });
     }

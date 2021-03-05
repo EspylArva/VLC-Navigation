@@ -30,8 +30,9 @@ public class Light {
     @Override
     public String toString()
     {
-        return String.format("Light at position (%s, %s)", // has the following ranges: [X (%s - %s), Y (%s - %s)]",
-                posXY.first, posXY.second//,
+        return String.format("Light %s is at position (%s, %s)", // has the following ranges: [X (%s - %s), Y (%s - %s)]",
+                this.description,
+                this.posXY.first, this.posXY.second//,
 //                receiverXPos.first, receiverXPos.second,
 //                receiverYPos.first, receiverYPos.second
                 );

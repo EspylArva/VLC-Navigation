@@ -11,4 +11,7 @@
     <string name="posX">Position X</string>
     <string name="posY">Position Y</string>
     <string name="description">Description</string>
+    <string name="light_added">Successfully added a new light!</string>
+    <string name="x_null">Position X is required</string>
+    <string name="y_null">Position Y is required</string>
 </resources>
