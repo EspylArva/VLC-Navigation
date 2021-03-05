@@ -3,4 +3,7 @@
     <string name="title_live_map">Carte des positions</string>
     <string name="title_fft">TFFs</string>
     <string name="title_settings">Paramètres</string>
+    <string name="lorem">Lorem ipsum</string>
+    <string name="position">Position:</string>
+    <string name="distance_to_captor">Distance to captor:</string>
 </resources>

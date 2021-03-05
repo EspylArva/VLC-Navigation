@@ -14,6 +14,8 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.EnumSet;
 
+import timber.log.Timber;
+
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -25,10 +27,10 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class SvgFilesProcessor {
 
-    private Path sourceSvgPath;
-    private Path destinationVectorPath;
-    private String extension;
-    private String extensionSuffix;
+    private final Path sourceSvgPath;
+    private final Path destinationVectorPath;
+    private final String extension;
+    private final String extensionSuffix;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public SvgFilesProcessor(String sourceSvgDirectory) {
@@ -74,7 +76,7 @@ public class SvgFilesProcessor {
                         try{
                             Files.copy(dir, newDirectory,opt);
                         } catch(FileAlreadyExistsException ex){
-                            System.out.println("FileAlreadyExistsException "+ex.toString());
+                            Timber.d("FileAlreadyExistsException: %s", ex.toString());
                         } catch(IOException x){
                             return FileVisitResult.SKIP_SUBTREE;
                         }
@@ -95,11 +97,11 @@ public class SvgFilesProcessor {
                     }
                 });
             } else {
-                System.out.println("source not a directory");
+                Timber.d("source not a directory");
             }
 
         } catch (IOException e){
-            System.out.println("IOException "+e.getMessage());
+            Timber.d("IOException: %s", e.getMessage());
         }
 
     }
@@ -111,8 +113,9 @@ public class SvgFilesProcessor {
             File targetFile = getFileWithXMlExtension(target, extension, extensionSuffix);
             FileOutputStream fous = new FileOutputStream(targetFile);
             Svg2Vector.parseSvgToXml(source.toFile(), fous);
+            Timber.d("Converted this file: %s", source.toFile().getAbsolutePath());
         } else {
-            System.out.println("Skipping file as its not svg "+source.getFileName().toString());
+            Timber.d("Skipping file as its not svg: %s", source.getFileName().toString());
         }
     }
 
