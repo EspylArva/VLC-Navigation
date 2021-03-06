@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.settings;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,13 +16,17 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
+import com.vlcnavigation.components.DotIndicatorDecoration;
 import com.vlcnavigation.components.RecyclerViewMargin;
+import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Light;
 
 import java.util.ArrayList;
@@ -29,7 +34,9 @@ import java.util.Arrays;
 
 import timber.log.Timber;
 
-public class SettingsFragment extends Fragment {
+import static android.app.Activity.RESULT_OK;
+
+public class SettingsFragment extends Fragment { // implements DefaultLifecycleObserver {
 
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_lights;
@@ -47,9 +54,6 @@ public class SettingsFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
-
-
-
 
         Light l1 = new Light.Builder(3, 2).setDescription("Light in the corridor #1").setDistance(20).build();
         Light l2 = new Light.Builder(1, 2).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
@@ -69,12 +73,21 @@ public class SettingsFragment extends Fragment {
 
         recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);
-//        recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
-        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
-        recycler_layout.setOrientation(LinearLayoutManager.VERTICAL);
-        recycler_lights.setLayoutManager(recycler_layout);
+        //  Values
         lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue());
         recycler_lights.setAdapter(lightAdapter);
+        // Orientation
+        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
+        recycler_layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recycler_lights.setLayoutManager(recycler_layout);
+        // Margin between items
+        // recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
+        // Item position
+         recycler_lights.addItemDecoration(new DotIndicatorDecoration());
+        // Snapping on a viewholder // TODO: Maybe a stronger snap. See SnapHelperBuilder
+        SnapHelper snap = new PagerSnapHelper();
+        snap.attachToRecyclerView(recycler_lights);
+
 
         fab_addLight = root.findViewById(R.id.btn_addLight);
 
@@ -122,12 +135,12 @@ public class SettingsFragment extends Fragment {
                 }
                 else
                 {
-                    if(txt_newLightXPos.getText().length() > 0)
+                    if(txt_newLightXPos.getText().length() == 0)
                     {
                         container_newLightXPos.setErrorEnabled(true);
                         container_newLightXPos.setError(getResources().getString(R.string.x_null));
                     } else { }
-                    if(txt_newLightYPos.getText().length() > 0)
+                    if(txt_newLightYPos.getText().length() == 0)
                     {
                         container_newLightYPos.setErrorEnabled(true);
                         container_newLightYPos.setError(getResources().getString(R.string.y_null));
@@ -172,7 +185,26 @@ public class SettingsFragment extends Fragment {
                 {
                     Timber.d(light.toString());
                 }
+
+                startActivityForResult(SvgFetcher.lookForSvgIntent(), SvgFetcher.READ_SVG_REQUEST_CODE);
             }
         });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) { return; } else {
+            Timber.d("Activity Result caught. Request code: %s. Result code: %s", requestCode, resultCode);
+            switch (requestCode) {
+                case SvgFetcher.READ_SVG_REQUEST_CODE:
+                    if (resultCode == RESULT_OK) {
+                        String FilePath = data.getData().getPath();
+                        //FilePath is your file as a string
+                        Timber.d(FilePath);
+                    }
+                    else { Timber.e("Could not find file"); }
+                    break;
+            }
+        }
     }
 }

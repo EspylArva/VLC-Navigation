@@ -57,9 +57,10 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             }
         });
 
+        //TODO: make sure modification on a light has repercussions
+        //FIXME: keyboard pushes the views
+
         holder.refreshUI();
-
-
     }
 
     @Override
