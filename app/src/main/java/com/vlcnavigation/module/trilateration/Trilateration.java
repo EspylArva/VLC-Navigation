@@ -39,7 +39,7 @@ public class Trilateration {
         for(int it=0; it<nbLights; it++)
         {
             Light light = ADDED_LIGHTS.get(it).getKey();
-            positions[it] = new double[] { light.getPosXY().first, light.getPosXY().first };
+            positions[it] = new double[] { light.getPosX(), light.getPosY() };
 //            double lowerBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().first, 2) + Math.pow(posXY.second - light.getReceiverYPos().first, 2) + sqH);
 //            double upperBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().second, 2) + Math.pow(posXY.second - light.getReceiverYPos().second, 2) + sqH);
         }

@@ -14,4 +14,9 @@
     <string name="light_added">Successfully added a new light!</string>
     <string name="x_null">Position X is required</string>
     <string name="y_null">Position Y is required</string>
+
+    <string name="sp_base">com.vlcnavigation</string>
+    <string name="sp_lights">com.vlcnavigation.lights</string>
+    <string name="sp_map">com.vlcnavigation.map</string>
+<!--    <string name="sp_base">com.vlcnavigation</string>-->
 </resources>

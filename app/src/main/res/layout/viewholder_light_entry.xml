@@ -16,7 +16,7 @@
 
         app:fabCustomSize="20dp"
         app:maxImageSize="14dp"
-
+        app:borderWidth="0dp"
 
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

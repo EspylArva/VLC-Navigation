@@ -2,6 +2,8 @@ package com.vlcnavigation.module.trilateration;
 
 import android.util.Pair;
 
+import java.util.Map;
+
 public class Light {
 
 //    private Light(Pair<Double, Double> posXY, Pair<Double, Double> receiverXPos, Pair<Double, Double> receiverYPos)
@@ -19,7 +21,8 @@ public class Light {
 //    }
 
     private Light(double x, double y, double distance, String description) {
-        this.posXY = new Pair<Double, Double>(x, y);
+        this.posX = x;
+        this.posY = y;
         this.distance = distance;
         this.description = description;
     }
@@ -32,20 +35,27 @@ public class Light {
     {
         return String.format("Light %s is at position (%s, %s)", // has the following ranges: [X (%s - %s), Y (%s - %s)]",
                 this.description,
-                this.posXY.first, this.posXY.second//,
+                this.posX, this.posY//,
 //                receiverXPos.first, receiverXPos.second,
 //                receiverYPos.first, receiverYPos.second
                 );
     }
 
-    private final Pair<Double, Double> posXY;
+    private double posX;
+    private double posY;
+//    Pair<Double, Double> posXY;
     private double distance;
     private String description;
     // FIXME: We'll need one more parameter: lambda (wave-length associated from FFT) + getter only
 
-    public Pair<Double, Double> getPosXY() { return posXY; }
+//    public Pair<Double, Double> getPosXY() { return posXY; }
+    public double getPosX() { return this.posX; }
+    public double getPosY() { return this.posY; }
     public double getDistance() { return this.distance; }
     public String getLabel() { return this.description; }
+
+    public void setPosX(double newPosX) { this.posX = newPosX; }
+    public void setPosY(double newPosY) { this.posY = newPosY; }
 
     public static class Builder{
         // Mandatory

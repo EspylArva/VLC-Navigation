@@ -110,6 +110,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_add_circle_outline_24"
             android:backgroundTint="@color/green"
+            app:borderWidth="0dp"
             app:maxImageSize="56dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
