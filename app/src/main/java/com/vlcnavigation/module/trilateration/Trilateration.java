@@ -29,41 +29,42 @@ public class Trilateration {
     public static final double CONST_HEIGHT = 2.5;
     private static List<Map.Entry<Light, Double>> ADDED_LIGHTS = new ArrayList<Map.Entry<Light, Double>>();
 
-    public static void triangulate(Pair<Double, Double> posXY)
-    {
-        double sqH = Math.pow(CONST_HEIGHT, 2);
-
+    public static void triangulate() throws InsufficientLightsException {
         int nbLights = ADDED_LIGHTS.size();
-        double[][] positions = new double[nbLights][];
-//        for(Map.Entry<Light, Double> lightEntry : ADDED_LIGHTS.entrySet())
-        for(int it=0; it<nbLights; it++)
+        if(nbLights < 3)
         {
-            Light light = ADDED_LIGHTS.get(it).getKey();
-            positions[it] = new double[] { light.getPosX(), light.getPosY() };
-//            double lowerBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().first, 2) + Math.pow(posXY.second - light.getReceiverYPos().first, 2) + sqH);
-//            double upperBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().second, 2) + Math.pow(posXY.second - light.getReceiverYPos().second, 2) + sqH);
+            throw new InsufficientLightsException(String.format("Not enough lights were registered: currently %s.", nbLights));
         }
+        else
+        {
+//            double sqH = Math.pow(CONST_HEIGHT, 2);
+            double[][] positions = new double[nbLights][];
+            for(int it=0; it<nbLights; it++)
+            {
+                Light light = ADDED_LIGHTS.get(it).getKey();
+                positions[it] = new double[] { light.getPosX(), light.getPosY() };
+    //            double lowerBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().first, 2) + Math.pow(posXY.second - light.getReceiverYPos().first, 2) + sqH);
+    //            double upperBound = Math.sqrt(Math.pow(posXY.first - light.getReceiverXPos().second, 2) + Math.pow(posXY.second - light.getReceiverYPos().second, 2) + sqH);
+            }
+            double[] distances = new double[] { 8.06, 13.97, 23.32, 15.31 };
 
+            NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
+            LeastSquaresOptimizer.Optimum optimum = solver.solve();
 
-//        double[][] positions = new double[][] { { 5.0, -6.0 }, { 13.0, -15.0 }, { 21.0, -3.0 }, { 12.4, -21.2 } };
-        double[] distances = new double[] { 8.06, 13.97, 23.32, 15.31 };
+            // the answer
+            double[] centroid = optimum.getPoint().toArray();
 
-        NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
-        LeastSquaresOptimizer.Optimum optimum = solver.solve();
+            Timber.d("Position: %s", Arrays.toString(centroid));
 
-// the answer
-        double[] centroid = optimum.getPoint().toArray();
+            // error and geometry information; may throw SingularMatrixException depending the threshold argument provided
+            RealVector standardDeviation = optimum.getSigma(0);
+            RealMatrix covarianceMatrix = optimum.getCovariances(0);
+        }
+    }
 
-        Timber.d("Position: %s", Arrays.toString(centroid));
-
-// error and geometry information; may throw SingularMatrixException depending the threshold argument provided
-        RealVector standardDeviation = optimum.getSigma(0);
-        RealMatrix covarianceMatrix = optimum.getCovariances(0);
-
-        /**
-         *
-         *
-         *
-         */
+    private static class InsufficientLightsException extends Exception {
+        public InsufficientLightsException(String message) {
+            super(message);
+        }
     }
 }

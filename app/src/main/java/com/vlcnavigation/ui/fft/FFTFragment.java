@@ -43,11 +43,6 @@ public class FFTFragment extends Fragment {
         });
 
 
-        try{
-            Trilateration.triangulate(new Pair<Double, Double>(2.0, 4.0));
-
-        }catch (Exception ex){ Timber.e(ex);}
-
 //        try {
 //            parseBlueprint("svg_res", "svg");
 //        } catch (IOException e) {
