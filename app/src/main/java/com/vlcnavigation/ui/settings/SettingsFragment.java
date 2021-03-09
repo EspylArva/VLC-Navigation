@@ -41,7 +41,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_lights;
     private TextView textView;
-    private FloatingActionButton fab_addLight;
+    private FloatingActionButton fab_addLight, fab_generateTestData_lights;
     private TextInputEditText txt_newLightXPos, txt_newLightYPos, txt_newLightDescription;
     private TextInputLayout container_newLightXPos, container_newLightYPos;
 
@@ -78,7 +78,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_lights);
 
-
+        fab_generateTestData_lights = root.findViewById(R.id.fab_generateTestData_lights);
         fab_addLight = root.findViewById(R.id.btn_addLight);
 
         txt_newLightDescription = root.findViewById(R.id.txt_addLight_description);
@@ -103,6 +103,20 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
     private void initListeners()
     {
+        fab_generateTestData_lights.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 //Should listen to sharedPreferences instead
+                Light l1 = new Light.Builder(3, 2).setDescription("Light in the corridor #1").setDistance(20).build();
+                Light l2 = new Light.Builder(1, 2).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
+                Light l3 = new Light.Builder(5, 3).setDescription("Light in the corridor #5").setDistance(40).build();
+
+                 //Template data
+                settingsViewModel.addLight(l1);
+                settingsViewModel.addLight(l2);
+                settingsViewModel.addLight(l3);
+            }
+        });
         fab_addLight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

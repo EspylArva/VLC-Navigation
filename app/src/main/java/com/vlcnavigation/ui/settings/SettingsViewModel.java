@@ -56,17 +56,6 @@ public class SettingsViewModel extends AndroidViewModel {
                 }
             }
         }
-
-
-        // Should listen to sharedPreferences instead
-//        Light l1 = new Light.Builder(3, 2).setDescription("Light in the corridor #1").setDistance(20).build();
-//        Light l2 = new Light.Builder(1, 2).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
-//        Light l3 = new Light.Builder(5, 3).setDescription("Light in the corridor #5").setDistance(40).build();
-
-        // Template data
-//        addLight(l1);
-//        addLight(l2);
-//        addLight(l3);
     }
 
     public LiveData<String> getText() {
