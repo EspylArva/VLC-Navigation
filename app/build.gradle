@@ -62,7 +62,7 @@ dependencies {
     // implementation 'com.github.japgolly.android:svg-android:2.0.6'
 
 //     Loading SVG dynamically @ https://mvnrepository.com/artifact/com.pixplicity.sharp/library
-     implementation group: 'com.pixplicity.sharp', name: 'library', version: '1.1.0'
+     implementation group: 'com.pixplicity.sharp', name: 'library', version:'1.1.0'
 
 //    // https://mvnrepository.com/artifact/androidx.vectordrawable/vectordrawable
 //    runtimeOnly group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'

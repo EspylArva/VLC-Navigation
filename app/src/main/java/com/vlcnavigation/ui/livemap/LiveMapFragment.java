@@ -2,6 +2,10 @@ package com.vlcnavigation.ui.livemap;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -10,12 +14,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.pixplicity.sharp.Sharp;
+import com.pixplicity.sharp.SharpDrawable;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.Utils;
 import com.vlcnavigation.module.trilateration.Trilateration;
@@ -38,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 
 import timber.log.Timber;
@@ -61,6 +69,8 @@ public class LiveMapFragment extends Fragment {
 
     private LiveMapViewModel liveMapViewModel;
 
+    private List<String> svgs;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
@@ -68,7 +78,9 @@ public class LiveMapFragment extends Fragment {
         initObservers();
         initListeners();
 
-        Utils.listSvgAsString(getResources().openRawResource(R.raw.isep_map));
+        this.svgs = Utils.listSvgAsString(getResources().openRawResource(R.raw.isep_map));
+        if(svgs != null) { for(String s : svgs) { System.out.println(s); } }
+        else { System.out.println("ARRAY NULL"); }
 
 
 //        try{
@@ -110,38 +122,78 @@ public class LiveMapFragment extends Fragment {
     private void makeMap(String str) throws IOException {
 
         ImageView mapPart = new ImageView(getContext());
+        mapPart.setDrawingCacheEnabled(true);
         mapPart.setId(View.generateViewId());
+        mapPart.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
+                        int color = bmp.getPixel((int) event.getX(), (int) event.getY());
+                        boolean _return = false;
+                        if (color == Color.TRANSPARENT) {}
+//                            return false;
+                        else {
+                            _return = true; //click portion without transparent color
+                        }
+                        Timber.d("TRANSPARENT : %s", _return);
+                        return _return;
 
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(container_map);
-        constraintSet.constrainDefaultHeight(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
-        constraintSet.constrainDefaultWidth(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
-        constraintSet.applyTo(container_map);
+                    }
 
-        if(str.equals("")) { mapPart.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.ic_isep_map)); }
+                }
+        );
+        mapPart.set
+
+        Timber.d("Id: %s", mapPart.getId());
+
+//        ConstraintSet constraintSet = new ConstraintSet();
+//        constraintSet.clone(container_map);
+//        constraintSet.constrainDefaultHeight(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
+//        constraintSet.constrainDefaultWidth(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
+//        constraintSet.applyTo(container_map);
+
+        mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        Drawable drawable;
+        if(str.equals("")) {
+            drawable = Sharp.loadResource(getResources(), R.raw.isep_map).getDrawable();
+        }
         else {
             InputStream is = new ByteArrayInputStream(str.getBytes());
-            Sharp.loadInputStream(is).into(mapPart);
+            drawable = Sharp.loadInputStream(is).getDrawable();
             is.close();
         }
 
+        mapPart.setImageDrawable(drawable);
+
+//        mapPart.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getContext(), String.format("Id: %s", mapPart.getId()), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
+
         container_map.addView(mapPart);
-        Timber.d("Added new image view");
     }
+
+
 
     private void initListeners() {
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    String svg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                            "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" width=\"522px\" height=\"202px\" viewBox=\"-0.5 -0.5 522 202\" content=\"&lt;mxfile host=&quot;Electron&quot; modified=&quot;2021-03-09T10:38:23.073Z&quot; agent=&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/11.3.0 Chrome/76.0.3809.139 Electron/6.0.7 Safari/537.36&quot; etag=&quot;4RtL0t270lhN2_pML5CD&quot; version=&quot;11.3.0&quot; type=&quot;device&quot; pages=&quot;1&quot;&gt;&lt;diagram id=&quot;ITolrCyJ6mziRDKKo1it&quot; name=&quot;Page-1&quot;&gt;3Zddr5sgGMc/jZdLVPDtdl17tmQnS06TnWsKjy8ZiqE42336oaLV1aY9J7VbdmPg/wDCj78PaKFVfniSpEyfBQNuuTY7WOiT5bp+FOhnIxw7AUVRJyQyY53knIRt9guMaBu1yhjsJw2VEFxl5VSkoiiAqolGpBT1tFks+PStJUngTNhSws/V14yptFNDNzjpnyFL0v7Njm/Wl5O+sVnJPiVM1CMJrS20kkKorpQfVsAbdj2Xrt/mQnSYmIRC3dJhvREvG/wNP5Xbr68oCV6+o+cPZpSfhFdmwWay6tgTkKIqGDSD2Bb6WKeZgm1JaBOt9ZZrLVU51zVHF+OM85XgQrZ9URzHLqVa3yspfsAowvyd7/k6YiYAUsHh4sqcgZf2GYgclDzqJn0H3yA2HsOmWo82zEjpaK96jRiLJMPAJ4q6YEC+Aaq7LFRGIIxnofo0hF18J6juFOpQH1HF9gxWvBTW8DpW/Y2VTTEnRUX4l6Ks1HW8+y7p4GYnpFBEZaLQ9cg+Rw8O8yCYQx/5ASJ38nP4B3n/L/s5uh08FbIAeZ15ez60xNuDIZxhHYcU5nPHLvSwZy/C+sbUMXwMd2fdn3tLuXyW9EOyNP7XbO0snKcfkywGy152sDuXppfDiv6HOwW+jvWxZsULU31ItvXcd1F9x5VCV09X6zY2+j9B698=&lt;/diagram&gt;&lt;/mxfile&gt;\" style=\"background-color: rgb(255, 255, 255);\"><defs/><g><rect x=\"80\" y=\"0\" width=\"80\" height=\"80\" fill=\"#fff2cc\" stroke=\"#d6b656\" pointer-events=\"none\"/></g></svg>";
-                    makeMap(svg);
+                    for(String svg : svgs)
+                    {
+//                        Timber.w(svg);
+                        makeMap(svg);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+
         });
 
         fab2.setOnClickListener(new View.OnClickListener() {
@@ -151,6 +203,10 @@ public class LiveMapFragment extends Fragment {
                     String svg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                             "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
                             "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" width=\"522px\" height=\"202px\" viewBox=\"-0.5 -0.5 522 202\" content=\"&lt;mxfile host=&quot;Electron&quot; modified=&quot;2021-03-09T10:38:23.073Z&quot; agent=&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/11.3.0 Chrome/76.0.3809.139 Electron/6.0.7 Safari/537.36&quot; etag=&quot;4RtL0t270lhN2_pML5CD&quot; version=&quot;11.3.0&quot; type=&quot;device&quot; pages=&quot;1&quot;&gt;&lt;diagram id=&quot;ITolrCyJ6mziRDKKo1it&quot; name=&quot;Page-1&quot;&gt;3Zddr5sgGMc/jZdLVPDtdl17tmQnS06TnWsKjy8ZiqE42336oaLV1aY9J7VbdmPg/wDCj78PaKFVfniSpEyfBQNuuTY7WOiT5bp+FOhnIxw7AUVRJyQyY53knIRt9guMaBu1yhjsJw2VEFxl5VSkoiiAqolGpBT1tFks+PStJUngTNhSws/V14yptFNDNzjpnyFL0v7Njm/Wl5O+sVnJPiVM1CMJrS20kkKorpQfVsAbdj2Xrt/mQnSYmIRC3dJhvREvG/wNP5Xbr68oCV6+o+cPZpSfhFdmwWay6tgTkKIqGDSD2Bb6WKeZgm1JaBOt9ZZrLVU51zVHF+OM85XgQrZ9URzHLqVa3yspfsAowvyd7/k6YiYAUsHh4sqcgZf2GYgclDzqJn0H3yA2HsOmWo82zEjpaK96jRiLJMPAJ4q6YEC+Aaq7LFRGIIxnofo0hF18J6juFOpQH1HF9gxWvBTW8DpW/Y2VTTEnRUX4l6Ks1HW8+y7p4GYnpFBEZaLQ9cg+Rw8O8yCYQx/5ASJ38nP4B3n/L/s5uh08FbIAeZ15ez60xNuDIZxhHYcU5nPHLvSwZy/C+sbUMXwMd2fdn3tLuXyW9EOyNP7XbO0snKcfkywGy152sDuXppfDiv6HOwW+jvWxZsULU31ItvXcd1F9x5VCV09X6zY2+j9B698=&lt;/diagram&gt;&lt;/mxfile&gt;\" style=\"background-color: rgb(255, 255, 255);\"><defs/><g><rect x=\"40\" y=\"80\" width=\"400\" height=\"40\" fill=\"#dae8fc\" stroke=\"#6c8ebf\" pointer-events=\"none\"/></g></svg>";
+
+                    Timber.w(svg);
+
+
                     makeMap(svg);
                 } catch (IOException e) {
                     e.printStackTrace();

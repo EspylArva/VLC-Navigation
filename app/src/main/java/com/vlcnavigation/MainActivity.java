@@ -3,6 +3,7 @@ package com.vlcnavigation;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.pixplicity.sharp.Sharp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         Timber.plant(new CustomDebugTree());
+//        Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
 
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);

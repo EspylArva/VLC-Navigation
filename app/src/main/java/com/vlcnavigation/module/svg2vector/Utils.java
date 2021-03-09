@@ -13,6 +13,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -28,13 +29,14 @@ public class Utils {
 
     public static List<String> listSvgAsString(InputStream rawSvgResourceId)
     {
-//        context.get
-        try {
-            SvgSplitter.parse(rawSvgResourceId);
-        }
+        List<String> listSvg;
+        try { listSvg = SvgSplitter.parse(rawSvgResourceId); }
         catch (IOException e) {
             Timber.e(e);
+            listSvg = new ArrayList<String>();
         }
-        return null;
+        return listSvg;
     }
+
+
 }
