@@ -118,32 +118,34 @@ public class LiveMapFragment extends Fragment {
         return root;
     }
 
-    @SuppressLint("ResourceType")
+
+    @SuppressLint("ClickableViewAccessibility")
     private void makeMap(String str) throws IOException {
 
         ImageView mapPart = new ImageView(getContext());
-        mapPart.setDrawingCacheEnabled(true);
         mapPart.setId(View.generateViewId());
+
+        mapPart.setDrawingCacheEnabled(true);
+        mapPart.setClickable(false);
+        Timber.d("%s", mapPart.isClickable());
+
         mapPart.setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        Bitmap bmp = Bitmap.createBitmap(v.getDrawingCache());
-                        int color = bmp.getPixel((int) event.getX(), (int) event.getY());
-                        boolean _return = false;
-                        if (color == Color.TRANSPARENT) {}
-//                            return false;
-                        else {
-                            _return = true; //click portion without transparent color
-                        }
-                        Timber.d("TRANSPARENT : %s", _return);
-                        return _return;
+                    public boolean onTouch(View view, MotionEvent event) {  // FIXME: view is clickable despite line 129 ( mapPart.setClickable(false); )
+                        if(event.getAction() == MotionEvent.ACTION_DOWN)
+                        {
+                            Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache());
+                            int color = bmp.getPixel((int) event.getX(), (int) event.getY());
+                            boolean transparent = true;
+                            if (color != Color.TRANSPARENT) { transparent = false; }
 
+                            Timber.d("Transparent for %s: %s (color: %s)", mapPart.getId(), transparent, color);
+                            Timber.d("%s", view.isClickable());
+                            return !transparent;
+                        } return false;
                     }
-
-                }
-        );
-        mapPart.set
+                });
 
         Timber.d("Id: %s", mapPart.getId());
 
@@ -166,12 +168,11 @@ public class LiveMapFragment extends Fragment {
 
         mapPart.setImageDrawable(drawable);
 
-//        mapPart.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getContext(), String.format("Id: %s", mapPart.getId()), Toast.LENGTH_SHORT).show();
-//            }
-//        });
+        mapPart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
 
 
         container_map.addView(mapPart);
