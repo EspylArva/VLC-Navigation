@@ -7,11 +7,13 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -41,9 +43,12 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_lights;
     private TextView textView;
-    private FloatingActionButton fab_addLight, fab_generateTestData_lights;
+    private FloatingActionButton fab_addLight, fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
     private TextInputEditText txt_newLightXPos, txt_newLightYPos, txt_newLightDescription;
     private TextInputLayout container_newLightXPos, container_newLightYPos;
+
+    private ConstraintLayout container_addLight, container_addFloor;
+    private LinearLayout container_fabs;
 
     private LightAdapter lightAdapter;
 
@@ -80,12 +85,17 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
         fab_generateTestData_lights = root.findViewById(R.id.fab_generateTestData_lights);
         fab_addLight = root.findViewById(R.id.btn_addLight);
+        fab_show_addFloors = root.findViewById(R.id.fab_show_addFloors);
+        fab_show_addLights = root.findViewById(R.id.fab_show_addLights);
 
         txt_newLightDescription = root.findViewById(R.id.txt_addLight_description);
         txt_newLightXPos = root.findViewById(R.id.txt_addLight_xPos);
         txt_newLightYPos = root.findViewById(R.id.txt_addLight_yPos);
         container_newLightXPos = root.findViewById(R.id.container_addLight_xPos);
         container_newLightYPos = root.findViewById(R.id.container_addLight_yPos);
+
+        container_addLight = root.findViewById(R.id.container_addLight);
+        container_fabs = root.findViewById(R.id.container_add_buttons);
 
         textView = root.findViewById(R.id.text_notifications);
         return root;
@@ -103,13 +113,22 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
     private void initListeners()
     {
+        fab_show_addLights.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                container_addLight.setVisibility(View.VISIBLE);
+                container_fabs.setVisibility(View.GONE);
+            }
+        });
+
         fab_generateTestData_lights.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                  //Should listen to sharedPreferences instead
-                Light l1 = new Light.Builder(3, 2).setDescription("Light in the corridor #1").setDistance(20).build();
-                Light l2 = new Light.Builder(1, 2).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
-                Light l3 = new Light.Builder(5, 3).setDescription("Light in the corridor #5").setDistance(40).build();
+                // FIXME
+                Light l1 = new Light.Builder(3, 2, "RDC", 0).setDescription("Light in the corridor #1").setDistance(20).build();
+                Light l2 = new Light.Builder(1, 2, "RDC", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
+                Light l3 = new Light.Builder(5, 3, "RDC", 0).setDescription("Light in the corridor #5").setDistance(40).build();
 
                  //Template data
                 settingsViewModel.addLight(l1);
@@ -123,7 +142,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 if(txt_newLightYPos.getText().length() > 0 && txt_newLightXPos.getText().length() >0)
                 {
                     // Add a new light
-                    Light newLight = new Light.Builder(Double.parseDouble(txt_newLightXPos.getText().toString()), Double.parseDouble(txt_newLightYPos.getText().toString()))
+                    //FIXME
+                    Light newLight = new Light.Builder(Double.parseDouble(txt_newLightXPos.getText().toString()), Double.parseDouble(txt_newLightYPos.getText().toString()), "", 0)
                             .setDescription(txt_newLightDescription.getText().toString()).build();
                     settingsViewModel.addLight(newLight);
 
@@ -136,6 +156,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
                     // UX
                     Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
+                    container_addLight.setVisibility(View.GONE);
+                    container_fabs.setVisibility(View.VISIBLE);
                 }
                 else
                 {

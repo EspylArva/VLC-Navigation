@@ -18,5 +18,8 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_map">com.vlcnavigation.map</string>
-<!--    <string name="sp_base">com.vlcnavigation</string>-->
+    <string name="lambda">Wavelength</string>
+    <string name="floor">Floor</string>
+    <string name="wavelength">Light\'s wavelength</string>
+    <!--    <string name="sp_base">com.vlcnavigation</string>-->
 </resources>

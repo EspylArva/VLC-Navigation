@@ -6,49 +6,73 @@
     android:layout_height="match_parent"
     tools:context=".ui.settings.SettingsFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/container_testButtons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/text_notifications"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/fab_generateTestData_lights"
-            app:srcCompat="@drawable/ic_baseline_flare_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
     <TextView
+        android:visibility="gone"
         android:id="@+id/text_notifications"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:textAlignment="center"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/recycler_lights"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_floors"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/container_testButtons" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/recycler_floors"
+        android:layout_margin="@dimen/default_margin"
+        app:layout_constraintBottom_toTopOf="@id/recycler_lights"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_notifications"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_lights"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="@dimen/default_margin"
-        app:layout_constraintBottom_toTopOf="@id/container_addLight"
+        app:layout_constraintBottom_toTopOf="@id/container_add_buttons"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_notifications" />
+        app:layout_constraintTop_toBottomOf="@id/recycler_floors" />
+
+    <LinearLayout
+        android:id="@+id/container_add_buttons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_lights"
+        android:gravity="center">
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_show_addFloors"
+            app:srcCompat="@drawable/ic_baseline_elevator_24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_show_addLights"
+            app:srcCompat="@drawable/ic_baseline_flare_24"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/default_margin" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/fab_generateTestData_lights"
+            app:srcCompat="@drawable/abc_vector_test"
+            android:layout_margin="@dimen/default_margin" />
+
+    </LinearLayout>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:visibility="gone"
+        android:backgroundTint="@color/design_default_color_on_primary"
         android:id="@+id/container_addLight"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -70,11 +94,30 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/container_addLight_xPos"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_addLight"
+            app:layout_constraintEnd_toStartOf="@id/container_addLight_lambda"
             app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/txt_addLight_description"
                 android:hint="@string/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/container_addLight_lambda"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/container_addLight_yPos"
+            app:layout_constraintStart_toEndOf="@id/container_addLight_description"
+            app:layout_constraintEnd_toStartOf="@id/btn_addLight"
+            app:hintTextAppearance="@style/TextAppearance.AppCompat.Small">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/txt_addLight_lambda"
+                android:hint="@string/lambda"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -126,12 +169,22 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/menu_selection_addLight_floor"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_add_circle_outline_24"
             android:backgroundTint="@color/green"
             app:borderWidth="0dp"
             app:maxImageSize="56dp"/>
+        <TextView
+            android:id="@+id/menu_selection_addLight_floor"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            app:layout_constraintTop_toBottomOf="@id/btn_addLight"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"
+            android:text="@string/lorem"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

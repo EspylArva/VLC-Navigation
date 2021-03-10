@@ -23,7 +23,8 @@ import timber.log.Timber;
 public class Trilateration {
 
     public static void addLight(double x, double y) {
-        ADDED_LIGHTS.add(new AbstractMap.SimpleEntry<Light, Double>(new Light.Builder(x, y).build(), -1.0));
+        // FIXME
+        ADDED_LIGHTS.add(new AbstractMap.SimpleEntry<Light, Double>(new Light.Builder(x, y, "", 0).build(), -1.0));
     }
 
     public static final double CONST_HEIGHT = 2.5;
