@@ -41,11 +41,19 @@ import static android.app.Activity.RESULT_OK;
 public class SettingsFragment extends Fragment { // implements DefaultLifecycleObserver {
 
     private SettingsViewModel settingsViewModel;
-    private RecyclerView recycler_lights;
-    private TextView textView;
-    private FloatingActionButton fab_addLight, fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
-    private TextInputEditText txt_newLightXPos, txt_newLightYPos, txt_newLightDescription;
-    private TextInputLayout container_newLightXPos, container_newLightYPos;
+
+    private TextView textView; // Testing purposes, fetch file
+
+    private RecyclerView recycler_lights; // Carousel with lights
+    private RecyclerView recycler_floors; // Carousel with floors
+
+    private FloatingActionButton fab_addLight;
+    private FloatingActionButton fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
+
+    // Adding light
+//    private TextInputEditText txt_newLightXPos, txt_newLightYPos, txt_newLightDescription;
+    private TextInputLayout txtInputLayout_newLightXPos, txtInputLayout_newLightYPos;
+    private TextInputLayout txtInputLayout_newLightLambda, txtInputLayout_newLightDescription, txtInputLayout_newLightFloor;
 
     private ConstraintLayout container_addLight, container_addFloor;
     private LinearLayout container_fabs;
@@ -88,14 +96,18 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         fab_show_addFloors = root.findViewById(R.id.fab_show_addFloors);
         fab_show_addLights = root.findViewById(R.id.fab_show_addLights);
 
-        txt_newLightDescription = root.findViewById(R.id.txt_addLight_description);
-        txt_newLightXPos = root.findViewById(R.id.txt_addLight_xPos);
-        txt_newLightYPos = root.findViewById(R.id.txt_addLight_yPos);
-        container_newLightXPos = root.findViewById(R.id.container_addLight_xPos);
-        container_newLightYPos = root.findViewById(R.id.container_addLight_yPos);
+//        txt_newLightDescription = root.findViewById(R.id.txt_addLight_description);
+//        txt_newLightXPos = root.findViewById(R.id.txt_addLight_xPos);
+//        txt_newLightYPos = root.findViewById(R.id.txt_addLight_yPos);
 
-        container_addLight = root.findViewById(R.id.container_addLight);
-        container_fabs = root.findViewById(R.id.container_add_buttons);
+        txtInputLayout_newLightXPos = root.findViewById(R.id.txtInputLayout_addLight_xPos);
+        txtInputLayout_newLightYPos = root.findViewById(R.id.txtInputLayout_addLight_yPos);
+        txtInputLayout_newLightLambda = root.findViewById(R.id.txtInputLayout_addLight_lambda);
+        txtInputLayout_newLightDescription = root.findViewById(R.id.txtInputLayout_addLight_description);
+        txtInputLayout_newLightFloor = root.findViewById(R.id.txtInputLayout_addLight_floor);
+
+        container_addLight = root.findViewById(R.id.txtInputLayout_addLight);
+        container_fabs = root.findViewById(R.id.txtInputLayout_add_buttons);
 
         textView = root.findViewById(R.id.text_notifications);
         return root;
@@ -117,7 +129,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onClick(View v) {
                 container_addLight.setVisibility(View.VISIBLE);
-                container_fabs.setVisibility(View.GONE);
+//                container_fabs.setVisibility(View.GONE);
             }
         });
 
@@ -127,8 +139,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                  //Should listen to sharedPreferences instead
                 // FIXME
                 Light l1 = new Light.Builder(3, 2, "RDC", 0).setDescription("Light in the corridor #1").setDistance(20).build();
-                Light l2 = new Light.Builder(1, 2, "RDC", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
-                Light l3 = new Light.Builder(5, 3, "RDC", 0).setDescription("Light in the corridor #5").setDistance(40).build();
+                Light l2 = new Light.Builder(1, 2, "1st F", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
+                Light l3 = new Light.Builder(5, 3, "2nd F", 0).setDescription("Light in the corridor #5").setDistance(40).build();
 
                  //Template data
                 settingsViewModel.addLight(l1);
@@ -139,43 +151,60 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         fab_addLight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(txt_newLightYPos.getText().length() > 0 && txt_newLightXPos.getText().length() >0)
+                if(txtInputLayout_newLightXPos.getEditText().getText().length() > 0 &&
+                        txtInputLayout_newLightYPos.getEditText().getText().length() > 0 &&
+                        txtInputLayout_newLightLambda.getEditText().getText().length() > 0)
                 {
                     // Add a new light
                     //FIXME
-                    Light newLight = new Light.Builder(Double.parseDouble(txt_newLightXPos.getText().toString()), Double.parseDouble(txt_newLightYPos.getText().toString()), "", 0)
-                            .setDescription(txt_newLightDescription.getText().toString()).build();
+                    Light newLight = new Light.Builder(
+                            Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
+                            Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
+                            "",
+                            Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
+                            .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
 
                     // Reset UI (Add button part)
-                    txt_newLightDescription.getText().clear();
-                    txt_newLightXPos.getText().clear();
-                    txt_newLightYPos.getText().clear();
-                    container_newLightXPos.setErrorEnabled(false);
-                    container_newLightYPos.setErrorEnabled(false);
+                    txtInputLayout_newLightDescription.getEditText().getText().clear();
+                    txtInputLayout_newLightXPos.getEditText().getText().clear();
+                    txtInputLayout_newLightYPos.getEditText().getText().clear();
+                    txtInputLayout_newLightLambda.getEditText().getText().clear();
+                    txtInputLayout_newLightFloor.getEditText().getText().clear();
+
+                    txtInputLayout_newLightXPos.setErrorEnabled(false);
+                    txtInputLayout_newLightYPos.setErrorEnabled(false);
+                    txtInputLayout_newLightLambda.setErrorEnabled(false);
+                    txtInputLayout_newLightFloor.setErrorEnabled(false);
 
                     // UX
                     Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
                     container_addLight.setVisibility(View.GONE);
-                    container_fabs.setVisibility(View.VISIBLE);
+//                    container_fabs.setVisibility(View.VISIBLE);
                 }
                 else
                 {
-                    if(txt_newLightXPos.getText().length() == 0)
+                    if(txtInputLayout_newLightXPos.getEditText().getText().length() == 0)
                     {
-                        container_newLightXPos.setErrorEnabled(true);
-                        container_newLightXPos.setError(getResources().getString(R.string.x_null));
+                        txtInputLayout_newLightXPos.setErrorEnabled(true);
+                        txtInputLayout_newLightXPos.setError(getResources().getString(R.string.x_null));
                     } else { }
-                    if(txt_newLightYPos.getText().length() == 0)
+                    if(txtInputLayout_newLightYPos.getEditText().getText().length() == 0)
                     {
-                        container_newLightYPos.setErrorEnabled(true);
-                        container_newLightYPos.setError(getResources().getString(R.string.y_null));
+                        txtInputLayout_newLightYPos.setErrorEnabled(true);
+                        txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
                     } else { }
+                    if(txtInputLayout_newLightLambda.getEditText().getText().length() == 0)
+                    {
+                        txtInputLayout_newLightLambda.setErrorEnabled(true);
+                        txtInputLayout_newLightLambda.setError(getResources().getString(R.string.lambda_null));
+                    } else { }
+                    // FIXME Floor
                 }
             }
         });
 
-        container_newLightXPos.getEditText().addTextChangedListener(new TextWatcher() {
+        txtInputLayout_newLightXPos.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
@@ -183,13 +212,13 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    container_newLightXPos.setError(getResources().getString(R.string.x_null));
-                    container_newLightXPos.setErrorEnabled(true);
+                    txtInputLayout_newLightXPos.setError(getResources().getString(R.string.x_null));
+                    txtInputLayout_newLightXPos.setErrorEnabled(true);
                 }
             }
 
         });
-        container_newLightYPos.getEditText().addTextChangedListener(new TextWatcher() {
+        txtInputLayout_newLightYPos.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override
@@ -197,8 +226,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    container_newLightYPos.setError(getResources().getString(R.string.y_null));
-                    container_newLightYPos.setErrorEnabled(true);
+                    txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
+                    txtInputLayout_newLightYPos.setErrorEnabled(true);
                 }
             }
         });

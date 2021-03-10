@@ -44,18 +44,15 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
     public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_light_entry, parent, false);
         Timber.d("Creating an entry");
-        LightHolder vh = new LightHolder(v);
-        return vh;
+        return new LightHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull LightHolder holder, int position) {
         Light l = this.lights.get(position);
-        Timber.d("Light given as param: %s", l.toString());
 
-        holder.setLbl_light_description(l.getLabel());
-        holder.setX(l.getPosX());
-        holder.setY(l.getPosY());
+        holder.setDescription(l.getLabel());
+        holder.setX(l.getPosX()); holder.setY(l.getPosY());
         holder.setDistance(l.getDistance());
         holder.setLambda(l.getLambda());
         holder.setFloor(l.getFloor());
@@ -211,7 +208,6 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txt_distance = itemView.findViewById(R.id.txt_light_distance);
 
             this.fab_deleteEntry = itemView.findViewById(R.id.fab_deleteEntry);
-
         }
 
         public void setFloorMenuListener(PopupMenu.OnMenuItemClickListener onMenuClick)
@@ -244,7 +240,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         public TextInputLayout getTxtInputLayout_lambda()   { return this.txtInputLayout_lambda; }
         public TextInputLayout getTxtInputLayout_floor()    { return this.txtInputLayout_floor; }
 
-        public void setLbl_light_description(String description) { this.txt_description.setText(description); }
+        public void setDescription(String description) { this.txt_description.setText(description); }
         public void setX(Double x) { this.posX = x; }
         public void setY(Double y) { this.posY = y; }
         public void setDistance(double distance) { this.distance = distance; }

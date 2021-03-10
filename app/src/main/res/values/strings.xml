@@ -21,5 +21,6 @@
     <string name="lambda">Wavelength</string>
     <string name="floor">Floor</string>
     <string name="wavelength">Light\'s wavelength</string>
+    <string name="lambda_null">Wavelength is required</string>
     <!--    <string name="sp_base">com.vlcnavigation</string>-->
 </resources>
