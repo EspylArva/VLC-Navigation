@@ -153,28 +153,24 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         img_hide_addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetFloorPanel();
                 container_addFloor.setVisibility(View.GONE);
             }
         });
         fab_addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0) // TODO
+                if(txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0)
                 {
                     // Add a new floor
                     settingsViewModel.addFloor(new Floor(txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString()));
 
                     // Reset UI (Add button part)
-                    txtInputLayout_newFloorDescription.getEditText().getText().clear();
-                    txtInputLayout_newFloorFilePath.getEditText().getText().clear();
-
-                    txtInputLayout_newFloorDescription.setErrorEnabled(false);
-                    txtInputLayout_newFloorFilePath.setErrorEnabled(false);
+                    resetFloorPanel();
 
                     // UX
                     Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();
                     container_addFloor.setVisibility(View.GONE);
-//                    container_fabs.setVisibility(View.VISIBLE);
                 }
                 else
                 {
@@ -190,8 +186,45 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     } else { }
                 }
             }
+
         });
 
+        txtInputLayout_newFloorDescription.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0 ) {
+                    txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_null));
+                    txtInputLayout_newFloorDescription.setErrorEnabled(true);
+                } else { txtInputLayout_newFloorDescription.setErrorEnabled(false); }
+            }
+
+        });
+
+        txtInputLayout_newFloorFilePath.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0 ) {
+                    txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.file_null));
+                    txtInputLayout_newFloorFilePath.setErrorEnabled(true);
+                } else { txtInputLayout_newFloorFilePath.setErrorEnabled(false); }
+            }
+
+        });
+    }
+    private void resetFloorPanel() {
+        txtInputLayout_newFloorDescription.getEditText().getText().clear();
+        txtInputLayout_newFloorFilePath.getEditText().getText().clear();
+
+        txtInputLayout_newFloorDescription.setErrorEnabled(false);
+        txtInputLayout_newFloorFilePath.setErrorEnabled(false);
     }
 
     private void initAddLightPanel(View root) {
@@ -210,6 +243,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         img_hide_addLight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetLightPanel();
                 container_addLight.setVisibility(View.GONE);
             }
         });
@@ -230,21 +264,11 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     settingsViewModel.addLight(newLight);
 
                     // Reset UI (Add button part)
-                    txtInputLayout_newLightDescription.getEditText().getText().clear();
-                    txtInputLayout_newLightXPos.getEditText().getText().clear();
-                    txtInputLayout_newLightYPos.getEditText().getText().clear();
-                    txtInputLayout_newLightLambda.getEditText().getText().clear();
-                    txtInputLayout_newLightFloor.getEditText().getText().clear();
-
-                    txtInputLayout_newLightXPos.setErrorEnabled(false);
-                    txtInputLayout_newLightYPos.setErrorEnabled(false);
-                    txtInputLayout_newLightLambda.setErrorEnabled(false);
-                    txtInputLayout_newLightFloor.setErrorEnabled(false);
+                    resetLightPanel();
 
                     // UX
                     Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
                     container_addLight.setVisibility(View.GONE);
-//                    container_fabs.setVisibility(View.VISIBLE);
                 }
                 else
                 {
@@ -263,7 +287,11 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                         txtInputLayout_newLightLambda.setErrorEnabled(true);
                         txtInputLayout_newLightLambda.setError(getResources().getString(R.string.lambda_null));
                     } else { }
-                    // FIXME Floor
+                    if(txtInputLayout_newLightFloor.getEditText().getText().length() == 0)
+                    {
+                        txtInputLayout_newLightFloor.setErrorEnabled(true);
+                        txtInputLayout_newLightFloor.setError(getResources().getString(R.string.floor_null));
+                    } else { }
                 }
             }
         });
@@ -278,7 +306,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 if (s.length() == 0 ) {
                     txtInputLayout_newLightXPos.setError(getResources().getString(R.string.x_null));
                     txtInputLayout_newLightXPos.setErrorEnabled(true);
-                }
+                } else { txtInputLayout_newLightXPos.setErrorEnabled(false); }
             }
 
         });
@@ -292,10 +320,22 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 if (s.length() == 0 ) {
                     txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
                     txtInputLayout_newLightYPos.setErrorEnabled(true);
-                }
+                } else { txtInputLayout_newLightYPos.setErrorEnabled(false); }
             }
         });
 
+    }
+    private void resetLightPanel() {
+        txtInputLayout_newLightDescription.getEditText().getText().clear();
+        txtInputLayout_newLightXPos.getEditText().getText().clear();
+        txtInputLayout_newLightYPos.getEditText().getText().clear();
+        txtInputLayout_newLightLambda.getEditText().getText().clear();
+        txtInputLayout_newLightFloor.getEditText().getText().clear();
+
+        txtInputLayout_newLightXPos.setErrorEnabled(false);
+        txtInputLayout_newLightYPos.setErrorEnabled(false);
+        txtInputLayout_newLightLambda.setErrorEnabled(false);
+        txtInputLayout_newLightFloor.setErrorEnabled(false);
     }
 
     private void initObservers()
@@ -310,20 +350,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
     private void initListeners()
     {
-        fab_show_addLights.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                container_addLight.setVisibility(View.VISIBLE);
-//                container_fabs.setVisibility(View.GONE);
-            }
-        });
-        fab_show_addFloors.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                container_addFloor.setVisibility(View.VISIBLE);
-//                container_fabs.setVisibility(View.GONE);
-            }
-        });
+        fab_show_addLights.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { container_addLight.setVisibility(View.VISIBLE); } });
+        fab_show_addFloors.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { container_addFloor.setVisibility(View.VISIBLE); } });
 
         fab_generateTestData_lights.setOnClickListener(new View.OnClickListener() {
             @Override

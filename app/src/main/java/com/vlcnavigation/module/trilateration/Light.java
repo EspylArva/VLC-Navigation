@@ -9,6 +9,8 @@ public class Light {
     private Light(double x, double y, double distance, String description, Floor floor, double lambda) {
         this.posX = x;
         this.posY = y;
+        this.floor = floor;
+        this.lambda = lambda;
         this.distance = distance;
         this.description = description;
     }
@@ -34,7 +36,6 @@ public class Light {
     private String description;
     private Floor floor;
     private double lambda;
-    // FIXME: We'll need one more parameter: lambda (wave-length associated from FFT) + getter only
 
 //    public Pair<Double, Double> getPosXY() { return posXY; }
     public double getPosX() { return this.posX; }

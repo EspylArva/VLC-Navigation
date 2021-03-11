@@ -3,6 +3,7 @@ package com.vlcnavigation.ui.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.Image;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -77,7 +78,47 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 return true;
             }
         });
-//        holder.setTextChangeListener(null, null); // FIXME
+        holder.setTextChangeListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (s.length() == 0 ) {
+                            holder.getTxtInputLayout_description().setError(holder.itemView.getContext().getResources().getString(R.string.floor_null));
+                            holder.getTxtInputLayout_description().setErrorEnabled(true);
+                        }
+                        else
+                        {
+                            holder.getTxtInputLayout_description().setErrorEnabled(false);
+                            int position = holder.getAdapterPosition();
+                            floors.get(position).setDescription(s.toString());
+                            holder.saveInSharedPreferences(floors);
+                        }
+                    }
+                },
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void afterTextChanged(Editable s) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (s.length() == 0 ) {
+                            holder.getTxtInputLayout_filePath().setError(holder.itemView.getContext().getResources().getString(R.string.file_null));
+                            holder.getTxtInputLayout_filePath().setErrorEnabled(true);
+                        }
+                        else
+                        {
+                            holder.getTxtInputLayout_filePath().setErrorEnabled(false);
+                            int position = holder.getAdapterPosition();
+                            floors.get(position).setFilePath(s.toString());
+                            holder.saveInSharedPreferences(floors);
+                        }
+                    }
+                });
 
         // Refresh UI
         holder.refreshUI();
