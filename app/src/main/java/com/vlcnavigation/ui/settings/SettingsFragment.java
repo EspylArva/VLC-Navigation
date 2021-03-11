@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,18 +48,31 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private RecyclerView recycler_lights; // Carousel with lights
     private RecyclerView recycler_floors; // Carousel with floors
 
-    private FloatingActionButton fab_addLight;
+    private LinearLayout container_fabs;
     private FloatingActionButton fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
 
-    // Adding light
-//    private TextInputEditText txt_newLightXPos, txt_newLightYPos, txt_newLightDescription;
+    private LightAdapter lightAdapter;
+    /**
+     * Add Light Panel
+     */
+    private ConstraintLayout container_addLight;
     private TextInputLayout txtInputLayout_newLightXPos, txtInputLayout_newLightYPos;
     private TextInputLayout txtInputLayout_newLightLambda, txtInputLayout_newLightDescription, txtInputLayout_newLightFloor;
+    private FloatingActionButton fab_addLight;
+    private ImageView img_hide_addLight;
 
-    private ConstraintLayout container_addLight, container_addFloor;
-    private LinearLayout container_fabs;
+    /**
+     * Add floor Panel
+     */
+    private ConstraintLayout container_addFloor;
+    private TextInputLayout txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
+    private FloatingActionButton fab_addFloor;
+    private ImageView img_hide_addFloor;
 
-    private LightAdapter lightAdapter;
+
+
+
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -92,13 +106,74 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         snap.attachToRecyclerView(recycler_lights);
 
         fab_generateTestData_lights = root.findViewById(R.id.fab_generateTestData_lights);
-        fab_addLight = root.findViewById(R.id.btn_addLight);
         fab_show_addFloors = root.findViewById(R.id.fab_show_addFloors);
         fab_show_addLights = root.findViewById(R.id.fab_show_addLights);
 
-//        txt_newLightDescription = root.findViewById(R.id.txt_addLight_description);
-//        txt_newLightXPos = root.findViewById(R.id.txt_addLight_xPos);
-//        txt_newLightYPos = root.findViewById(R.id.txt_addLight_yPos);
+        initAddLightPanel(root);
+        initAddFloorPanel(root);
+
+        container_fabs = root.findViewById(R.id.txtInputLayout_add_buttons);
+
+        textView = root.findViewById(R.id.text_notifications);
+        return root;
+    }
+
+    private void initAddFloorPanel(View root) {
+        container_addFloor = root.findViewById(R.id.container_addFloor);
+
+        txtInputLayout_newFloorFilePath = root.findViewById(R.id.txtInputLayout_addFloor_resourcePath);
+        txtInputLayout_newFloorDescription = root.findViewById(R.id.txtInputLayout_addFloor_floor);
+
+        img_hide_addFloor = root.findViewById(R.id.img_hide_addFloor);
+        fab_addFloor = root.findViewById(R.id.fab_addFloor);
+
+        // Click Listeners
+        img_hide_addFloor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                container_addFloor.setVisibility(View.GONE);
+            }
+        });
+        fab_addFloor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(true) // TODO
+                {
+                    // Add a new floor
+                    //TODO
+
+                    // Reset UI (Add button part)
+                    txtInputLayout_newFloorFilePath.getEditText().getText().clear();
+                    txtInputLayout_newFloorDescription.getEditText().getText().clear();
+
+                    txtInputLayout_newFloorFilePath.setErrorEnabled(false);
+                    txtInputLayout_newFloorDescription.setErrorEnabled(false);
+
+                    // UX
+                    Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();
+                    container_addFloor.setVisibility(View.GONE);
+//                    container_fabs.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    if(txtInputLayout_newFloorFilePath.getEditText().getText().length() == 0)
+                    {
+                        txtInputLayout_newFloorFilePath.setErrorEnabled(true);
+                        txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.file_null));
+                    } else { }
+                    if(txtInputLayout_newFloorDescription.getEditText().getText().length() == 0)
+                    {
+                        txtInputLayout_newFloorDescription.setErrorEnabled(true);
+                        txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_null));
+                    } else { }
+                }
+            }
+        });
+
+    }
+
+    private void initAddLightPanel(View root) {
+        container_addLight = root.findViewById(R.id.container_addLight);
 
         txtInputLayout_newLightXPos = root.findViewById(R.id.txtInputLayout_addLight_xPos);
         txtInputLayout_newLightYPos = root.findViewById(R.id.txtInputLayout_addLight_yPos);
@@ -106,46 +181,14 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         txtInputLayout_newLightDescription = root.findViewById(R.id.txtInputLayout_addLight_description);
         txtInputLayout_newLightFloor = root.findViewById(R.id.txtInputLayout_addLight_floor);
 
-        container_addLight = root.findViewById(R.id.txtInputLayout_addLight);
-        container_fabs = root.findViewById(R.id.txtInputLayout_add_buttons);
+        img_hide_addLight = root.findViewById(R.id.img_hide_addLight);
+        fab_addLight = root.findViewById(R.id.fab_addLight);
 
-        textView = root.findViewById(R.id.text_notifications);
-        return root;
-    }
-
-    private void initObservers()
-    {
-        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-    }
-
-    private void initListeners()
-    {
-        fab_show_addLights.setOnClickListener(new View.OnClickListener() {
+        // Click Listeners
+        img_hide_addLight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                container_addLight.setVisibility(View.VISIBLE);
-//                container_fabs.setVisibility(View.GONE);
-            }
-        });
-
-        fab_generateTestData_lights.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                 //Should listen to sharedPreferences instead
-                // FIXME
-                Light l1 = new Light.Builder(3, 2, "RDC", 0).setDescription("Light in the corridor #1").setDistance(20).build();
-                Light l2 = new Light.Builder(1, 2, "1st F", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
-                Light l3 = new Light.Builder(5, 3, "2nd F", 0).setDescription("Light in the corridor #5").setDistance(40).build();
-
-                 //Template data
-                settingsViewModel.addLight(l1);
-                settingsViewModel.addLight(l2);
-                settingsViewModel.addLight(l3);
+                container_addLight.setVisibility(View.GONE);
             }
         });
         fab_addLight.setOnClickListener(new View.OnClickListener() {
@@ -156,11 +199,10 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                         txtInputLayout_newLightLambda.getEditText().getText().length() > 0)
                 {
                     // Add a new light
-                    //FIXME
                     Light newLight = new Light.Builder(
                             Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
                             Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
-                            "",
+                            txtInputLayout_newLightFloor.getEditText().getText().toString() ,
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
@@ -203,7 +245,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 }
             }
         });
-
+        // Content changed listener
         txtInputLayout_newLightXPos.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -229,6 +271,51 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
                     txtInputLayout_newLightYPos.setErrorEnabled(true);
                 }
+            }
+        });
+
+    }
+
+    private void initObservers()
+    {
+        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                textView.setText(s);
+            }
+        });
+    }
+
+    private void initListeners()
+    {
+        fab_show_addLights.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                container_addLight.setVisibility(View.VISIBLE);
+//                container_fabs.setVisibility(View.GONE);
+            }
+        });
+        fab_show_addFloors.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                container_addFloor.setVisibility(View.VISIBLE);
+//                container_fabs.setVisibility(View.GONE);
+            }
+        });
+
+        fab_generateTestData_lights.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 //Should listen to sharedPreferences instead
+                // FIXME
+                Light l1 = new Light.Builder(3, 2, "RDC", 0).setDescription("Light in the corridor #1").setDistance(20).build();
+                Light l2 = new Light.Builder(1, 2, "1st F", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
+                Light l3 = new Light.Builder(5, 3, "2nd F", 0).setDescription("Light in the corridor #5").setDistance(40).build();
+
+                 //Template data
+                settingsViewModel.addLight(l1);
+                settingsViewModel.addLight(l2);
+                settingsViewModel.addLight(l3);
             }
         });
 

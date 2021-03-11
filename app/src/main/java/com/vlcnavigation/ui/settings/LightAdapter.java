@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -180,7 +181,8 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         private TextInputLayout txtInputLayout_floor, txtInputLayout_posX, txtInputLayout_posY, txtInputLayout_lambda;
         private TextInputEditText txt_floor, txt_description, txt_posX, txt_posY, txt_lambda, txt_distance;
 
-        private FloatingActionButton fab_deleteEntry;
+//        private FloatingActionButton fab_deleteEntry;
+        private ImageView img_deleteEntry;
 
         private PopupMenu popupMenu;
 
@@ -207,7 +209,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txt_lambda = itemView.findViewById(R.id.txt_light_lambda);
             this.txt_distance = itemView.findViewById(R.id.txt_light_distance);
 
-            this.fab_deleteEntry = itemView.findViewById(R.id.fab_deleteEntry);
+            this.img_deleteEntry = itemView.findViewById(R.id.img_deleteEntry);
         }
 
         public void setFloorMenuListener(PopupMenu.OnMenuItemClickListener onMenuClick)
@@ -224,7 +226,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             });
         }
 
-        public void setRemoveButton(View.OnClickListener listener) { this.fab_deleteEntry.setOnClickListener(listener); }
+        public void setRemoveButton(View.OnClickListener listener) { this.img_deleteEntry.setOnClickListener(listener); }
 
         public void refreshUI()
         {

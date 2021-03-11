@@ -22,5 +22,8 @@
     <string name="floor">Floor</string>
     <string name="wavelength">Light\'s wavelength</string>
     <string name="lambda_null">Wavelength is required</string>
+    <string name="floor_added">Added a new floor</string>
+    <string name="file_null">Please select a file</string>
+    <string name="floor_null">Please enter a floor description</string>
     <!--    <string name="sp_base">com.vlcnavigation</string>-->
 </resources>
