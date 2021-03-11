@@ -30,6 +30,7 @@ import com.vlcnavigation.R;
 import com.vlcnavigation.components.DotIndicatorDecoration;
 import com.vlcnavigation.components.RecyclerViewMargin;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
+import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private FloatingActionButton fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
 
     private LightAdapter lightAdapter;
+    private FloorAdapter floorAdapter;
     /**
      * Add Light Panel
      */
@@ -69,11 +71,6 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private FloatingActionButton fab_addFloor;
     private ImageView img_hide_addFloor;
 
-
-
-
-
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
@@ -88,22 +85,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     {
         View root = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        recycler_lights = root.findViewById(R.id.recycler_lights);
-        recycler_lights.setHasFixedSize(true);
-        //  Values
-        lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue());
-        recycler_lights.setAdapter(lightAdapter);
-        // Orientation
-        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
-        recycler_layout.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recycler_lights.setLayoutManager(recycler_layout);
-        // Margin between items
-        // recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
-        // Item position
-         recycler_lights.addItemDecoration(new DotIndicatorDecoration());
-        // Snapping on a viewholder // TODO: Maybe a stronger snap. See SnapHelperBuilder
-        SnapHelper snap = new PagerSnapHelper();
-        snap.attachToRecyclerView(recycler_lights);
+        recycler_lights = setRecyclerLights(root);
+        recycler_floors = setRecyclerFloors(root);
 
         fab_generateTestData_lights = root.findViewById(R.id.fab_generateTestData_lights);
         fab_show_addFloors = root.findViewById(R.id.fab_show_addFloors);
@@ -116,6 +99,45 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
 
         textView = root.findViewById(R.id.text_notifications);
         return root;
+    }
+
+    private RecyclerView setRecyclerFloors(View root) {
+        RecyclerView recycler_floors = root.findViewById(R.id.recycler_floors);
+        recycler_floors.setHasFixedSize(true);
+        //  Values
+        floorAdapter = new FloorAdapter(settingsViewModel.getListOfFloors().getValue());
+        recycler_floors.setAdapter(floorAdapter);
+        // Orientation
+        LinearLayoutManager recycler_layout2 = new LinearLayoutManager(getContext());
+        recycler_layout2.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recycler_floors.setLayoutManager(recycler_layout2);
+        // Margin between items
+        // recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
+        // Item position
+        recycler_floors.addItemDecoration(new DotIndicatorDecoration());
+        // Snapping on a viewholder
+        SnapHelper snap = new PagerSnapHelper();
+        snap.attachToRecyclerView(recycler_floors);
+        return recycler_floors;
+    }
+    private RecyclerView setRecyclerLights(View root) {
+        RecyclerView recycler_lights = root.findViewById(R.id.recycler_lights);
+        recycler_lights.setHasFixedSize(true);
+        //  Values
+        lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue());
+        recycler_lights.setAdapter(lightAdapter);
+        // Orientation
+        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
+        recycler_layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recycler_lights.setLayoutManager(recycler_layout);
+        // Margin between items
+        // recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
+        // Item position
+        recycler_lights.addItemDecoration(new DotIndicatorDecoration());
+        // Snapping on a viewholder // TODO: Maybe a stronger snap. See SnapHelperBuilder
+        SnapHelper snap = new PagerSnapHelper();
+        snap.attachToRecyclerView(recycler_lights);
+        return recycler_lights;
     }
 
     private void initAddFloorPanel(View root) {
@@ -137,17 +159,17 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         fab_addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(true) // TODO
+                if(txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0) // TODO
                 {
                     // Add a new floor
-                    //TODO
+                    settingsViewModel.addFloor(new Floor(txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString()));
 
                     // Reset UI (Add button part)
-                    txtInputLayout_newFloorFilePath.getEditText().getText().clear();
                     txtInputLayout_newFloorDescription.getEditText().getText().clear();
+                    txtInputLayout_newFloorFilePath.getEditText().getText().clear();
 
-                    txtInputLayout_newFloorFilePath.setErrorEnabled(false);
                     txtInputLayout_newFloorDescription.setErrorEnabled(false);
+                    txtInputLayout_newFloorFilePath.setErrorEnabled(false);
 
                     // UX
                     Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();
@@ -202,7 +224,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     Light newLight = new Light.Builder(
                             Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
                             Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
-                            txtInputLayout_newLightFloor.getEditText().getText().toString() ,
+                            null, // txtInputLayout_newLightFloor.getEditText().getText().toString(), // FIXME
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
@@ -307,15 +329,21 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onClick(View v) {
                  //Should listen to sharedPreferences instead
-                // FIXME
-                Light l1 = new Light.Builder(3, 2, "RDC", 0).setDescription("Light in the corridor #1").setDistance(20).build();
-                Light l2 = new Light.Builder(1, 2, "1st F", 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
-                Light l3 = new Light.Builder(5, 3, "2nd F", 0).setDescription("Light in the corridor #5").setDistance(40).build();
+                Floor f1 = new Floor("RDC", "Tessst");
+                Floor f2 = new Floor("1st F", "Tessst");
+                Floor f3 = new Floor("2nd F", "Tessst");
+                Light l1 = new Light.Builder(3, 2, f1, 0).setDescription("Light in the corridor #1").setDistance(20).build();
+                Light l2 = new Light.Builder(1, 2, f1, 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
+                Light l3 = new Light.Builder(5, 3, f2, 0).setDescription("Light in the corridor #5").setDistance(40).build();
 
                  //Template data
                 settingsViewModel.addLight(l1);
                 settingsViewModel.addLight(l2);
                 settingsViewModel.addLight(l3);
+                settingsViewModel.addFloor(f1);
+                settingsViewModel.addFloor(f2);
+                settingsViewModel.addFloor(f3);
+
             }
         });
 

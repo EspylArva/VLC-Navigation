@@ -24,12 +24,12 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_description"/>
+            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_light_description"/>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/txtInputLayout_description"
+            android:id="@+id/txtInputLayout_light_description"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/img_light_icon"
@@ -37,42 +37,37 @@
             android:hint="@string/description"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txt_light_description"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:editable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container_light_position"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:layout_constraintTop_toBottomOf="@id/container_light_tag"
         app:layout_constraintBottom_toTopOf="@id/container_light_distance_lambda"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txtInputLayout_x"
+            android:id="@+id/txtInputLayout_light_x"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/posX"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_y"
+            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_light_y"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txt_light_positionX"
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txtInputLayout_y"
+            android:id="@+id/txtInputLayout_light_y"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -80,34 +75,29 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/txtInputLayout_x"
-            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_floor"
+            app:layout_constraintStart_toEndOf="@id/txtInputLayout_light_x"
+            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_light_floor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txt_light_positionY"
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txtInputLayout_floor"
+            android:id="@+id/txtInputLayout_light_floor"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/floor"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/txtInputLayout_y"
+            app:layout_constraintStart_toEndOf="@id/txtInputLayout_light_y"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+            app:layout_constraintTop_toTopOf="parent">
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/menu_selection_floor"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="RDC"
-                android:textColor="@color/design_default_color_on_primary"
                 android:editable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -122,18 +112,17 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/distance_to_captor"
-            android:id="@+id/txtInputLayout_distance"
+            android:id="@+id/txtInputLayout_light_distance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_lambda"
+            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_light_lambda"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_weight="1"
             android:layout_marginEnd="@dimen/default_margin"
             >
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txt_light_distance"
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -142,17 +131,16 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:hint="@string/wavelength"
-            android:id="@+id/txtInputLayout_lambda"
+            android:id="@+id/txtInputLayout_light_lambda"
             app:layout_constraintHorizontal_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@id/txtInputLayout_distance"
+            app:layout_constraintStart_toEndOf="@id/txtInputLayout_light_distance"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             >
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/txt_light_lambda"
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

@@ -6,21 +6,7 @@ import java.util.Map;
 
 public class Light {
 
-//    private Light(Pair<Double, Double> posXY, Pair<Double, Double> receiverXPos, Pair<Double, Double> receiverYPos)
-//    {
-//        this.posXY = posXY;
-//        this.receiverXPos = sort(receiverXPos);
-//        this.receiverYPos = sort(receiverYPos);
-//    }
-//
-//    private Light(double x, double y, double receiverXPosFloor, double receiverXPosCeil, double receiverYPosFloor, double receiverYPosCeil)
-//    {
-//        this.posXY = new Pair<Double, Double>(x,y);
-//        this.receiverXPos = sort(receiverXPosFloor, receiverXPosCeil);
-//        this.receiverYPos = sort(receiverYPosFloor, receiverYPosCeil);
-//    }
-
-    private Light(double x, double y, double distance, String description, String floor, double lambda) {
+    private Light(double x, double y, double distance, String description, Floor floor, double lambda) {
         this.posX = x;
         this.posY = y;
         this.distance = distance;
@@ -46,7 +32,7 @@ public class Light {
 //    Pair<Double, Double> posXY;
     private double distance;
     private String description;
-    private String floor;
+    private Floor floor;
     private double lambda;
     // FIXME: We'll need one more parameter: lambda (wave-length associated from FFT) + getter only
 
@@ -56,27 +42,26 @@ public class Light {
     public double getDistance() { return this.distance; }
     public String getLabel() { return this.description; }
     public double getLambda() { return this.lambda; }
-    public String getFloor() { return this.floor; }
+    public Floor getFloor() { return this.floor; }
 
     public void setPosX(double newPosX) { this.posX = newPosX; }
     public void setPosY(double newPosY) { this.posY = newPosY; }
     public void setLambda(double newLambda) { this.lambda = newLambda; }
-    public void setFloor(String newFloor) { this.floor = newFloor; }
+    public void setFloor(Floor newFloor) { this.floor = newFloor; }
 
 
     public static class Builder{
         // Mandatory
         private double x, y;
-        private String floor;
+        private Floor floor;
         private double lambda;
         // Optional
         private double distance = -1;
         private String description = "";
         // Methods
-        public Builder(double x, double y, String floor, double lambda) { this.x = x; this.y = y; this.floor = floor; this.lambda = lambda; }
+        public Builder(double x, double y, Floor floor, double lambda) { this.x = x; this.y = y; this.floor = floor; this.lambda = lambda; }
         public Builder setDistance(double distance) { this.distance = distance; return this; }
         public Builder setDescription(String label) { this.description = label; return this; }
-        // FIXME: We'll need one more setter for lambda (wave-length associated from FFT)
         public Light build() { return new Light(x, y, distance, description, floor, lambda); }
     }
 }

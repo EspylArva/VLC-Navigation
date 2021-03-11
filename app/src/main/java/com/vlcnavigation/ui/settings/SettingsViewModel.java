@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
 import com.vlcnavigation.R;
+import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
 import java.util.ArrayList;
@@ -25,19 +26,22 @@ import timber.log.Timber;
 
 public class SettingsViewModel extends AndroidViewModel {
 
-    private MutableLiveData<String> mText;
-    private MutableLiveData<List<Light>> mListOfLights;
-    private SharedPreferences preferences;
-    private Resources resources;
+    private final MutableLiveData<String> mText;
+    private final MutableLiveData<List<Light>> mListOfLights;
+    private final MutableLiveData<List<Floor>> mListOfFloors;
+    private final SharedPreferences preferences;
+    private final Resources resources;
 
     public SettingsViewModel(@NonNull Application app) {
         super(app);
         mText = new MutableLiveData<>();
         mListOfLights = new MutableLiveData<>();
+        mListOfFloors = new MutableLiveData<>();
 
 
         mText.setValue("This is notifications fragment");
         mListOfLights.setValue(new ArrayList<Light>());
+        mListOfFloors.setValue(new ArrayList<Floor>());
 
         resources = getApplication().getResources();
         preferences = getApplication().getSharedPreferences("com.vlcnavigation", Context.MODE_PRIVATE);
@@ -56,6 +60,20 @@ public class SettingsViewModel extends AndroidViewModel {
                 }
             }
         }
+
+        if(!preferences.getString(resources.getString(R.string.sp_map), "").equals(""))
+        {
+            String floors = preferences.getString(resources.getString(R.string.sp_map), "");
+            Timber.d("SP: %s", floors);
+            Type TYPE_LIST_OF_LIGHT = new TypeToken<ArrayList<Floor>>() {}.getType();
+            List<Floor> savedFloors = new Gson().fromJson(floors, TYPE_LIST_OF_LIGHT);
+            if (savedFloors != null && savedFloors.size() > 0) {
+                for (Floor floor : savedFloors) {
+                    Timber.d("This light was saved: %s", floor.toString());
+                    addFloor(floor);
+                }
+            }
+        }
     }
 
     public LiveData<String> getText() {
@@ -67,5 +85,13 @@ public class SettingsViewModel extends AndroidViewModel {
         String json = new Gson().toJson(mListOfLights.getValue());
         preferences.edit().putString(resources.getString(R.string.sp_lights), json).apply();
     }
+
+    public void addFloor(Floor floor){
+        mListOfFloors.getValue().add(floor);
+        String json = new Gson().toJson(mListOfFloors.getValue());
+        preferences.edit().putString(resources.getString(R.string.sp_map), json).apply();
+    }
+
     public LiveData<List<Light>> getListOfLights() { return mListOfLights; }
+    public LiveData<List<Floor>> getListOfFloors() { return mListOfFloors; }
 }

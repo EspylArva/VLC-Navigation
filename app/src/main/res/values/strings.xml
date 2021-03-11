@@ -25,5 +25,6 @@
     <string name="floor_added">Added a new floor</string>
     <string name="file_null">Please select a file</string>
     <string name="floor_null">Please enter a floor description</string>
+    <string name="floor_path">Path to resource file</string>
     <!--    <string name="sp_base">com.vlcnavigation</string>-->
 </resources>
