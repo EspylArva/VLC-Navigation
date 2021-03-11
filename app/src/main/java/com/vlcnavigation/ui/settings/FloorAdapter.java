@@ -6,6 +6,7 @@ import android.media.Image;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -168,13 +169,12 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
             PopupMenu popupMenu = new PopupMenu(itemView.getContext(), txtInputLayout_description.getEditText());
             popupMenu.getMenuInflater().inflate(R.menu.bottom_nav_menu, popupMenu.getMenu());
             popupMenu.setOnMenuItemClickListener(onMenuClick);
+            // Open menu if you click on the TextEdit
+            txtInputLayout_description.getEditText().setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { popupMenu.show(); } });
 
-            txtInputLayout_description.getEditText().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    popupMenu.show();
-                }
-            });
+//            popupMenu.getMenu().add("AFAFAF");
+
+
         }
 
         public void setRemoveButton(View.OnClickListener onClickListener) { img_deleteEntry.setOnClickListener(onClickListener); }

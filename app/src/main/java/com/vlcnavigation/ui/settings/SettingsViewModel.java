@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -17,9 +18,12 @@ import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.lang.reflect.Type;
+import java.util.SortedSet;
+
 import com.google.gson.reflect.TypeToken;
 
 import timber.log.Timber;
@@ -28,7 +32,7 @@ public class SettingsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<String> mText;
     private final MutableLiveData<List<Light>> mListOfLights;
-    private final MutableLiveData<List<Floor>> mListOfFloors;
+    private final MutableLiveData<SortedSet<Floor>> mListOfFloors;
     private final SharedPreferences preferences;
     private final Resources resources;
 
@@ -39,9 +43,14 @@ public class SettingsViewModel extends AndroidViewModel {
         mListOfFloors = new MutableLiveData<>();
 
 
+
+
+
         mText.setValue("This is notifications fragment");
         mListOfLights.setValue(new ArrayList<Light>());
-        mListOfFloors.setValue(new ArrayList<Floor>());
+//        mListOfFloors.setValue(new SortedSet<Floor>());
+
+//        mListOfFloors.getValue().
 
         resources = getApplication().getResources();
         preferences = getApplication().getSharedPreferences("com.vlcnavigation", Context.MODE_PRIVATE);

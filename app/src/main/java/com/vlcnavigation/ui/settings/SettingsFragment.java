@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +73,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private TextInputLayout txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
     private FloatingActionButton fab_addFloor;
     private ImageView img_hide_addFloor;
+    private Menu menu;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -77,9 +81,22 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
+        
+        setHasOptionsMenu(true);
 
         return root;
     }
+    
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.bottom_nav_menu, menu);
+        this.menu = menu;
+//        PopupMenu popupMenu = new PopupMenu(app.getApplicationContext());
+//        popupMenu.getMenuInflater().inflate(R.menu.bottom_nav_menu, popupMenu.getMenu());
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+    
 
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
@@ -164,6 +181,8 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 {
                     // Add a new floor
                     settingsViewModel.addFloor(new Floor(txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString()));
+                    // TEST/ FIXME
+                    menu.add(txtInputLayout_newFloorDescription.getEditText().getText().toString());
 
                     // Reset UI (Add button part)
                     resetFloorPanel();
@@ -258,7 +277,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     Light newLight = new Light.Builder(
                             Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
                             Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
-                            null, // txtInputLayout_newLightFloor.getEditText().getText().toString(), // FIXME
+                            null, // txtInputLayout_newLightFloor.getEditText().getText().toString(), // FIXME: REASON FOR ERRORS WHEN CLICKING ON THE TEXTVIEW
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
