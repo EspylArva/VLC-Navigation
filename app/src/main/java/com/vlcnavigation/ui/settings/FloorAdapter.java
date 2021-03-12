@@ -55,6 +55,8 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         holder.setOrder(floor.getOrder());
         holder.setDescription(floor.getDescription());
         holder.setFilePath(floor.getFilePath());
+        // Refresh UI
+        holder.refreshUI();
 
         // Set Listeners
         holder.setRemoveButton(new View.OnClickListener() {
@@ -74,8 +76,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
 //        holder.setFloorMenuListener(floors, position);
         holder.setTextChangeListener(floors);
 
-        // Refresh UI
-        holder.refreshUI();
     }
 
     @Override
@@ -121,7 +121,8 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
 
             txtInputLayout_order.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void afterTextChanged(Editable s) {
+                @Override public void afterTextChanged(Editable s) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_order.setError(itemView.getContext().getResources().getString(R.string.floor_order_null));
                         txtInputLayout_order.setErrorEnabled(true);
@@ -130,15 +131,25 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                     {
                         txtInputLayout_order.setErrorEnabled(false);
                         int position = getAdapterPosition();
-                        floors.get(position).setOrder(Integer.parseInt(s.toString()));
-                        saveInSharedPreferences(floors);
+                        int order = Integer.parseInt(s.toString());
+                        if(floors.stream().filter(f -> f.getOrder() == order).count() == 0 || order == floors.get(position).getOrder())
+                        {
+                            floors.get(position).setOrder(order);
+                            saveInSharedPreferences(floors);
+                        }
+                        else
+                        {
+                            txtInputLayout_order.setErrorEnabled(true);
+                            txtInputLayout_order.setError(itemView.getContext().getResources().getString(R.string.floor_already_exists));
+                        }
                     }
+
                 }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_description.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void afterTextChanged(Editable s) {
+                @Override public void afterTextChanged(Editable s) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_description.setError(itemView.getContext().getResources().getString(R.string.floor_description_null));
                         txtInputLayout_description.setErrorEnabled(true);
@@ -151,11 +162,11 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                         saveInSharedPreferences(floors);
                     }
                 }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_filePath.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void afterTextChanged(Editable s) {
+                @Override public void afterTextChanged(Editable s) { }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
                         txtInputLayout_filePath.setErrorEnabled(true);
@@ -168,7 +179,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                         saveInSharedPreferences(floors);
                     }
                 }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
         }
 
