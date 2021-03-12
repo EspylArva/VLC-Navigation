@@ -34,7 +34,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/img_light_icon"
             app:layout_constraintEnd_toEndOf="parent"
-            android:hint="@string/description"
+            android:hint="@string/light_description"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -55,7 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/posX"
+            android:hint="@string/light_posX"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/txtInputLayout_light_y"
@@ -71,7 +71,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/posY"
+            android:hint="@string/light_posY"
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             app:layout_constraintHorizontal_weight="1"
@@ -88,7 +88,7 @@
             android:id="@+id/txtInputLayout_light_floor"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="@string/floor"
+            android:hint="@string/light_floor"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/txtInputLayout_light_y"
@@ -111,7 +111,7 @@
         app:layout_constraintEnd_toEndOf="parent">
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/distance_to_captor"
+            android:hint="@string/light_distance"
             android:id="@+id/txtInputLayout_light_distance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -130,7 +130,7 @@
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/wavelength"
+            android:hint="@string/light_lambda"
             android:id="@+id/txtInputLayout_light_lambda"
             app:layout_constraintHorizontal_weight="1"
             android:layout_width="0dp"

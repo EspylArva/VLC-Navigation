@@ -70,7 +70,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
      * Add floor Panel
      */
     private ConstraintLayout container_addFloor;
-    private TextInputLayout txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
+    private TextInputLayout txtInputLayout_newFloorOrder, txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
     private FloatingActionButton fab_addFloor;
     private ImageView img_hide_addFloor;
     private Menu menu;
@@ -141,7 +141,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         RecyclerView recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);
         //  Values
-        lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue());
+        lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
         recycler_lights.setAdapter(lightAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
@@ -160,6 +160,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
     private void initAddFloorPanel(View root) {
         container_addFloor = root.findViewById(R.id.container_addFloor);
 
+        txtInputLayout_newFloorOrder = root.findViewById(R.id.txtInputLayout_addFloor_order);
         txtInputLayout_newFloorFilePath = root.findViewById(R.id.txtInputLayout_addFloor_resourcePath);
         txtInputLayout_newFloorDescription = root.findViewById(R.id.txtInputLayout_addFloor_floor);
 
@@ -177,10 +178,10 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
         fab_addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0)
+                if(txtInputLayout_newFloorOrder.getEditText().length() > 0 && txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0)
                 {
                     // Add a new floor
-                    settingsViewModel.addFloor(new Floor(txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString()));
+                    settingsViewModel.addFloor(new Floor(Integer.parseInt(txtInputLayout_newFloorOrder.getEditText().getText().toString()), txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString()));
                     // TEST/ FIXME
                     menu.add(txtInputLayout_newFloorDescription.getEditText().getText().toString());
 
@@ -193,15 +194,20 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                 }
                 else
                 {
-                    if(txtInputLayout_newFloorFilePath.getEditText().getText().length() == 0)
+                    if(txtInputLayout_newFloorOrder.getEditText().getText().length() == 0)
                     {
-                        txtInputLayout_newFloorFilePath.setErrorEnabled(true);
-                        txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.file_null));
+                        txtInputLayout_newFloorOrder.setErrorEnabled(true);
+                        txtInputLayout_newFloorOrder.setError(getResources().getString(R.string.floor_order_null));
                     } else { }
                     if(txtInputLayout_newFloorDescription.getEditText().getText().length() == 0)
                     {
                         txtInputLayout_newFloorDescription.setErrorEnabled(true);
-                        txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_null));
+                        txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_description_null));
+                    } else { }
+                    if(txtInputLayout_newFloorFilePath.getEditText().getText().length() == 0)
+                    {
+                        txtInputLayout_newFloorFilePath.setErrorEnabled(true);
+                        txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.floor_path_null));
                     } else { }
                 }
             }
@@ -216,7 +222,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_null));
+                    txtInputLayout_newFloorDescription.setError(getResources().getString(R.string.floor_description_null));
                     txtInputLayout_newFloorDescription.setErrorEnabled(true);
                 } else { txtInputLayout_newFloorDescription.setErrorEnabled(false); }
             }
@@ -231,7 +237,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.file_null));
+                    txtInputLayout_newFloorFilePath.setError(getResources().getString(R.string.floor_path_null));
                     txtInputLayout_newFloorFilePath.setErrorEnabled(true);
                 } else { txtInputLayout_newFloorFilePath.setErrorEnabled(false); }
             }
@@ -294,22 +300,22 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
                     if(txtInputLayout_newLightXPos.getEditText().getText().length() == 0)
                     {
                         txtInputLayout_newLightXPos.setErrorEnabled(true);
-                        txtInputLayout_newLightXPos.setError(getResources().getString(R.string.x_null));
+                        txtInputLayout_newLightXPos.setError(getResources().getString(R.string.light_x_null));
                     } else { }
                     if(txtInputLayout_newLightYPos.getEditText().getText().length() == 0)
                     {
                         txtInputLayout_newLightYPos.setErrorEnabled(true);
-                        txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
+                        txtInputLayout_newLightYPos.setError(getResources().getString(R.string.light_y_null));
                     } else { }
                     if(txtInputLayout_newLightLambda.getEditText().getText().length() == 0)
                     {
                         txtInputLayout_newLightLambda.setErrorEnabled(true);
-                        txtInputLayout_newLightLambda.setError(getResources().getString(R.string.lambda_null));
+                        txtInputLayout_newLightLambda.setError(getResources().getString(R.string.light_lambda_null));
                     } else { }
                     if(txtInputLayout_newLightFloor.getEditText().getText().length() == 0)
                     {
                         txtInputLayout_newLightFloor.setErrorEnabled(true);
-                        txtInputLayout_newLightFloor.setError(getResources().getString(R.string.floor_null));
+                        txtInputLayout_newLightFloor.setError(getResources().getString(R.string.light_floor_null));
                     } else { }
                 }
             }
@@ -323,7 +329,7 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    txtInputLayout_newLightXPos.setError(getResources().getString(R.string.x_null));
+                    txtInputLayout_newLightXPos.setError(getResources().getString(R.string.light_x_null));
                     txtInputLayout_newLightXPos.setErrorEnabled(true);
                 } else { txtInputLayout_newLightXPos.setErrorEnabled(false); }
             }
@@ -337,12 +343,24 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0 ) {
-                    txtInputLayout_newLightYPos.setError(getResources().getString(R.string.y_null));
+                    txtInputLayout_newLightYPos.setError(getResources().getString(R.string.light_y_null));
                     txtInputLayout_newLightYPos.setErrorEnabled(true);
                 } else { txtInputLayout_newLightYPos.setErrorEnabled(false); }
             }
         });
-
+        txtInputLayout_newLightLambda.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void afterTextChanged(Editable s) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0 ) {
+                    txtInputLayout_newLightLambda.setError(getResources().getString(R.string.light_lambda_null));
+                    txtInputLayout_newLightLambda.setErrorEnabled(true);
+                } else { txtInputLayout_newLightLambda.setErrorEnabled(false); }
+            }
+        });
     }
     private void resetLightPanel() {
         txtInputLayout_newLightDescription.getEditText().getText().clear();
@@ -376,9 +394,9 @@ public class SettingsFragment extends Fragment { // implements DefaultLifecycleO
             @Override
             public void onClick(View v) {
                  //Should listen to sharedPreferences instead
-                Floor f1 = new Floor("RDC", "Tessst");
-                Floor f2 = new Floor("1st F", "Tessst");
-                Floor f3 = new Floor("2nd F", "Tessst");
+                Floor f1 = new Floor(-1, "RDC", "Tessst");
+                Floor f2 = new Floor(-2, "1st F", "Tessst");
+                Floor f3 = new Floor(-3, "2nd F", "Tessst");
                 Light l1 = new Light.Builder(3, 2, f1, 0).setDescription("Light in the corridor #1").setDistance(20).build();
                 Light l2 = new Light.Builder(1, 2, f1, 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
                 Light l3 = new Light.Builder(5, 3, f2, 0).setDescription("Light in the corridor #5").setDistance(40).build();

@@ -85,7 +85,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/txtInputLayout_addLight_description"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/description"
+            android:hint="@string/light_description"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/txtInputLayout_addLight_xPos"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,7 +101,7 @@
             android:id="@+id/txtInputLayout_addLight_lambda"
             app:layout_constraintHorizontal_weight="1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/wavelength"
+            android:hint="@string/light_lambda"
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginBottom="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
@@ -121,7 +121,7 @@
             android:id="@+id/txtInputLayout_addLight_xPos"
             app:layout_constraintHorizontal_weight="1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/posX"
+            android:hint="@string/light_posX"
             app:layout_constraintTop_toBottomOf="@id/txtInputLayout_addLight_description"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -139,7 +139,7 @@
             android:layout_marginStart="@dimen/default_margin"
             android:layout_marginEnd="@dimen/default_margin"
             app:layout_constraintHorizontal_weight="1"
-            android:hint="@string/posY"
+            android:hint="@string/light_posY"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:layout_constraintTop_toBottomOf="@id/txtInputLayout_addLight_lambda"
             app:layout_constraintBottom_toBottomOf="@id/txtInputLayout_addLight_xPos"
@@ -150,6 +150,21 @@
                 android:inputType="numberDecimal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txtInputLayout_addLight_floor"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:hint="@string/light_floor"
+            app:layout_constraintTop_toBottomOf="@id/fab_addLight"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:editable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_addLight"
@@ -163,22 +178,6 @@
             android:backgroundTint="@color/green"
             app:borderWidth="0dp"
             app:maxImageSize="56dp"/>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txtInputLayout_addLight_floor"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:hint="@string/floor"
-            app:layout_constraintTop_toBottomOf="@id/fab_addLight"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="20dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="@string/lorem"
-                android:editable="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
 
 
         <ImageView
@@ -189,7 +188,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:visibility="gone"
@@ -202,40 +200,59 @@
         app:layout_constraintStart_toStartOf="parent"
         android:background="@color/black">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txtInputLayout_addFloor_order"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/floor_order"
+            app:layout_constraintHorizontal_weight="1"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="@dimen/default_margin"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/txtInputLayout_addFloor_resourcePath"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_addFloor_floor">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="numberSigned"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/txtInputLayout_addFloor_floor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="@string/floor_description"
+            app:layout_constraintHorizontal_weight="1"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginEnd="@dimen/default_margin"
+            android:layout_marginBottom="@dimen/default_margin"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/txtInputLayout_addFloor_resourcePath"
+            app:layout_constraintStart_toEndOf="@id/txtInputLayout_addFloor_order"
+            app:layout_constraintEnd_toStartOf="@id/fab_addFloor">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/txtInputLayout_addFloor_resourcePath"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Resource file"
+            android:hint="@string/floor_path"
+            android:layout_marginEnd="@dimen/default_margin"
             app:layout_constraintHorizontal_weight="1"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:layout_constraintTop_toBottomOf="@id/txtInputLayout_addFloor_floor"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/txtInputLayout_addFloor_floor"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fab_addFloor">
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:editable="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/txtInputLayout_addFloor_floor"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="Floor"
-            app:layout_constraintHorizontal_weight="1"
-            android:layout_marginStart="@dimen/default_margin"
-            android:layout_marginEnd="@dimen/default_margin"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fab_addFloor"
-            app:layout_constraintStart_toEndOf="@id/txtInputLayout_addFloor_resourcePath">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_addFloor"

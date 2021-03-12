@@ -23,6 +23,7 @@ import java.util.List;
 
 import java.lang.reflect.Type;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import com.google.gson.reflect.TypeToken;
 
@@ -32,7 +33,7 @@ public class SettingsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<String> mText;
     private final MutableLiveData<List<Light>> mListOfLights;
-    private final MutableLiveData<SortedSet<Floor>> mListOfFloors;
+    private final MutableLiveData<List<Floor>> mListOfFloors;
     private final SharedPreferences preferences;
     private final Resources resources;
 
@@ -43,12 +44,21 @@ public class SettingsViewModel extends AndroidViewModel {
         mListOfFloors = new MutableLiveData<>();
 
 
+        SortedSet<Floor> test = new TreeSet<>();
+
+        test.add(new Floor(1, "A", "pathA"));
+        test.add(new Floor(5, "C", "pathC"));
+        test.add(new Floor(-1, "B", "pathB"));
+        test.add(new Floor(1, "D", "pathD"));
+
+//        mListOfFloors.getValue().sort(Floor::compareTo);
 
 
+        test.forEach(e -> Timber.d(e.toString()));
 
         mText.setValue("This is notifications fragment");
         mListOfLights.setValue(new ArrayList<Light>());
-//        mListOfFloors.setValue(new SortedSet<Floor>());
+        mListOfFloors.setValue(new ArrayList<Floor>());
 
 //        mListOfFloors.getValue().
 

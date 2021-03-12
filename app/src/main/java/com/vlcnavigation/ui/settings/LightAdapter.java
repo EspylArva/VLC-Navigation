@@ -11,7 +11,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -28,6 +31,7 @@ import com.vlcnavigation.module.trilateration.Light;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -37,10 +41,11 @@ import timber.log.Timber;
 public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder> {
 
     private List<Light> lights;
-    public LightAdapter(List<Light> lights)
+    private List<Floor> floors;
+    public LightAdapter(List<Light> lights, List<Floor> floors)
     {
         this.lights = lights;
-        Timber.d("We're in the adapter");
+        this.floors = floors;
     }
 
     @NonNull
@@ -76,96 +81,8 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 }
             }
         });
-        holder.setTextChangeListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_posX().setError(holder.itemView.getContext().getResources().getString(R.string.x_null));
-                            holder.getTxtInputLayout_posX().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_posX().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            lights.get(position).setPosX(Double.parseDouble(s.toString()));
-                            holder.saveInSharedPreferences(lights);
-                        }
-                    }
-                }, new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_posY().setError(holder.itemView.getContext().getResources().getString(R.string.y_null));
-                            holder.getTxtInputLayout_posY().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_posY().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            lights.get(position).setPosY(Double.parseDouble(s.toString()));
-                            holder.saveInSharedPreferences(lights);
-                        }
-                    }
-                }, // X, Y Listener
-                new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_lambda().setError(holder.itemView.getContext().getResources().getString(R.string.y_null));
-                            holder.getTxtInputLayout_lambda().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_lambda().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            lights.get(position).setLambda(Double.parseDouble(s.toString()));
-                            holder.saveInSharedPreferences(lights);
-                        }
-                    }
-                }, new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_floor().setError(holder.itemView.getContext().getResources().getString(R.string.y_null));
-                            holder.getTxtInputLayout_floor().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_floor().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            lights.get(position).getFloor().setDescription(s.toString());
-                            holder.saveInSharedPreferences(lights);
-                        }
-                    }
-                }); // Lambda, Floor listener
-        holder.setFloorMenuListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                // switch your menu item and do something..
-                String floor = item.getTitle().toString();
-                int position = holder.getAdapterPosition();
-                lights.get(position).getFloor().setDescription(floor);
-                holder.getTxtInputLayout_floor().getEditText().setText(floor);
-                holder.saveInSharedPreferences(lights);
-                Timber.d("Floor: %s set on light #%s", floor, position);
-                return true;
-            }
-        });
+        holder.setTextChangeListener(lights); // Lambda, Floor listener
+        holder.setFloorMenuListener(lights, floors, position);
 
         // Refresh UI
         holder.refreshUI();
@@ -205,19 +122,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.img_deleteEntry = itemView.findViewById(R.id.img_deleteEntry);
         }
 
-        public void setFloorMenuListener(PopupMenu.OnMenuItemClickListener onMenuClick)
-        {
-            PopupMenu popupMenu = new PopupMenu(itemView.getContext(), txtInputLayout_floor.getEditText());
-            popupMenu.getMenuInflater().inflate(R.menu.bottom_nav_menu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(onMenuClick);
 
-            txtInputLayout_floor.getEditText().setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    popupMenu.show();
-                }
-            });
-        }
 
         public void setRemoveButton(View.OnClickListener listener) { this.img_deleteEntry.setOnClickListener(listener); }
 
@@ -242,11 +147,80 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         public void setLambda(double lambda) { this.lambda = lambda; }
         public void setFloor(Floor floor) { this.floor = floor; }
 
-        public void setTextChangeListener(TextWatcher textWatcher_posX, TextWatcher textWatcher_posY, TextWatcher textWatcher_lambda, TextWatcher textWatcher_floor) {
-            Objects.requireNonNull(txtInputLayout_posX.getEditText()).addTextChangedListener(textWatcher_posX);
-            Objects.requireNonNull(txtInputLayout_posY.getEditText()).addTextChangedListener(textWatcher_posY);
-            Objects.requireNonNull(txtInputLayout_lambda.getEditText()).addTextChangedListener(textWatcher_lambda);
-            Objects.requireNonNull(txtInputLayout_floor.getEditText()).addTextChangedListener(textWatcher_floor);
+        public void setTextChangeListener(List<Light> lights) {
+            txtInputLayout_posX.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_posX.setError(itemView.getContext().getResources().getString(R.string.light_x_null));
+                        txtInputLayout_posX.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_posX.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        lights.get(position).setPosX(Double.parseDouble(s.toString()));
+                        saveInSharedPreferences(lights);
+                    }
+                }
+            });
+            txtInputLayout_posY.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_posY.setError(itemView.getContext().getResources().getString(R.string.light_y_null));
+                        txtInputLayout_posY.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_posY.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        lights.get(position).setPosY(Double.parseDouble(s.toString()));
+                        saveInSharedPreferences(lights);
+                    }
+                }
+            });
+            txtInputLayout_lambda.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_lambda.setError(itemView.getContext().getResources().getString(R.string.light_lambda_null));
+                        txtInputLayout_lambda.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_lambda.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        lights.get(position).setLambda(Double.parseDouble(s.toString()));
+                        saveInSharedPreferences(lights);
+                    }
+                }
+            });
+            txtInputLayout_floor.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_floor.setError(itemView.getContext().getResources().getString(R.string.light_floor_null));
+                        txtInputLayout_floor.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_floor.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        lights.get(position).getFloor().setDescription(s.toString());
+                        saveInSharedPreferences(lights);
+                    }
+                }
+            });
+
         }
 
         public void saveInSharedPreferences(List<Light> lights)
@@ -254,6 +228,47 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             SharedPreferences prefs = itemView.getContext().getSharedPreferences("com.vlcnavigation", Context.MODE_PRIVATE);
             String json = new Gson().toJson(lights);
             prefs.edit().putString(itemView.getContext().getResources().getString(R.string.sp_lights), json).apply();
+        }
+
+
+//        public void setFloorMenuListener(PopupMenu.OnMenuItemClickListener onMenuClick)
+//        {
+//            PopupMenu popupMenu = new PopupMenu(itemView.getContext(), txtInputLayout_floor.getEditText());
+//            popupMenu.getMenuInflater().inflate(R.menu.bottom_nav_menu, popupMenu.getMenu());
+//            popupMenu.setOnMenuItemClickListener(onMenuClick);
+//
+//            txtInputLayout_floor.getEditText().setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    popupMenu.show();
+//                }
+//            });
+//        }
+
+        public void setFloorMenuListener(List<Light> lights, List<Floor> floors, int modifiedLightIndex)
+        {
+            ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, R.attr.listPopupWindowStyle);
+            listPopupWindow.setAnchorView(txtInputLayout_floor);
+
+            List<Integer> floorOrders = new ArrayList<>(); floors.forEach(floor -> floorOrders.add(floor.getOrder()));
+            ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(itemView.getContext(), R.layout.menu_layout_floor, floorOrders);
+            listPopupWindow.setAdapter(adapter);
+
+            listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // Dismiss popup.
+                    int newFloorOrder = floorOrders.get(position);
+//                    floors.get(floorPosition).setOrder(newOrder);
+                    lights.get(modifiedLightIndex).getFloor().setOrder(newFloorOrder);
+
+                    txtInputLayout_floor.getEditText().setText(String.valueOf(newFloorOrder));
+                    saveInSharedPreferences(lights);
+
+                    listPopupWindow.dismiss();
+                }
+            });
+            txtInputLayout_floor.getEditText().setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { listPopupWindow.show(); } });
         }
 
     }

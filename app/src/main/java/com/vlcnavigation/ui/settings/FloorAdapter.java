@@ -10,7 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -23,6 +26,7 @@ import com.vlcnavigation.R;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -48,6 +52,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         Floor floor = floors.get(position);
 
         // Set Holder values
+        holder.setOrder(floor.getOrder());
         holder.setDescription(floor.getDescription());
         holder.setFilePath(floor.getFilePath());
 
@@ -66,60 +71,8 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 }
             }
         });
-        holder.setFloorMenuListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                // switch your menu item and do something..
-                String floor = item.getTitle().toString();
-                int position = holder.getAdapterPosition();
-                floors.get(position).setDescription(floor);
-
-                holder.getTxtInputLayout_description().getEditText().setText(floor);
-                holder.saveInSharedPreferences(floors);
-                return true;
-            }
-        });
-        holder.setTextChangeListener(
-                new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_description().setError(holder.itemView.getContext().getResources().getString(R.string.floor_null));
-                            holder.getTxtInputLayout_description().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_description().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            floors.get(position).setDescription(s.toString());
-                            holder.saveInSharedPreferences(floors);
-                        }
-                    }
-                },
-                new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                    @Override
-                    public void afterTextChanged(Editable s) {}
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        if (s.length() == 0 ) {
-                            holder.getTxtInputLayout_filePath().setError(holder.itemView.getContext().getResources().getString(R.string.file_null));
-                            holder.getTxtInputLayout_filePath().setErrorEnabled(true);
-                        }
-                        else
-                        {
-                            holder.getTxtInputLayout_filePath().setErrorEnabled(false);
-                            int position = holder.getAdapterPosition();
-                            floors.get(position).setFilePath(s.toString());
-                            holder.saveInSharedPreferences(floors);
-                        }
-                    }
-                });
+//        holder.setFloorMenuListener(floors, position);
+        holder.setTextChangeListener(floors);
 
         // Refresh UI
         holder.refreshUI();
@@ -133,12 +86,15 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
     public class FloorHolder extends RecyclerView.ViewHolder {
         // Field values
         private String description, filePath;
+        private int order;
+        public void setOrder(int order) { this.order = order; }
         public void setDescription(String description) { this.description = description; }
         public void setFilePath(String filePath) { this.filePath = filePath; }
         // Views
-        private TextInputLayout txtInputLayout_description, txtInputLayout_filePath;
+        private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
         private ImageView img_deleteEntry;
 
+        public TextInputLayout getTxtInputLayout_order() { return this.txtInputLayout_order; }
         public TextInputLayout getTxtInputLayout_description() { return this.txtInputLayout_description; }
         public TextInputLayout getTxtInputLayout_filePath() { return this.txtInputLayout_filePath; }
 
@@ -148,6 +104,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         }
 
         private void initViews(View itemView) {
+            this.txtInputLayout_order = itemView.findViewById(R.id.txtInputLayout_floor_order);
             this.txtInputLayout_description = itemView.findViewById(R.id.txtInputLayout_floor_description);
             this.txtInputLayout_filePath = itemView.findViewById(R.id.txtInputLayout_filePath);
             this.img_deleteEntry = itemView.findViewById(R.id.img_deleteFloorEntry);
@@ -155,26 +112,67 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
 
         public void refreshUI()
         {
+            this.txtInputLayout_order.getEditText().setText(String.valueOf(order));
             this.txtInputLayout_description.getEditText().setText(description);
             this.txtInputLayout_filePath.getEditText().setText(filePath);
         }
 
-        public void setTextChangeListener(TextWatcher textWatcher_description, TextWatcher textWatcher_filePath) {
-            Objects.requireNonNull(txtInputLayout_description.getEditText()).addTextChangedListener(textWatcher_description);
-            Objects.requireNonNull(txtInputLayout_filePath.getEditText()).addTextChangedListener(textWatcher_filePath);
-        }
+        public void setTextChangeListener(List<Floor> floors) {
 
-        public void setFloorMenuListener(PopupMenu.OnMenuItemClickListener onMenuClick)
-        {
-            PopupMenu popupMenu = new PopupMenu(itemView.getContext(), txtInputLayout_description.getEditText());
-            popupMenu.getMenuInflater().inflate(R.menu.bottom_nav_menu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(onMenuClick);
-            // Open menu if you click on the TextEdit
-            txtInputLayout_description.getEditText().setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { popupMenu.show(); } });
-
-//            popupMenu.getMenu().add("AFAFAF");
-
-
+            txtInputLayout_order.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_order.setError(itemView.getContext().getResources().getString(R.string.floor_order_null));
+                        txtInputLayout_order.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_order.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        floors.get(position).setOrder(Integer.parseInt(s.toString()));
+                        saveInSharedPreferences(floors);
+                    }
+                }
+            });
+            txtInputLayout_description.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_description.setError(itemView.getContext().getResources().getString(R.string.floor_description_null));
+                        txtInputLayout_description.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_description.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        floors.get(position).setDescription(s.toString());
+                        saveInSharedPreferences(floors);
+                    }
+                }
+            });
+            txtInputLayout_filePath.getEditText().addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void afterTextChanged(Editable s) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (s.length() == 0 ) {
+                        txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
+                        txtInputLayout_filePath.setErrorEnabled(true);
+                    }
+                    else
+                    {
+                        txtInputLayout_filePath.setErrorEnabled(false);
+                        int position = getAdapterPosition();
+                        floors.get(position).setFilePath(s.toString());
+                        saveInSharedPreferences(floors);
+                    }
+                }
+            });
         }
 
         public void setRemoveButton(View.OnClickListener onClickListener) { img_deleteEntry.setOnClickListener(onClickListener); }
