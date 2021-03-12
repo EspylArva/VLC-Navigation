@@ -120,11 +120,9 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         public void setTextChangeListener(List<Floor> floors) {
 
             txtInputLayout_order.getEditText().addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_order.setError(itemView.getContext().getResources().getString(R.string.floor_order_null));
                         txtInputLayout_order.setErrorEnabled(true);
                     }
@@ -136,13 +134,12 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                         saveInSharedPreferences(floors);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_description.getEditText().addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_description.setError(itemView.getContext().getResources().getString(R.string.floor_description_null));
                         txtInputLayout_description.setErrorEnabled(true);
                     }
@@ -154,13 +151,12 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                         saveInSharedPreferences(floors);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_filePath.getEditText().addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
                         txtInputLayout_filePath.setErrorEnabled(true);
                     }
@@ -172,6 +168,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                         saveInSharedPreferences(floors);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
         }
 

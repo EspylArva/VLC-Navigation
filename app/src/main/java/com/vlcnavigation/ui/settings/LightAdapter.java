@@ -132,7 +132,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txtInputLayout_posY.getEditText().setText(String.valueOf(posY));
             this.txtInputLayout_lambda.getEditText().setText(String.valueOf(lambda));
             this.txtInputLayout_distance.getEditText().setText(String.valueOf(distance));
-//            this.txtInputLayout_floor.getEditText().setText(floor.getDescription());
+            this.txtInputLayout_floor.getEditText().setText(String.valueOf(floor.getOrder()));
         }
 
         public TextInputLayout getTxtInputLayout_posX()     { return this.txtInputLayout_posX; }
@@ -150,10 +150,8 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         public void setTextChangeListener(List<Light> lights) {
             txtInputLayout_posX.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_posX.setError(itemView.getContext().getResources().getString(R.string.light_x_null));
                         txtInputLayout_posX.setErrorEnabled(true);
                     }
@@ -165,13 +163,12 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                         saveInSharedPreferences(lights);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_posY.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_posY.setError(itemView.getContext().getResources().getString(R.string.light_y_null));
                         txtInputLayout_posY.setErrorEnabled(true);
                     }
@@ -183,13 +180,12 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                         saveInSharedPreferences(lights);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_lambda.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_lambda.setError(itemView.getContext().getResources().getString(R.string.light_lambda_null));
                         txtInputLayout_lambda.setErrorEnabled(true);
                     }
@@ -201,13 +197,12 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                         saveInSharedPreferences(lights);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
             txtInputLayout_floor.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) {}
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 ) {
+                @Override public void afterTextChanged(Editable s) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_floor.setError(itemView.getContext().getResources().getString(R.string.light_floor_null));
                         txtInputLayout_floor.setErrorEnabled(true);
                     }
@@ -219,6 +214,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                         saveInSharedPreferences(lights);
                     }
                 }
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             });
 
         }
