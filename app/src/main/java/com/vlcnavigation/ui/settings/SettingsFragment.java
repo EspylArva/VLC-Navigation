@@ -113,7 +113,7 @@ public class SettingsFragment extends Fragment {
         RecyclerView recycler_floors = root.findViewById(R.id.recycler_floors);
         recycler_floors.setHasFixedSize(true);
         //  Values
-        floorAdapter = new FloorAdapter(settingsViewModel.getListOfFloors().getValue(), this);
+        floorAdapter = new FloorAdapter(settingsViewModel, this); //settingsViewModel.getListOfFloors().getValue(), this);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout2 = new LinearLayoutManager(getContext());
@@ -132,7 +132,7 @@ public class SettingsFragment extends Fragment {
         RecyclerView recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);
         //  Values
-        lightAdapter = new LightAdapter(settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
+        lightAdapter = new LightAdapter(settingsViewModel); // settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
         recycler_lights.setAdapter(lightAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
@@ -210,6 +210,13 @@ public class SettingsFragment extends Fragment {
                 }
             }
 
+        });
+        txtInputLayout_newFloorFilePath.getEditText().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(SvgFetcher.lookForSvgIntent(),
+                        SvgFetcher.ADD_SVG_REQUEST_CODE);
+            }
         });
 
         txtInputLayout_newFloorDescription.getEditText().addTextChangedListener(new TextWatcher() {
@@ -298,7 +305,10 @@ public class SettingsFragment extends Fragment {
                     Light newLight = new Light.Builder(
                             Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
                             Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
-                            null, // txtInputLayout_newLightFloor.getEditText().getText().toString(), // FIXME: REASON FOR ERRORS WHEN CLICKING ON THE TEXTVIEW
+                            settingsViewModel.findFloor(
+                                    Integer.parseInt(txtInputLayout_newLightFloor.getEditText().getText().toString())
+                            ),
+//                            null, // txtInputLayout_newLightFloor.getEditText().getText().toString(), // FIXME: REASON FOR ERRORS WHEN CLICKING ON THE TEXTVIEW
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
@@ -446,28 +456,25 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) { return; } else {
+        if (data != null && resultCode == RESULT_OK) {
             Timber.d("Activity Result caught. Request code: %s. Result code: %s", requestCode, resultCode);
             switch (requestCode) {
                 case SvgFetcher.READ_SVG_REQUEST_CODE:
-                    if (resultCode == RESULT_OK) {
-                        String filePath = data.getData().getPath();
-                        int position = ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition();
-                        Timber.d("%s should be set on %s", filePath, position);
-
-                        recycler_floors.scrollToPosition(position);
-                        FloorAdapter.FloorHolder holder = (FloorAdapter.FloorHolder)recycler_floors.findViewHolderForAdapterPosition(position);
-
-                        Timber.d("holder null: %s", holder == null);
-                        if(holder != null) {
-                            holder.setFilePath(filePath);
-                            holder.refreshUI();
-                        }
+                    String filePath = data.getData().getPath();
+                    int position = ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition();
+                    recycler_floors.scrollToPosition(position);
+                    FloorAdapter.FloorHolder holder = (FloorAdapter.FloorHolder) recycler_floors.findViewHolderForAdapterPosition(position);
+                    if (holder != null) {
+                        settingsViewModel.getListOfFloors().getValue().get(position).setFilePath(filePath);
+                        holder.refreshUI();
                     }
-                    else { Timber.e("Could not find file"); }
+                    break;
+                case SvgFetcher.ADD_SVG_REQUEST_CODE:
+                    Timber.d("From add floor");
+                    txtInputLayout_newFloorFilePath.getEditText().setText(data.getData().getPath());
                     break;
             }
-        }
+        } else { Timber.e("Could not find file"); }
     }
 
 

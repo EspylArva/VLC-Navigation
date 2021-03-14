@@ -13,6 +13,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class SvgFetcher {
     public static final int READ_SVG_REQUEST_CODE = 303;
+    public static final int ADD_SVG_REQUEST_CODE = 304;
 
     public static Intent lookForSvgIntent() {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.

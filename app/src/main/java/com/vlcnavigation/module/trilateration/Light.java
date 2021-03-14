@@ -37,11 +37,10 @@ public class Light {
     private Floor floor;
     private double lambda;
 
-//    public Pair<Double, Double> getPosXY() { return posXY; }
+    public String getDescription() { return this.description; }
     public double getPosX() { return this.posX; }
     public double getPosY() { return this.posY; }
     public double getDistance() { return this.distance; }
-    public String getLabel() { return this.description; }
     public double getLambda() { return this.lambda; }
     public Floor getFloor() { return this.floor; }
 
@@ -49,6 +48,7 @@ public class Light {
     public void setPosY(double newPosY) { this.posY = newPosY; }
     public void setLambda(double newLambda) { this.lambda = newLambda; }
     public void setFloor(Floor newFloor) { this.floor = newFloor; }
+
 
 
     public static class Builder{

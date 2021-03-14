@@ -252,7 +252,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:editable="true"/>
+                android:editable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_addFloor"

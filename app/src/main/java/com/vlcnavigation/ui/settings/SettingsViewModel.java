@@ -101,17 +101,48 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public void addLight(Light newLight) {
         mListOfLights.getValue().add(newLight);
-        String json = new Gson().toJson(mListOfLights.getValue());
-        preferences.edit().putString(resources.getString(R.string.sp_lights), json).apply();
+        saveLights();
     }
 
     public void addFloor(Floor floor){
-        mListOfFloors.getValue().add(floor);
-        mListOfFloors.getValue().sort(Floor::compareTo);
-        String json = new Gson().toJson(mListOfFloors.getValue());
-        preferences.edit().putString(resources.getString(R.string.sp_map), json).apply();
+        if(!mListOfFloors.getValue().stream().anyMatch(f -> f.getOrder() == floor.getOrder()))
+        {
+            mListOfFloors.getValue().add(floor);
+            mListOfFloors.getValue().sort(Floor::compareTo);
+            saveFloors();
+        }
     }
 
     public LiveData<List<Light>> getListOfLights() { return mListOfLights; }
     public LiveData<List<Floor>> getListOfFloors() { return mListOfFloors; }
+
+    public void removeFloorAt(int position) {
+        mListOfFloors.getValue().remove(position);
+        saveFloors();
+    }
+
+    public void removeLightAt(int position) {
+        mListOfLights.getValue().remove(position);
+        saveLights();
+    }
+
+    public void saveLights()
+    {
+        String json = new Gson().toJson(mListOfLights.getValue());
+        preferences.edit().putString(resources.getString(R.string.sp_lights), json).apply();
+    }
+
+    public void saveFloors()
+    {
+        String json = new Gson().toJson(mListOfFloors.getValue());
+        preferences.edit().putString(resources.getString(R.string.sp_map), json).apply();
+    }
+
+    public Floor findFloor(int index) {
+        if(mListOfFloors.getValue().stream().anyMatch(floor -> floor.getOrder() == index))
+        {
+            return mListOfFloors.getValue().stream().filter(floor -> floor.getOrder() == index).findFirst().get();
+        }
+        else { Timber.e("CANT FIND FLOOR"); return null; }
+    }
 }

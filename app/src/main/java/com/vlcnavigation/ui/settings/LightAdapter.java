@@ -19,6 +19,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,77 +41,62 @@ import java.util.Set;
 import timber.log.Timber;
 
 public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder> {
+    private final SettingsViewModel vm;
 
-    private List<Light> lights;
-    private List<Floor> floors;
-    public LightAdapter(List<Light> lights, List<Floor> floors)
-    {
-        this.lights = lights;
-        this.floors = floors;
-    }
+    public LightAdapter(SettingsViewModel vm) { this.vm = vm; }
+
+//    @Override
+//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+//        super.onAttachedToRecyclerView(recyclerView);
+//        if(vm == null)
+//        {
+//            vm = new ViewModelProvider((ViewModelStoreOwner)recyclerView.getContext()).get(SettingsViewModel.class);
+//        }
+//    }
 
     @NonNull
     @Override
     public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_light_entry, parent, false);
-        return new LightHolder(v);
+        return new LightHolder(v, vm);
     }
 
     @Override
     public void onBindViewHolder(@NonNull LightHolder holder, int position) {
-        Light l = this.lights.get(position);
-
-        // Set Holder values
-        holder.setDescription(l.getLabel());
-        holder.setX(l.getPosX()); holder.setY(l.getPosY());
-        holder.setDistance(l.getDistance());
-        holder.setLambda(l.getLambda());
-        holder.setFloor(l.getFloor());
         // Refresh UI
+        holder.setLight();
         holder.refreshUI();
 
-        // Set Listeners
-        holder.setRemoveButton(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = holder.getAdapterPosition();
-                if(position > -1)
-                {
-                    lights.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, lights.size());
-
-                    holder.saveInSharedPreferences(lights);
-                }
-            }
-        });
-        holder.setTextChangeListener(lights); // Lambda, Floor listener
-        holder.setFloorMenuListener(lights, floors, position);
-
-
+        holder.test();
         //FIXME: keyboard pushes the views
         //FIXME: Selecting other view resets the position of the recycler view
     }
 
     @Override
     public int getItemCount() {
-        return this.lights.size();
+        return vm.getListOfLights().getValue().size();
     }
 
-    public static class LightHolder extends RecyclerView.ViewHolder
+    public class LightHolder extends RecyclerView.ViewHolder
     {
+        private final SettingsViewModel vm;
+        private Light light;
+
         private TextInputLayout txtInputDescription;
         private TextInputLayout txtInputLayout_posX, txtInputLayout_posY, txtInputLayout_floor;
         private TextInputLayout txtInputLayout_lambda, txtInputLayout_distance;
         private ImageView img_deleteEntry;
 
-        private double posX, posY, distance, lambda;
-        private Floor floor;
-
-        public LightHolder(@NonNull View itemView) {
+        public LightHolder(@NonNull View itemView, SettingsViewModel vm) {
             super(itemView);
-            initViews(itemView);
+            this.vm = vm;
+            initViews(itemView);        // Instantiate views
+
         }
+
+
+
+        public void setLight() { this.light = vm.getListOfLights().getValue().get(getAdapterPosition()); }
 
         private void initViews(View itemView) {
             this.txtInputDescription = itemView.findViewById(R.id.txtInputLayout_light_description);
@@ -118,50 +105,62 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txtInputLayout_floor = itemView.findViewById(R.id.txtInputLayout_light_floor);
             this.txtInputLayout_lambda = itemView.findViewById(R.id.txtInputLayout_light_lambda);
             this.txtInputLayout_distance = itemView.findViewById(R.id.txtInputLayout_light_distance);
-
             this.img_deleteEntry = itemView.findViewById(R.id.img_deleteEntry);
         }
 
 
-
-        public void setRemoveButton(View.OnClickListener listener) { this.img_deleteEntry.setOnClickListener(listener); }
-
-        public void refreshUI()
+        public void refreshUI() // Call this after setting the position
         {
-            this.txtInputLayout_posX.getEditText().setText(String.valueOf(posX));
-            this.txtInputLayout_posY.getEditText().setText(String.valueOf(posY));
-            this.txtInputLayout_lambda.getEditText().setText(String.valueOf(lambda));
-            this.txtInputLayout_distance.getEditText().setText(String.valueOf(distance));
-            this.txtInputLayout_floor.getEditText().setText(String.valueOf(floor.getOrder()));
+            this.txtInputDescription.getEditText().setText(light.getDescription());
+            this.txtInputLayout_posX.getEditText().setText(String.valueOf(light.getPosX()));
+            this.txtInputLayout_posY.getEditText().setText(String.valueOf(light.getPosY()));
+            this.txtInputLayout_lambda.getEditText().setText(String.valueOf(light.getLambda()));
+            this.txtInputLayout_distance.getEditText().setText(String.valueOf(light.getDistance()));
+            this.txtInputLayout_floor.getEditText().setText(String.valueOf(light.getFloor().getOrder()));
+
         }
 
-        public TextInputLayout getTxtInputLayout_posX()     { return this.txtInputLayout_posX; }
-        public TextInputLayout getTxtInputLayout_posY()     { return this.txtInputLayout_posY; }
-        public TextInputLayout getTxtInputLayout_lambda()   { return this.txtInputLayout_lambda; }
-        public TextInputLayout getTxtInputLayout_floor()    { return this.txtInputLayout_floor; }
+        public void test()
+        {
+            initOnClickListeners();       // Click listeners. Currently: 1 (Remove button)
+            initTextChangeListener();     // When a text field is changed, we want to save it to SP
+            initFloorMenuListener();
+        }
 
-        public void setDescription(String description) { this.txtInputDescription.getEditText().setText(description); }
-        public void setX(Double x) { this.posX = x; }
-        public void setY(Double y) { this.posY = y; }
-        public void setDistance(double distance) { this.distance = distance; }
-        public void setLambda(double lambda) { this.lambda = lambda; }
-        public void setFloor(Floor floor) { this.floor = floor; }
+        private void initOnClickListeners() {
+            this.img_deleteEntry.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if(position > -1)
+                    {
+                        vm.removeLightAt(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, vm.getListOfLights().getValue().size());
+                    }
+                }
+            });
+        }
 
-        public void setTextChangeListener(List<Light> lights) {
+        private void initTextChangeListener() {
             txtInputLayout_posX.getEditText().addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+                    if (s.length() == 0 || s.toString().endsWith("-") || s.toString().endsWith("+") || s.toString().endsWith(".")) {
                         txtInputLayout_posX.setError(itemView.getContext().getResources().getString(R.string.light_x_null));
                         txtInputLayout_posX.setErrorEnabled(true);
                     }
                     else
                     {
                         txtInputLayout_posX.setErrorEnabled(false);
-                        int position = getAdapterPosition();
-                        lights.get(position).setPosX(Double.parseDouble(s.toString()));
-                        saveInSharedPreferences(lights);
+                        Timber.d("Adapter position: %s. Lights' size: %s. Adapter item count: %s",
+                                getAdapterPosition(),
+                                vm.getListOfLights().getValue().size(),
+                                getItemCount()
+                        );
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosX(Double.parseDouble(s.toString()));
+                        vm.saveLights();
                     }
                 }
             });
@@ -169,16 +168,15 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void afterTextChanged(Editable s) {}
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().endsWith("+") || s.toString().endsWith(".")) {
                         txtInputLayout_posY.setError(itemView.getContext().getResources().getString(R.string.light_y_null));
                         txtInputLayout_posY.setErrorEnabled(true);
                     }
                     else
                     {
                         txtInputLayout_posY.setErrorEnabled(false);
-                        int position = getAdapterPosition();
-                        lights.get(position).setPosY(Double.parseDouble(s.toString()));
-                        saveInSharedPreferences(lights);
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosY(Double.parseDouble(s.toString()));
+                        vm.saveLights();
                     }
                 }
             });
@@ -186,16 +184,15 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+                    if (s.length() == 0 || s.toString().equals("-") || s.toString().endsWith("+") || s.toString().endsWith(".")) {
                         txtInputLayout_lambda.setError(itemView.getContext().getResources().getString(R.string.light_lambda_null));
                         txtInputLayout_lambda.setErrorEnabled(true);
                     }
                     else
                     {
                         txtInputLayout_lambda.setErrorEnabled(false);
-                        int position = getAdapterPosition();
-                        lights.get(position).setLambda(Double.parseDouble(s.toString()));
-                        saveInSharedPreferences(lights);
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).setLambda(Double.parseDouble(s.toString()));
+                        vm.saveLights();
                     }
                 }
             });
@@ -210,28 +207,20 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                     else
                     {
                         txtInputLayout_floor.setErrorEnabled(false);
-                        int position = getAdapterPosition();
-                        lights.get(position).getFloor().setDescription(s.toString());
-                        saveInSharedPreferences(lights);
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setDescription(s.toString());
+                        vm.saveLights();
                     }
                 }
             });
 
         }
 
-        public void saveInSharedPreferences(List<Light> lights)
-        {
-            SharedPreferences prefs = itemView.getContext().getSharedPreferences("com.vlcnavigation", Context.MODE_PRIVATE);
-            String json = new Gson().toJson(lights);
-            prefs.edit().putString(itemView.getContext().getResources().getString(R.string.sp_lights), json).apply();
-        }
-
-        public void setFloorMenuListener(List<Light> lights, List<Floor> floors, int modifiedLightIndex)
+        private void initFloorMenuListener()
         {
             ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, R.attr.listPopupWindowStyle);
             listPopupWindow.setAnchorView(txtInputLayout_floor);
 
-            List<Integer> floorOrders = new ArrayList<>(); floors.forEach(floor -> floorOrders.add(floor.getOrder()));
+            List<Integer> floorOrders = new ArrayList<>(); vm.getListOfFloors().getValue().forEach(floor -> floorOrders.add(floor.getOrder()));
             ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(itemView.getContext(), R.layout.menu_layout_floor, floorOrders);
             listPopupWindow.setAdapter(adapter);
 
@@ -241,10 +230,10 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                     // Dismiss popup.
                     int newFloorOrder = floorOrders.get(position);
 //                    floors.get(floorPosition).setOrder(newOrder);
-                    lights.get(modifiedLightIndex).getFloor().setOrder(newFloorOrder);
+                    vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setOrder(newFloorOrder);
 
                     txtInputLayout_floor.getEditText().setText(String.valueOf(newFloorOrder));
-                    saveInSharedPreferences(lights);
+//                    saveInSharedPreferences(lights);
 
                     listPopupWindow.dismiss();
                 }
