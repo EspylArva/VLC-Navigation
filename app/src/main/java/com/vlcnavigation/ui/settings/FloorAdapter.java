@@ -1,8 +1,13 @@
 package com.vlcnavigation.ui.settings;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Image;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -17,12 +22,15 @@ import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 import com.vlcnavigation.R;
+import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
@@ -32,19 +40,33 @@ import java.util.Objects;
 
 import timber.log.Timber;
 
+import static android.app.Activity.RESULT_OK;
+import static com.vlcnavigation.module.svg2vector.SvgFetcher.READ_SVG_REQUEST_CODE;
+
 public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>{
 
     private List<Floor> floors;
-    public FloorAdapter(List<Floor> floors)
+    private SettingsFragment fragment;
+    public FloorAdapter(List<Floor> floors, SettingsFragment fragment)
     {
         this.floors = floors;
+        this.fragment = fragment;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+//        if(vm == null)
+//        {
+//            vm = new ViewModelProvider((ViewModelStoreOwner)recyclerView.getContext()).get(SettingsViewModel.class)
+//        }
     }
 
     @NonNull
     @Override
     public FloorHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_floor_entry, parent, false);
-        return new FloorAdapter.FloorHolder(v);
+        return new FloorHolder(v);
     }
 
     @Override
@@ -73,7 +95,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 }
             }
         });
-//        holder.setFloorMenuListener(floors, position);
+        holder.setPathClickListener(fragment);
         holder.setTextChangeListener(floors);
 
     }
@@ -83,7 +105,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         return floors.size();
     }
 
-    public class FloorHolder extends RecyclerView.ViewHolder {
+    public static class FloorHolder extends RecyclerView.ViewHolder {
         // Field values
         private String description, filePath;
         private int order;
@@ -94,12 +116,9 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
         private ImageView img_deleteEntry;
 
-        public TextInputLayout getTxtInputLayout_order() { return this.txtInputLayout_order; }
-        public TextInputLayout getTxtInputLayout_description() { return this.txtInputLayout_description; }
-        public TextInputLayout getTxtInputLayout_filePath() { return this.txtInputLayout_filePath; }
-
         public FloorHolder(@NonNull View itemView) {
             super(itemView);
+
             initViews(itemView);
         }
 
@@ -150,7 +169,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+                    if (s.length() == 0) {
                         txtInputLayout_description.setError(itemView.getContext().getResources().getString(R.string.floor_description_null));
                         txtInputLayout_description.setErrorEnabled(true);
                     }
@@ -167,7 +186,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+                    if (s.length() == 0) {
                         txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
                         txtInputLayout_filePath.setErrorEnabled(true);
                     }
@@ -183,6 +202,16 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         }
 
         public void setRemoveButton(View.OnClickListener onClickListener) { img_deleteEntry.setOnClickListener(onClickListener); }
+        public void setPathClickListener(SettingsFragment fragment)
+        {
+            txtInputLayout_filePath.getEditText().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fragment.startActivityForResult(SvgFetcher.lookForSvgIntent(),
+                            SvgFetcher.READ_SVG_REQUEST_CODE);
+                }
+            });
+        }
 
         public void saveInSharedPreferences(List<Floor> floors)
         {

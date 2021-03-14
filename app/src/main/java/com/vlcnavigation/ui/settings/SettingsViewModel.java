@@ -107,6 +107,7 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public void addFloor(Floor floor){
         mListOfFloors.getValue().add(floor);
+        mListOfFloors.getValue().sort(Floor::compareTo);
         String json = new Gson().toJson(mListOfFloors.getValue());
         preferences.edit().putString(resources.getString(R.string.sp_map), json).apply();
     }

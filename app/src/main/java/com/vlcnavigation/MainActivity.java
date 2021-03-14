@@ -1,9 +1,11 @@
 package com.vlcnavigation;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.pixplicity.sharp.Sharp;
+import com.vlcnavigation.module.svg2vector.SvgFetcher;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -44,4 +46,24 @@ public class MainActivity extends AppCompatActivity {
             );
         }
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (data != null) {
+//            Timber.d("Activity Result caught. Request code: %s. Result code: %s", requestCode, resultCode);
+//            switch (requestCode) {
+//                case SvgFetcher.READ_SVG_REQUEST_CODE:
+//                    if (resultCode == RESULT_OK) {
+////                        getSupportFragmentManager().findFragmentById(R.id.navigation_settings).onActivityResult(requestCode, resultCode, data);
+//                        String FilePath = data.getData().getPath();
+//                        Timber.d(FilePath);
+//
+//                    } else {
+//                        Timber.e("Could not find file");
+//                    }
+//                    break;
+//            }
+//        }
+//    }
 }

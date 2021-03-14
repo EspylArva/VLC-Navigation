@@ -77,7 +77,6 @@ public class SettingsFragment extends Fragment {
     private TextInputLayout txtInputLayout_newFloorOrder, txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
     private FloatingActionButton fab_addFloor;
     private ImageView img_hide_addFloor;
-    private Menu menu;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -114,7 +113,7 @@ public class SettingsFragment extends Fragment {
         RecyclerView recycler_floors = root.findViewById(R.id.recycler_floors);
         recycler_floors.setHasFixedSize(true);
         //  Values
-        floorAdapter = new FloorAdapter(settingsViewModel.getListOfFloors().getValue());
+        floorAdapter = new FloorAdapter(settingsViewModel.getListOfFloors().getValue(), this);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout2 = new LinearLayoutManager(getContext());
@@ -436,8 +435,11 @@ public class SettingsFragment extends Fragment {
                 {
                     Timber.d(light.toString());
                 }
-
-                startActivityForResult(SvgFetcher.lookForSvgIntent(), SvgFetcher.READ_SVG_REQUEST_CODE);
+                for (Floor floor : settingsViewModel.getListOfFloors().getValue())
+                {
+                    Timber.d(floor.toString());
+                }
+//                startActivityForResult(SvgFetcher.lookForSvgIntent(), SvgFetcher.READ_SVG_REQUEST_CODE);
             }
         });
     }
@@ -449,9 +451,18 @@ public class SettingsFragment extends Fragment {
             switch (requestCode) {
                 case SvgFetcher.READ_SVG_REQUEST_CODE:
                     if (resultCode == RESULT_OK) {
-                        String FilePath = data.getData().getPath();
-                        //FilePath is your file as a string
-                        Timber.d(FilePath);
+                        String filePath = data.getData().getPath();
+                        int position = ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition();
+                        Timber.d("%s should be set on %s", filePath, position);
+
+                        recycler_floors.scrollToPosition(position);
+                        FloorAdapter.FloorHolder holder = (FloorAdapter.FloorHolder)recycler_floors.findViewHolderForAdapterPosition(position);
+
+                        Timber.d("holder null: %s", holder == null);
+                        if(holder != null) {
+                            holder.setFilePath(filePath);
+                            holder.refreshUI();
+                        }
                     }
                     else { Timber.e("Could not find file"); }
                     break;
