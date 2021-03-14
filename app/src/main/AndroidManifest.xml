@@ -12,9 +12,9 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:windowSoftInputMode="adjustPan"
         android:theme="@style/Theme.VLCNavigation">
         <activity
+            android:windowSoftInputMode="adjustPan"
             android:label="@string/app_name"
             android:name=".MainActivity">
             <intent-filter>
@@ -23,5 +23,4 @@
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
