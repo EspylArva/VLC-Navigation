@@ -43,19 +43,6 @@ public class SettingsViewModel extends AndroidViewModel {
         mListOfLights = new MutableLiveData<>();
         mListOfFloors = new MutableLiveData<>();
 
-
-        SortedSet<Floor> test = new TreeSet<>();
-
-        test.add(new Floor(1, "A", "pathA"));
-        test.add(new Floor(5, "C", "pathC"));
-        test.add(new Floor(-1, "B", "pathB"));
-        test.add(new Floor(1, "D", "pathD"));
-
-//        mListOfFloors.getValue().sort(Floor::compareTo);
-
-
-        test.forEach(e -> Timber.d(e.toString()));
-
         mText.setValue("This is notifications fragment");
         mListOfLights.setValue(new ArrayList<Light>());
         mListOfFloors.setValue(new ArrayList<Floor>());

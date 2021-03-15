@@ -83,13 +83,10 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
     }
 
     public class FloorHolder extends RecyclerView.ViewHolder {
-        // Field values
-//        private String description, filePath;
-//        private int order;
 
-        private final SettingsViewModel vm;
-        private final SettingsFragment fragment;
-        private Floor floor;
+        private final SettingsViewModel vm;      // Data
+        private final SettingsFragment fragment; // Necessary to handle the callback
+        private Floor floor;                     // Not necessary, but makes the code shorter
 
         // Views
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
@@ -99,9 +96,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
             super(itemView);
             this.vm = vm;
             this.fragment = fragment;
-            initViews(itemView);
-//            initOnClickListener();
-//            init
             initViews(itemView);        // Instantiate views
             initOnClickListeners();     // Click listeners. Currently: 2 (Remove button, File path TextInputEditText)
             initTextChangeListener();   // When a text field is changed, we want to save it to SP

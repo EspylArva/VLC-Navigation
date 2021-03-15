@@ -40,4 +40,5 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_map">com.vlcnavigation.floors</string>
+    <string name="room_search">Search for a room</string>
 </resources>
