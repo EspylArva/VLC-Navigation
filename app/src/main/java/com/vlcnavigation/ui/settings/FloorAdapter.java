@@ -55,15 +55,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         this.fragment = fragment;
     }
 
-//    @Override
-//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//        if(vm == null)
-//        {
-//            vm = new ViewModelProvider((ViewModelStoreOwner)recyclerView.getContext()).get(SettingsViewModel.class);
-//        }
-//    }
-
     @NonNull
     @Override
     public FloorHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -117,7 +108,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         {
             this.txtInputLayout_order.getEditText().setText(String.valueOf(floor.getOrder()));
             this.txtInputLayout_description.getEditText().setText(floor.getDescription());
-            this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath());
+            this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath().split("%2F")[floor.getFilePath().split("%2F").length-1]);
         }
 
         private void initTextChangeListener(){
@@ -164,22 +155,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                     }
                 }
             });
-            txtInputLayout_filePath.getEditText().addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void afterTextChanged(Editable s) { }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0) {
-                        txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
-                        txtInputLayout_filePath.setErrorEnabled(true);
-                    }
-                    else
-                    {
-                        txtInputLayout_filePath.setErrorEnabled(false);
-                        vm.getListOfFloors().getValue().get(getAdapterPosition()).setFilePath(s.toString());
-                        vm.saveFloors();
-                    }
-                }
-            });
         }
 
         private void initOnClickListeners()
@@ -198,12 +173,9 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                     int position = getAdapterPosition();
                     if(position > -1)
                     {
-//                    floors.remove(position);
                         vm.removeFloorAt(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position,  vm.getListOfFloors().getValue().size());
-
-//                    holder.saveInSharedPreferences(floors);
                     }
                 }
             });

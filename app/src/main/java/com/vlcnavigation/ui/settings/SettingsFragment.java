@@ -56,11 +56,8 @@ public class SettingsFragment extends Fragment {
     private RecyclerView recycler_lights; // Carousel with lights
     private RecyclerView recycler_floors; // Carousel with floors
 
-    private LinearLayout container_fabs;
     private FloatingActionButton fab_generateTestData_lights, fab_show_addLights, fab_show_addFloors;
 
-    private LightAdapter lightAdapter;
-    private FloorAdapter floorAdapter;
     /**
      * Add Light Panel
      */
@@ -77,6 +74,7 @@ public class SettingsFragment extends Fragment {
     private TextInputLayout txtInputLayout_newFloorOrder, txtInputLayout_newFloorFilePath, txtInputLayout_newFloorDescription;
     private FloatingActionButton fab_addFloor;
     private ImageView img_hide_addFloor;
+    private String trueUri;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -93,8 +91,8 @@ public class SettingsFragment extends Fragment {
     {
         View root = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        recycler_lights = setRecyclerLights(root);
-        recycler_floors = setRecyclerFloors(root);
+        setRecyclerLights(root);
+        setRecyclerFloors(root);
 
         fab_generateTestData_lights = root.findViewById(R.id.fab_generateTestData_lights);
         fab_show_addFloors = root.findViewById(R.id.fab_show_addFloors);
@@ -103,17 +101,15 @@ public class SettingsFragment extends Fragment {
         initAddLightPanel(root);
         initAddFloorPanel(root);
 
-        container_fabs = root.findViewById(R.id.txtInputLayout_add_buttons);
-
         textView = root.findViewById(R.id.text_notifications);
         return root;
     }
 
-    private RecyclerView setRecyclerFloors(View root) {
-        RecyclerView recycler_floors = root.findViewById(R.id.recycler_floors);
+    private void setRecyclerFloors(View root) {
+        recycler_floors = root.findViewById(R.id.recycler_floors);
         recycler_floors.setHasFixedSize(true);
         //  Values
-        floorAdapter = new FloorAdapter(settingsViewModel, this); //settingsViewModel.getListOfFloors().getValue(), this);
+        FloorAdapter floorAdapter = new FloorAdapter(settingsViewModel, this); //settingsViewModel.getListOfFloors().getValue(), this);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout2 = new LinearLayoutManager(getContext());
@@ -126,13 +122,12 @@ public class SettingsFragment extends Fragment {
         // Snapping on a viewholder
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_floors);
-        return recycler_floors;
     }
-    private RecyclerView setRecyclerLights(View root) {
-        RecyclerView recycler_lights = root.findViewById(R.id.recycler_lights);
+    private void setRecyclerLights(View root) {
+        recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);
         //  Values
-        lightAdapter = new LightAdapter(settingsViewModel); // settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
+        LightAdapter lightAdapter = new LightAdapter(settingsViewModel); // settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
         recycler_lights.setAdapter(lightAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
@@ -145,7 +140,6 @@ public class SettingsFragment extends Fragment {
         // Snapping on a viewholder // TODO: Maybe a stronger snap. See SnapHelperBuilder
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_lights);
-        return recycler_lights;
     }
 
     private void initAddFloorPanel(View root) {
@@ -171,7 +165,10 @@ public class SettingsFragment extends Fragment {
             public void onClick(View v) {
                 if(txtInputLayout_newFloorOrder.getEditText().length() > 0 && txtInputLayout_newFloorDescription.getEditText().getText().length() > 0 && txtInputLayout_newFloorFilePath.getEditText().getText().length() > 0)
                 {
-                    Floor newFloor = new Floor(Integer.parseInt(txtInputLayout_newFloorOrder.getEditText().getText().toString()), txtInputLayout_newFloorDescription.getEditText().getText().toString(), txtInputLayout_newFloorFilePath.getEditText().getText().toString());
+                    Floor newFloor = new Floor(Integer.parseInt(txtInputLayout_newFloorOrder.getEditText().getText().toString()),
+                            txtInputLayout_newFloorDescription.getEditText().getText().toString(),
+//                            txtInputLayout_newFloorFilePath.getEditText().getText().toString())
+                            trueUri);
                     if(settingsViewModel.getListOfFloors().getValue().contains(newFloor))
                     {
                         txtInputLayout_newFloorOrder.setErrorEnabled(true);
@@ -419,9 +416,9 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                  //Should listen to sharedPreferences instead
-                Floor f1 = new Floor(-1, "RDC", "Tessst");
-                Floor f2 = new Floor(-2, "1st F", "Tessst");
-                Floor f3 = new Floor(-3, "2nd F", "Tessst");
+                Floor f1 = new Floor(0, "RDC", "This is template data - please select an .SVG file");
+                Floor f2 = new Floor(1, "1st F", "This is template data - please select an .SVG file");
+                Floor f3 = new Floor(2, "2nd F", "This is template data - please select an .SVG file");
                 Light l1 = new Light.Builder(3, 2, f1, 0).setDescription("Light in the corridor #1").setDistance(20).build();
                 Light l2 = new Light.Builder(1, 2, f1, 0).setDescription("Light in Prof. Zhang's office").setDistance(24).build();
                 Light l3 = new Light.Builder(5, 3, f2, 0).setDescription("Light in the corridor #5").setDistance(40).build();
@@ -437,30 +434,32 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Timber.d("%s light detected", settingsViewModel.getListOfLights().getValue().size());
-                for (Light light : settingsViewModel.getListOfLights().getValue())
-                {
-                    Timber.d(light.toString());
-                }
-                for (Floor floor : settingsViewModel.getListOfFloors().getValue())
-                {
-                    Timber.d(floor.toString());
-                }
-//                startActivityForResult(SvgFetcher.lookForSvgIntent(), SvgFetcher.READ_SVG_REQUEST_CODE);
-            }
-        });
+//        textView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Timber.d("%s light detected", settingsViewModel.getListOfLights().getValue().size());
+//                for (Light light : settingsViewModel.getListOfLights().getValue())
+//                {
+//                    Timber.d(light.toString());
+//                }
+//                for (Floor floor : settingsViewModel.getListOfFloors().getValue())
+//                {
+//                    Timber.d(floor.toString());
+//                }
+//            }
+//        });
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data != null && resultCode == RESULT_OK) {
             Timber.d("Activity Result caught. Request code: %s. Result code: %s", requestCode, resultCode);
+            String filePath = data.getData().toString();
+
             switch (requestCode) {
                 case SvgFetcher.READ_SVG_REQUEST_CODE:
-                    String filePath = data.getData().getPath();
+                    Timber.d(data.getData().normalizeScheme().getPath());
+
                     int position = ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition();
                     recycler_floors.scrollToPosition(position);
                     FloorAdapter.FloorHolder holder = (FloorAdapter.FloorHolder) recycler_floors.findViewHolderForAdapterPosition(position);
@@ -470,13 +469,13 @@ public class SettingsFragment extends Fragment {
                     }
                     break;
                 case SvgFetcher.ADD_SVG_REQUEST_CODE:
-                    Timber.d("From add floor");
-                    txtInputLayout_newFloorFilePath.getEditText().setText(data.getData().getPath());
+                    Timber.d("From add floor: %s", filePath);
+                    trueUri = filePath;
+                    txtInputLayout_newFloorFilePath.getEditText().setText(filePath.split("%2F")[filePath.split("%2F").length-1]);
+                    break;
+                default:
                     break;
             }
         } else { Timber.e("Could not find file"); }
     }
-
-
-
 }

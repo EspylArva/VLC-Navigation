@@ -45,15 +45,6 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
 
     public LightAdapter(SettingsViewModel vm) { this.vm = vm; }
 
-//    @Override
-//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//        if(vm == null)
-//        {
-//            vm = new ViewModelProvider((ViewModelStoreOwner)recyclerView.getContext()).get(SettingsViewModel.class);
-//        }
-//    }
-
     @NonNull
     @Override
     public LightHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -68,7 +59,6 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         holder.refreshUI();
 
         holder.test();
-        //FIXME: keyboard pushes the views
         //FIXME: Selecting other view resets the position of the recycler view
     }
 
@@ -227,14 +217,9 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    // Dismiss popup.
                     int newFloorOrder = floorOrders.get(position);
-//                    floors.get(floorPosition).setOrder(newOrder);
                     vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setOrder(newFloorOrder);
-
                     txtInputLayout_floor.getEditText().setText(String.valueOf(newFloorOrder));
-//                    saveInSharedPreferences(lights);
-
                     listPopupWindow.dismiss();
                 }
             });

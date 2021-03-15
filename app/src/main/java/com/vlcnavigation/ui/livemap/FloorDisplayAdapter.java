@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,14 +14,14 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.ViewModel;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pixplicity.sharp.Sharp;
 import com.vlcnavigation.R;
-import com.vlcnavigation.module.svg2vector.Utils;
+import com.vlcnavigation.module.svg2vector.SvgSplitter;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -40,8 +41,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
     @Override
     public void onBindViewHolder(@NonNull FloorDisplayHolder holder, int position) {
-//        holder.setFloor();
-//        holder.refreshUI();
+        holder.refreshUI();
     }
 
     @Override
@@ -72,19 +72,28 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         private void initViews(View itemView) {
             container_map = itemView.findViewById(R.id.container_map);
 
+        }
+
+        private InputStream getInputStreamFromUri(Uri uri) throws FileNotFoundException {
+            return itemView.getContext().getContentResolver().openInputStream(uri);
+        }
+
+        public void refreshUI()
+        {
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
             Timber.d("Displaying the map for floor %s", vm.getListOfFloors().getValue().get(getAdapterPosition()).toString());
-            // FIXME: should take filePath file and display it instead of R.raw.isep_map
-            List<String> svgs = Utils.listSvgAsString(itemView.getResources().openRawResource(R.raw.isep_map));
-            if(svgs != null) {
-                for(String s : svgs) {
-                    try{
-                        makeMap(s);
-                    } catch (IOException e) { Timber.e(e); }
-                }
-            }
-            else { System.out.println("ARRAY NULL"); }
 
+            try{
+                InputStream svg = getInputStreamFromUri(Uri.parse(filePath));
+                List<String> svgs = SvgSplitter.parse(svg);
+                if(svgs != null && svgs.size() > 0) {
+                    for(String s : svgs) {
+                        try{
+                            makeMap(s);
+                        } catch (IOException e) { Timber.e(e); }
+                    }
+                }
+            } catch(IOException e) { Timber.e(e); }
         }
 
         @SuppressLint("ClickableViewAccessibility")

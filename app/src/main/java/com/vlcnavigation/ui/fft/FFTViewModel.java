@@ -10,7 +10,7 @@ public class FFTViewModel extends ViewModel {
 
     public FFTViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is dashboard fragment");
+        mText.setValue("This is the Fast Fourrier Transform fragment");
     }
 
     public LiveData<String> getText() {

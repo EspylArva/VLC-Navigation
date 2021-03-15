@@ -6,19 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.settings.SettingsFragment">
 
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/recycler_floors"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -30,7 +17,7 @@
         app:layout_constraintBottom_toTopOf="@id/recycler_lights"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_notifications"/>
+        app:layout_constraintTop_toTopOf="parent"/>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_lights"
         android:layout_width="0dp"
@@ -69,7 +56,6 @@
             android:id="@+id/fab_generateTestData_lights"
             app:srcCompat="@drawable/abc_vector_test"
             android:layout_margin="@dimen/default_margin" />
-
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

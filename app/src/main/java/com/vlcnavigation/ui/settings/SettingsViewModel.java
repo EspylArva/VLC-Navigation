@@ -31,7 +31,6 @@ import timber.log.Timber;
 
 public class SettingsViewModel extends AndroidViewModel {
 
-    private final MutableLiveData<String> mText;
     private final MutableLiveData<List<Light>> mListOfLights;
     private final MutableLiveData<List<Floor>> mListOfFloors;
     private final SharedPreferences preferences;
@@ -39,15 +38,11 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public SettingsViewModel(@NonNull Application app) {
         super(app);
-        mText = new MutableLiveData<>();
         mListOfLights = new MutableLiveData<>();
         mListOfFloors = new MutableLiveData<>();
 
-        mText.setValue("This is notifications fragment");
         mListOfLights.setValue(new ArrayList<Light>());
         mListOfFloors.setValue(new ArrayList<Floor>());
-
-//        mListOfFloors.getValue().
 
         resources = getApplication().getResources();
         preferences = getApplication().getSharedPreferences("com.vlcnavigation", Context.MODE_PRIVATE);
@@ -81,11 +76,7 @@ public class SettingsViewModel extends AndroidViewModel {
             }
         }
     }
-
-    public LiveData<String> getText() {
-        return mText;
-    }
-
+    
     public void addLight(Light newLight) {
         mListOfLights.getValue().add(newLight);
         saveLights();
@@ -119,8 +110,7 @@ public class SettingsViewModel extends AndroidViewModel {
         preferences.edit().putString(resources.getString(R.string.sp_lights), json).apply();
     }
 
-    public void saveFloors()
-    {
+    public void saveFloors() {
         String json = new Gson().toJson(mListOfFloors.getValue());
         preferences.edit().putString(resources.getString(R.string.sp_map), json).apply();
     }

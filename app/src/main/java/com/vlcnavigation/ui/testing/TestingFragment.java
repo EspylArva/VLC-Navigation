@@ -15,9 +15,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.vlcnavigation.R;
-import com.vlcnavigation.ui.livemap.CardDataParser;
-import com.vlcnavigation.ui.livemap.LiveMapViewModel;
-import com.vlcnavigation.ui.livemap.ParseResult;
 
 import java.io.ByteArrayOutputStream;
 

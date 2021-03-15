@@ -7,7 +7,9 @@
     <string name="lorem">Lorem ipsum</string>
 
     <!-- Text field hints -->
-<!--    <string name="add_a_light">Add a light</string>-->
+        <!-- Fragment Live Map -->
+    <string name="room_search">Search for a room</string>
+        <!-- Fragment Settings -->
     <string name="light_description">Description</string>
     <string name="light_lambda">Wavelength</string>
     <string name="light_posX">Position X</string>
@@ -16,9 +18,10 @@
     <string name="light_distance">Distance to captor</string>
 
     <string name="light_wavelength">Light\'s wavelength</string>
-    <string name="floor_order">Floor localization</string>
+    <string name="floor_order">Floor localisation</string>
     <string name="floor_description">Floor description</string>
     <string name="floor_path">Path to resource file</string>
+
 
     <!-- Toasts and GUI feedbacks -->
     <string name="floor_added">Added a new floor</string>
@@ -29,16 +32,15 @@
     <string name="light_y_null">Position Y is required</string>
     <string name="light_lambda_null">Wavelength is required</string>
     <string name="light_floor_null">Floor is required</string>
-    <string name="floor_order_null">Floor localization is required</string>
+    <string name="floor_order_null">Floor localisation is required</string>
     <string name="floor_description_null">Floor description is required</string>
     <string name="floor_path_null">Please select a file</string>
 
     <!-- Errors (others) -->
-    <string name="floor_already_exists">Another floor at this localization already exists</string>
+    <string name="floor_already_exists">Another floor at this localisation already exists</string>
 
     <!-- Shared Preferences -->
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_map">com.vlcnavigation.floors</string>
-    <string name="room_search">Search for a room</string>
 </resources>

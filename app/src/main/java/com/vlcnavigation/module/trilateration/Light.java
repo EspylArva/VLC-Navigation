@@ -21,17 +21,13 @@ public class Light {
     @Override
     public String toString()
     {
-        return String.format("Light %s is at position (%s, %s)", // has the following ranges: [X (%s - %s), Y (%s - %s)]",
+        return String.format("Light %s is at position (%s, %s)",
                 this.description,
-                this.posX, this.posY//,
-//                receiverXPos.first, receiverXPos.second,
-//                receiverYPos.first, receiverYPos.second
-                );
+                this.posX, this.posY);
     }
 
     private double posX;
     private double posY;
-//    Pair<Double, Double> posXY;
     private double distance;
     private String description;
     private Floor floor;
@@ -48,8 +44,6 @@ public class Light {
     public void setPosY(double newPosY) { this.posY = newPosY; }
     public void setLambda(double newLambda) { this.lambda = newLambda; }
     public void setFloor(Floor newFloor) { this.floor = newFloor; }
-
-
 
     public static class Builder{
         // Mandatory

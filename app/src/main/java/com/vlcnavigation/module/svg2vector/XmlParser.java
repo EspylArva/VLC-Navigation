@@ -1,22 +1,9 @@
 package com.vlcnavigation.module.svg2vector;
 
-import android.util.Xml;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Stack;
-
 
 public class XmlParser {
 
@@ -63,7 +50,4 @@ public class XmlParser {
         parser.require(XmlPullParser.END_TAG, ns, beacon);
         return content;
     }
-
-
-
 }
