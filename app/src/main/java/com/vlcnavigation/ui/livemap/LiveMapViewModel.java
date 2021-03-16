@@ -30,6 +30,7 @@ public class LiveMapViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Light>> mListOfLights;
     private final MutableLiveData<List<Floor>> mListOfFloors;
 
+
     public LiveMapViewModel(Application app) {
         super(app);
         mListOfLights = new MutableLiveData<>();

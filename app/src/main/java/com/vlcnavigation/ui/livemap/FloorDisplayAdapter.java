@@ -53,6 +53,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         private final LiveMapViewModel vm;
         // Views
         private ConstraintLayout container_map;
+        public ConstraintLayout getContainer() { return this.container_map; }
 
         public FloorDisplayHolder(@NonNull View itemView, LiveMapViewModel vm) {
             super(itemView);

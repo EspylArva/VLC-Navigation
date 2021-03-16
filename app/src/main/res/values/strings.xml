@@ -22,7 +22,6 @@
     <string name="floor_description">Floor description</string>
     <string name="floor_path">Path to resource file</string>
 
-
     <!-- Toasts and GUI feedbacks -->
     <string name="floor_added">Added a new floor</string>
     <string name="light_added">Successfully added a new light!</string>

@@ -101,7 +101,7 @@ public class SettingsFragment extends Fragment {
         initAddLightPanel(root);
         initAddFloorPanel(root);
 
-        textView = root.findViewById(R.id.text_notifications);
+//        textView = root.findViewById(R.id.text_notifications);
         return root;
     }
 
@@ -399,12 +399,12 @@ public class SettingsFragment extends Fragment {
 
     private void initObservers()
     {
-        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+//        settingsViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+//            }
+//        });
     }
 
     private void initListeners()
