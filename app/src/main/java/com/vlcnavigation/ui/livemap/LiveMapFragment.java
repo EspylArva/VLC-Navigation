@@ -50,7 +50,7 @@ public class LiveMapFragment extends Fragment {
      */
     private void refreshUI() {
         int position = recycler_floors.getAdapter().getItemCount() -1;
-        recycler_floors.scrollToPosition(position);
+        recycler_floors.scrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
     }
 
     private void initListeners() {
