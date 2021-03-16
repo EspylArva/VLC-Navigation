@@ -51,7 +51,6 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         int position = recycler_floors.getAdapter().getItemCount() -1;
         recycler_floors.scrollToPosition(position);
-        ((FloorOrderAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.border);
     }
 
     private void initListeners() {
