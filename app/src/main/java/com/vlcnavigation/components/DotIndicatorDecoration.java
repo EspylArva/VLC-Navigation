@@ -64,7 +64,7 @@ public class DotIndicatorDecoration extends RecyclerView.ItemDecoration {
         float indicatorStartX = (parent.getWidth() - indicatorTotalWidth) / 2F;
 
         // center vertically in the allotted space
-        float indicatorPosY = parent.getHeight() - mIndicatorHeight / 2F - 15; // Change vertical padding here
+        float indicatorPosY = parent.getHeight() - mIndicatorHeight / 2F + 10; // Change vertical padding here
 
         drawInactiveIndicators(c, indicatorStartX, indicatorPosY, itemCount);
 
