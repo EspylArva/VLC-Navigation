@@ -47,9 +47,9 @@ import static com.vlcnavigation.module.svg2vector.SvgFetcher.READ_SVG_REQUEST_CO
 public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>{
 
     private final SettingsViewModel vm;
-    private final SettingsFragment fragment;
+    private final FloorsLightsManagerFragment fragment;
 
-    public FloorAdapter(SettingsViewModel vm, SettingsFragment fragment)
+    public FloorAdapter(SettingsViewModel vm, FloorsLightsManagerFragment fragment)
     {
         this.vm = vm;
         this.fragment = fragment;
@@ -76,14 +76,14 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
     public class FloorHolder extends RecyclerView.ViewHolder {
 
         private final SettingsViewModel vm;      // Data
-        private final SettingsFragment fragment; // Necessary to handle the callback
+        private final FloorsLightsManagerFragment fragment; // Necessary to handle the callback
         private Floor floor;                     // Not necessary, but makes the code shorter
 
         // Views
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
         private ImageView img_deleteEntry;
 
-        public FloorHolder(@NonNull View itemView, SettingsViewModel vm, SettingsFragment fragment) {
+        public FloorHolder(@NonNull View itemView, SettingsViewModel vm, FloorsLightsManagerFragment fragment) {
             super(itemView);
             this.vm = vm;
             this.fragment = fragment;

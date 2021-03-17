@@ -55,27 +55,19 @@ dependencies {
     implementation 'com.android.tools:sdk-common:25.3.0'
     implementation 'com.android.tools:common:25.3.0'
 
-
-    // mxGraph @ https://mvnrepository.com/artifact/com.mxgraph/jgraphx
-//    implementation 'com.github.vlsi.mxgraph:jgraphx:4.2.2'
-
-    // Might want this one : https://android-arsenal.com/details/1/448
-    // implementation 'com.github.japgolly.android:svg-android:2.0.6'
-
-//     Loading SVG dynamically @ https://mvnrepository.com/artifact/com.pixplicity.sharp/library
+    // Loading SVG dynamically @ https://mvnrepository.com/artifact/com.pixplicity.sharp/library
      implementation group: 'com.pixplicity.sharp', name: 'library', version:'1.1.0'
 
-//    // https://mvnrepository.com/artifact/androidx.vectordrawable/vectordrawable
-//    runtimeOnly group: 'androidx.vectordrawable', name: 'vectordrawable', version: '1.1.0'
-
-    // https://mvnrepository.com/artifact/com.adofgames/adt-android-sdk
-//    implementation group: 'com.adofgames', name: 'adt-android-sdk', version: '2.4'
-
-    // https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    // Trilateration calculus @ https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'com.lemmingapex.trilateration:trilateration:1.0.2'
 
     // Gson
     implementation 'com.google.code.gson:gson:2.8.6'
+
+    // Expendable FAB @ https://github.com/nambicompany/expandable-fab
+    implementation 'com.nambimobile.widgets:expandable-fab:1.0.2'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
 
 
 }
