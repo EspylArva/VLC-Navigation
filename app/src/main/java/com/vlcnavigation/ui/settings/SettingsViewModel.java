@@ -70,7 +70,7 @@ public class SettingsViewModel extends AndroidViewModel {
             List<Floor> savedFloors = new Gson().fromJson(floors, TYPE_LIST_OF_LIGHT);
             if (savedFloors != null && savedFloors.size() > 0) {
                 for (Floor floor : savedFloors) {
-                    Timber.d("This light was saved: %s", floor.toString());
+                    Timber.d("This floor was saved: %s", floor.toString());
                     addFloor(floor);
                 }
             }

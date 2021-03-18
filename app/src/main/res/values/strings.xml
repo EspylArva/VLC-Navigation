@@ -42,4 +42,6 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_map">com.vlcnavigation.floors</string>
+    <string name="title_addFloor">Add a floor</string>
+    <string name="title_addLight">Add a light</string>
 </resources>

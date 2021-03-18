@@ -9,6 +9,7 @@
     android:id="@+id/coordinator">
 
     <fragment
+        android:id="@+id/manager"
         android:name="com.vlcnavigation.ui.settings.FloorsLightsManagerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -22,36 +23,61 @@
         app:behavior_peekHeight="56dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <!--This is the backdrop's header with a title and icon-->
-        <LinearLayout
-            android:id="@+id/backdrop_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:clickable="true"
-            android:background="@drawable/ic_rounded_top"
-            android:padding="25dp"
-            android:elevation="4dp">
-
-            <TextView
-                android:layout_width="0dp"
+            <!--This is the backdrop's header with a title and icon-->
+            <LinearLayout
+                android:id="@+id/backdrop_header"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Add item to the list (Light or Floor)"/>
+                android:orientation="horizontal"
+                android:background="@drawable/ic_rounded_top"
+                android:clickable="true"
+                android:padding="25dp"
+                android:elevation="4dp">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Add item to the list (Light or Floor)"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/parentContainer"
+                android:background="?attr/colorOnPrimary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <fragment
+                    android:layout_marginBottom="@dimen/default_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:name="com.vlcnavigation.ui.settings.AddFloorFragment"/>
+                <fragment
+                    android:layout_marginBottom="@dimen/default_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:name="com.vlcnavigation.ui.settings.AddLightFragment"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <Button
+                        android:id="@+id/btn_add_sample_data"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Add sample data"
+                        android:layout_marginEnd="@dimen/default_margin"/>
+                    <Button
+                        android:id="@+id/btn_load_data"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Load data from file"/>
+
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
-            <fragment
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:name="com.vlcnavigation.ui.settings.AddFloorFragment"/>
-<!--            <View-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:background="?android:attr/divider"/>-->
-            <fragment
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:name="com.vlcnavigation.ui.settings.AddLightFragment"/>
-    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

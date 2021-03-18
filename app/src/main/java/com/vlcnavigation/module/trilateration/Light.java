@@ -21,7 +21,7 @@ public class Light {
     @Override
     public String toString()
     {
-        return String.format("Light %s is at position (%s, %s)",
+        return String.format("Light \"%s\" is at position (%s, %s)",
                 this.description,
                 this.posX, this.posY);
     }

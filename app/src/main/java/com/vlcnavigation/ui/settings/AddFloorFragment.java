@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +37,8 @@ public class AddFloorFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        if(getParentFragment() != null) { settingsViewModel = new ViewModelProvider(getParentFragment()).get(SettingsViewModel.class); }
+        else { settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class); Timber.e("Failed getting the correct view model"); }
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
@@ -65,6 +68,7 @@ public class AddFloorFragment extends Fragment {
 
                         // Reset UI (Add button part)
                         resetFloorPanel();
+                        ((SettingsFragment) getParentFragment()).notifyFloorRecycler();
 
                         // UX
                         Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();

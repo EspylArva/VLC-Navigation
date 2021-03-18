@@ -28,9 +28,13 @@ public class FloorsLightsManagerFragment extends Fragment {
     private RecyclerView recycler_lights; // Carousel with lights
     private RecyclerView recycler_floors; // Carousel with floors
 
+    public RecyclerView getLightRecycler() { return this.recycler_lights; }
+    public RecyclerView getFloorRecycler() { return this.recycler_floors; }
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        if(getParentFragment() != null) { settingsViewModel = new ViewModelProvider(getParentFragment()).get(SettingsViewModel.class); }
+        else { settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class); }
         View root = initViews(inflater, container);
         initObservers();
         initListeners();

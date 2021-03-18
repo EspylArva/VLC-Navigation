@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.android.ide.common.vectordrawable.Svg2Vector;
+//import com.android.ide.common.vectordrawable.Svg2Vector;
 import com.vlcnavigation.R;
 
 import java.io.File;

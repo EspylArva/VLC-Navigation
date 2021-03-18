@@ -50,23 +50,21 @@ dependencies {
     // Better Logging @ https://mvnrepository.com/artifact/com.jakewharton.timber/timber
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    // Needed for Svg2VectorAndroid
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'com.android.tools:sdk-common:25.3.0'
-    implementation 'com.android.tools:common:25.3.0'
-
     // Loading SVG dynamically @ https://mvnrepository.com/artifact/com.pixplicity.sharp/library
      implementation group: 'com.pixplicity.sharp', name: 'library', version:'1.1.0'
 
     // Trilateration calculus @ https://mvnrepository.com/artifact/org.apache.commons/commons-math3
     implementation 'com.lemmingapex.trilateration:trilateration:1.0.2'
 
-    // Gson
+    // Gson (marshalling/unmarshalling) @ https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
     // Expendable FAB @ https://github.com/nambicompany/expandable-fab
     implementation 'com.nambimobile.widgets:expandable-fab:1.0.2'
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    // Backdrop (material) @ https://github.com/kishan2612/Material-Backdrop-Android
+    implementation 'com.github.kishan2612:Material-Backdrop-Android:v1.1.0'
+
 
 
 

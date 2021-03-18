@@ -1,11 +1,8 @@
 package com.vlcnavigation;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.pixplicity.sharp.Sharp;
-import com.vlcnavigation.module.svg2vector.SvgFetcher;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;

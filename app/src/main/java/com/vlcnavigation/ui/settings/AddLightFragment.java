@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -34,9 +35,11 @@ public class AddLightFragment extends Fragment {
 
     private SettingsViewModel settingsViewModel;
 
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
+        if(getParentFragment() != null) { settingsViewModel = new ViewModelProvider(getParentFragment()).get(SettingsViewModel.class); }
+        else { settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class); Timber.e("Failed getting the correct view model"); }
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
@@ -67,7 +70,8 @@ public class AddLightFragment extends Fragment {
             public void onClick(View v) {
                 if(txtInputLayout_newLightXPos.getEditText().getText().length() > 0 &&
                         txtInputLayout_newLightYPos.getEditText().getText().length() > 0 &&
-                        txtInputLayout_newLightLambda.getEditText().getText().length() > 0)
+                        txtInputLayout_newLightLambda.getEditText().getText().length() > 0 &&
+                        txtInputLayout_newLightFloor.getEditText().getText().length() > 0)
                 {
                     // Add a new light
                     Light newLight = new Light.Builder(
@@ -80,6 +84,7 @@ public class AddLightFragment extends Fragment {
 
                     // Reset UI (Add button part)
                     resetLightPanel();
+                    ((SettingsFragment) getParentFragment()).notifyLightRecycler(settingsViewModel.getListOfLights().getValue().size() - 1);
 
                     // UX
                     Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
@@ -163,6 +168,8 @@ public class AddLightFragment extends Fragment {
         txtInputLayout_newLightLambda = root.findViewById(R.id.txtInputLayout_addLight_lambda);
         txtInputLayout_newLightDescription = root.findViewById(R.id.txtInputLayout_addLight_description);
         txtInputLayout_newLightFloor = root.findViewById(R.id.txtInputLayout_addLight_floor);
+
+        recyclerView_lights = inflater.inflate(R.layout.tabitem_floors_and_lights, container, false).findViewById(R.id.recycler_lights);
 
         fab_addLight = root.findViewById(R.id.fab_addLight);
         return root;
