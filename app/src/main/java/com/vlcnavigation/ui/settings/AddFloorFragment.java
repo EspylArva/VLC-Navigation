@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
+import com.vlcnavigation.module.utils.Util;
 
 import timber.log.Timber;
 
@@ -67,8 +68,9 @@ public class AddFloorFragment extends Fragment {
                         settingsViewModel.addFloor(newFloor);
 
                         // Reset UI (Add button part)
-                        resetFloorPanel();
-                        ((SettingsFragment) getParentFragment()).notifyFloorRecycler();
+                        resetFloorPanel();                                              // Empties EditText
+                        ((SettingsFragment) getParentFragment()).notifyFloorRecycler(); // Notify adapter that item has been added and collapses the backdrop
+                        Util.hideKeyboard(getActivity());                               // Remove soft keyboard
 
                         // UX
                         Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();

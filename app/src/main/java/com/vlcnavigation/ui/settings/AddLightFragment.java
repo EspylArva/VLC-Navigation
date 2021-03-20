@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,8 @@ import timber.log.Timber;
 
 public class AddLightFragment extends Fragment {
     private TextInputLayout txtInputLayout_newLightXPos, txtInputLayout_newLightYPos;
-    private TextInputLayout txtInputLayout_newLightLambda, txtInputLayout_newLightDescription, txtInputLayout_newLightFloor;
+    private TextInputLayout txtInputLayout_newLightLambda, txtInputLayout_newLightDescription;
+    private AutoCompleteTextView txtInputLayout_newLightFloor;
     private FloatingActionButton fab_addLight;
 
     private SettingsViewModel settingsViewModel;
@@ -59,11 +62,11 @@ public class AddLightFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int newFloorOrder = floorOrders.get(position);
-                txtInputLayout_newLightFloor.getEditText().setText(String.valueOf(newFloorOrder));
+                txtInputLayout_newLightFloor.setText(String.valueOf(newFloorOrder));
                 listPopupWindow.dismiss();
             }
         });
-        txtInputLayout_newLightFloor.getEditText().setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { listPopupWindow.show(); } });
+        txtInputLayout_newLightFloor.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { Util.hideKeyboard(getActivity()); listPopupWindow.show(); } });
 
         fab_addLight.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,20 +74,21 @@ public class AddLightFragment extends Fragment {
                 if(txtInputLayout_newLightXPos.getEditText().getText().length() > 0 &&
                         txtInputLayout_newLightYPos.getEditText().getText().length() > 0 &&
                         txtInputLayout_newLightLambda.getEditText().getText().length() > 0 &&
-                        txtInputLayout_newLightFloor.getEditText().getText().length() > 0)
+                        txtInputLayout_newLightFloor.getText().length() > 0)
                 {
                     // Add a new light
                     Light newLight = new Light.Builder(
                             Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
                             Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
-                            settingsViewModel.findFloor(Integer.parseInt(txtInputLayout_newLightFloor.getEditText().getText().toString())),
+                            settingsViewModel.findFloor(Integer.parseInt(txtInputLayout_newLightFloor.getText().toString())),
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
                     settingsViewModel.addLight(newLight);
 
                     // Reset UI (Add button part)
-                    resetLightPanel();
-                    ((SettingsFragment) getParentFragment()).notifyLightRecycler(settingsViewModel.getListOfLights().getValue().size() - 1);
+                    resetLightPanel();                                                                                                          // Empties EditText
+                    ((SettingsFragment) getParentFragment()).notifyLightRecycler(settingsViewModel.getListOfLights().getValue().size() - 1);    // Notify adapter that item has been added and collapses the backdrop
+                    Util.hideKeyboard(getActivity());                                                                                           // Remove soft keyboard
 
                     // UX
                     Toast.makeText(getContext(), R.string.light_added, Toast.LENGTH_SHORT).show();
@@ -106,9 +110,9 @@ public class AddLightFragment extends Fragment {
                         txtInputLayout_newLightLambda.setErrorEnabled(true);
                         txtInputLayout_newLightLambda.setError(getResources().getString(R.string.light_lambda_null));
                     } else { }
-                    if(txtInputLayout_newLightFloor.getEditText().getText().length() == 0)
+                    if(txtInputLayout_newLightFloor.getText().length() == 0)
                     {
-                        txtInputLayout_newLightFloor.setErrorEnabled(true);
+//                        txtInputLayout_newLightFloor.setErrorEnabled(true);
                         txtInputLayout_newLightFloor.setError(getResources().getString(R.string.light_floor_null));
                     } else { }
                 }
@@ -169,8 +173,6 @@ public class AddLightFragment extends Fragment {
         txtInputLayout_newLightDescription = root.findViewById(R.id.txtInputLayout_addLight_description);
         txtInputLayout_newLightFloor = root.findViewById(R.id.txtInputLayout_addLight_floor);
 
-        recyclerView_lights = inflater.inflate(R.layout.tabitem_floors_and_lights, container, false).findViewById(R.id.recycler_lights);
-
         fab_addLight = root.findViewById(R.id.fab_addLight);
         return root;
     }
@@ -180,11 +182,12 @@ public class AddLightFragment extends Fragment {
         txtInputLayout_newLightXPos.getEditText().getText().clear();
         txtInputLayout_newLightYPos.getEditText().getText().clear();
         txtInputLayout_newLightLambda.getEditText().getText().clear();
-        txtInputLayout_newLightFloor.getEditText().getText().clear();
+        txtInputLayout_newLightFloor.getText().clear();
 
         txtInputLayout_newLightXPos.setErrorEnabled(false);
         txtInputLayout_newLightYPos.setErrorEnabled(false);
         txtInputLayout_newLightLambda.setErrorEnabled(false);
-        txtInputLayout_newLightFloor.setErrorEnabled(false);
+//        txtInputLayout_newLightFloor.setErrorEnabled(false);
+//        txtInputLayout_newLightFloor.setError();
     }
 }

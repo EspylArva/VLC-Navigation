@@ -102,21 +102,16 @@
         app:borderWidth="0dp"
         app:maxImageSize="56dp"/>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/txtInputLayout_addLight_floor"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
             android:hint="@string/light_floor"
+            android:inputType="none"
             app:layout_constraintTop_toTopOf="@id/txtInputLayout_addLight_yPos"
             app:layout_constraintBottom_toBottomOf="@id/txtInputLayout_addLight_yPos"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="@dimen/default_margin">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="none"
-                android:editable="false"/>
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginEnd="@dimen/default_margin"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

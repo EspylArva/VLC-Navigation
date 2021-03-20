@@ -6,9 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -16,9 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.vlcnavigation.R;
-import com.vlcnavigation.components.DotIndicatorDecoration;
-
-import timber.log.Timber;
 
 
 public class LiveMapFragment extends Fragment {
@@ -63,7 +58,7 @@ public class LiveMapFragment extends Fragment {
                     if(holder != null) {
                         if (i == ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // FIXME : Get a better hint
-                            holder.getTv().setBackgroundResource(R.drawable.border);
+                            holder.getTv().setBackgroundResource(R.drawable.ic_border);
                         } else { holder.getTv().setBackgroundResource(0); } // reset style
                     }
                 }

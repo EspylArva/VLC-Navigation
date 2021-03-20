@@ -22,6 +22,7 @@ import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -34,6 +35,7 @@ import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +83,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
 
         // Views
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
-        private ImageView img_deleteEntry;
+        private AppCompatButton btn_deleteEntry;
 
         public FloorHolder(@NonNull View itemView, SettingsViewModel vm, FloorsLightsManagerFragment fragment) {
             super(itemView);
@@ -101,7 +103,7 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
             this.txtInputLayout_order = itemView.findViewById(R.id.txtInputLayout_floor_order);
             this.txtInputLayout_description = itemView.findViewById(R.id.txtInputLayout_floor_description);
             this.txtInputLayout_filePath = itemView.findViewById(R.id.txtInputLayout_filePath);
-            this.img_deleteEntry = itemView.findViewById(R.id.img_deleteFloorEntry);
+            this.btn_deleteEntry = itemView.findViewById(R.id.btn_deleteFloorEntry);
         }
 
         public void refreshUI()
@@ -167,12 +169,13 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 }
             });
 
-            img_deleteEntry.setOnClickListener(new View.OnClickListener() {
+            btn_deleteEntry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position > -1)
                     {
+                        Util.hideKeyboardFromView(v);
                         vm.removeFloorAt(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position,  vm.getListOfFloors().getValue().size());

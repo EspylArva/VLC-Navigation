@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
@@ -42,6 +44,7 @@ import com.vlcnavigation.components.RecyclerViewMargin;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +60,8 @@ public class SettingsFragment extends Fragment {
 
     private Button btn_addSample, btn_loadFromFile;
     private FloorsLightsManagerFragment manager;
+    private LinearLayout contentLayout;
+    private AppCompatButton btn_openBackdrop;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -69,16 +74,22 @@ public class SettingsFragment extends Fragment {
         return root;
     }
 
-    public void notifyLightRecycler(int index) { manager.getLightRecycler().getAdapter().notifyItemInserted(index); }
-    public void notifyFloorRecycler(int index) { manager.getFloorRecycler().getAdapter().notifyItemInserted(index); }
-    public void notifyLightRecycler() { manager.getLightRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfLights().getValue().size() -1); }
-    public void notifyFloorRecycler() { manager.getFloorRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfFloors().getValue().size() -1); }
+    public void notifyLightRecycler(int index) { manager.getLightRecycler().getAdapter().notifyItemInserted(index); collapse(); }
+    public void notifyFloorRecycler(int index) { manager.getFloorRecycler().getAdapter().notifyItemInserted(index); collapse(); }
+    public void notifyLightRecycler() { manager.getLightRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfLights().getValue().size() -1); collapse();}
+    public void notifyFloorRecycler() { manager.getFloorRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfFloors().getValue().size() -1); collapse();}
+
+
+    private void collapse() { BottomSheetBehavior.from(contentLayout).setState(BottomSheetBehavior.STATE_COLLAPSED); }
+    private void expand() { BottomSheetBehavior.from(contentLayout).setState(BottomSheetBehavior.STATE_EXPANDED); }
 
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
         View root = inflater.inflate(R.layout.fragment_settings, container, false);
         btn_addSample = root.findViewById(R.id.btn_add_sample_data);
         btn_loadFromFile = root.findViewById(R.id.btn_load_data);
+        contentLayout = root.findViewById(R.id.contentLayout);
+        btn_openBackdrop = root.findViewById(R.id.btn_open_backdrop);
         manager = (FloorsLightsManagerFragment) getChildFragmentManager().findFragmentById(R.id.manager);
         return root;
     }
@@ -106,6 +117,16 @@ public class SettingsFragment extends Fragment {
                 settingsViewModel.addFloor(f3);
 
                 notifyLightRecycler(); notifyFloorRecycler();
+                Util.hideKeyboard(getActivity());
+            }
+        });
+
+        btn_openBackdrop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (BottomSheetBehavior.from(contentLayout).getState() == BottomSheetBehavior.STATE_COLLAPSED) { expand(); }
+                else { collapse(); }
+                Util.hideKeyboard(getActivity());
             }
         });
 

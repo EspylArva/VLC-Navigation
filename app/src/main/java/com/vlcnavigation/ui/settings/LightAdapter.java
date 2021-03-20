@@ -13,12 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,6 +33,7 @@ import com.google.gson.Gson;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 
 import org.w3c.dom.Text;
 
@@ -73,9 +77,10 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         private Light light;
 
         private TextInputLayout txtInputDescription;
-        private TextInputLayout txtInputLayout_posX, txtInputLayout_posY, txtInputLayout_floor;
+        private TextInputLayout txtInputLayout_posX, txtInputLayout_posY;
         private TextInputLayout txtInputLayout_lambda, txtInputLayout_distance;
-        private ImageView img_deleteEntry;
+        private AutoCompleteTextView txtInputLayout_floor;
+        private AppCompatButton btn_deleteEntry;
 
         public LightHolder(@NonNull View itemView, SettingsViewModel vm) {
             super(itemView);
@@ -95,7 +100,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txtInputLayout_floor = itemView.findViewById(R.id.txtInputLayout_light_floor);
             this.txtInputLayout_lambda = itemView.findViewById(R.id.txtInputLayout_light_lambda);
             this.txtInputLayout_distance = itemView.findViewById(R.id.txtInputLayout_light_distance);
-            this.img_deleteEntry = itemView.findViewById(R.id.img_deleteEntry);
+            this.btn_deleteEntry = itemView.findViewById(R.id.btn_deleteEntry);
         }
 
 
@@ -106,7 +111,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txtInputLayout_posY.getEditText().setText(String.valueOf(light.getPosY()));
             this.txtInputLayout_lambda.getEditText().setText(String.valueOf(light.getLambda()));
             this.txtInputLayout_distance.getEditText().setText(String.valueOf(light.getDistance()));
-            this.txtInputLayout_floor.getEditText().setText(String.valueOf(light.getFloor().getOrder()));
+            this.txtInputLayout_floor.setText(String.valueOf(light.getFloor().getOrder()));
 
         }
 
@@ -118,12 +123,13 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
         }
 
         private void initOnClickListeners() {
-            this.img_deleteEntry.setOnClickListener(new View.OnClickListener() {
+            this.btn_deleteEntry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position > -1)
                     {
+                        Util.hideKeyboardFromView(v);
                         vm.removeLightAt(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position, vm.getListOfLights().getValue().size());
@@ -186,17 +192,17 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                     }
                 }
             });
-            txtInputLayout_floor.getEditText().addTextChangedListener(new TextWatcher() {
+            txtInputLayout_floor.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void afterTextChanged(Editable s) { }
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
                         txtInputLayout_floor.setError(itemView.getContext().getResources().getString(R.string.light_floor_null));
-                        txtInputLayout_floor.setErrorEnabled(true);
+//                        txtInputLayout_floor.setErrorEnabled(true); // FIXME
                     }
                     else
                     {
-                        txtInputLayout_floor.setErrorEnabled(false);
+//                        txtInputLayout_floor.setErrorEnabled(false); // FIXME
                         vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setDescription(s.toString());
                         vm.saveLights();
                     }
@@ -219,11 +225,11 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     int newFloorOrder = floorOrders.get(position);
                     vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setOrder(newFloorOrder);
-                    txtInputLayout_floor.getEditText().setText(String.valueOf(newFloorOrder));
+                    txtInputLayout_floor.setText(String.valueOf(newFloorOrder));
                     listPopupWindow.dismiss();
                 }
             });
-            txtInputLayout_floor.getEditText().setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { listPopupWindow.show(); } });
+            txtInputLayout_floor.setOnClickListener(new View.OnClickListener() { @Override public void onClick(View v) { listPopupWindow.show(); Util.hideKeyboardFromView(v);} });
         }
 
     }
