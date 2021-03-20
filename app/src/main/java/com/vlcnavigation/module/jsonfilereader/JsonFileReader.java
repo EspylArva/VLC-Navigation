@@ -31,6 +31,19 @@ public class JsonFileReader {
     private static final Type TYPE_LIST_OF_LIGHT = new TypeToken<ArrayList<Light>>() {}.getType();
     private static final Type TYPE_LIST_OF_FLOOR = new TypeToken<ArrayList<Floor>>() {}.getType();
     private static final Type TYPE_DATA_OBJECT = DataObject.class;
+    public static final int READ_JSON_REQUEST_CODE = 305;
+
+    public static Intent lookForJsonIntent() {
+        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        // Filter to only show results that can be "opened", such as a file (as opposed to a list of contacts or timezones)
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Json is not a valid MIME type according to Android: https://stackoverflow.com/questions/58055318/how-filter-json-files-with-intent-action-open-document
+        // This filters out images, videos, audios but is not a perfect filter
+//        intent.setType("application/octet-stream");
+        intent.setType("application/*");
+        return intent;
+    }
 
     public static void importDataFromFile(InputStream is, Context context) throws IOException {
 
@@ -62,13 +75,7 @@ public class JsonFileReader {
         return new Gson().fromJson(floorJson, TYPE_LIST_OF_FLOOR);
     }
 
-//    public class LightFloorDeserializer implements JsonDeserializer
-//    {
-//        @Override
-//        public Object deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-//            return null;
-//        }
-//    }
+
     private class DataObject {
         private List<Light> lights;
         private List<Floor> floors;
@@ -76,18 +83,7 @@ public class JsonFileReader {
         public List<Floor> getFloors() { return floors; }
     }
 
-    public static final int READ_JSON_REQUEST_CODE = 305;
 
-    public static Intent lookForJsonIntent() {
-        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        // Filter to only show results that can be "opened", such as a file (as opposed to a list of contacts or timezones)
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // Json is not a valid MIME type according to Android: https://stackoverflow.com/questions/58055318/how-filter-json-files-with-intent-action-open-document
-        // This filters out images, videos, audios but is not a perfect filter
-//        intent.setType("application/octet-stream");
-        intent.setType("application/*");
-        return intent;
-    }
+
 
 }

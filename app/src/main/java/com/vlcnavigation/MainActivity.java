@@ -63,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
         opt_microphone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) { requestPermissions( new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_MICROPHONE); }
+                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions( new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_MICROPHONE); }
                 else { Toast.makeText(getApplicationContext(), getResources().getString(R.string.permission_already_granted), Toast.LENGTH_SHORT).show(); }
             }
         });

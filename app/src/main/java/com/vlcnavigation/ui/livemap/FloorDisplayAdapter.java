@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.pixplicity.sharp.Sharp;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
@@ -116,6 +118,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                                 if (color != Color.TRANSPARENT) {
 
                                     Timber.d("Not transparent for %s (color: %s)", mapPart.getId(), color);
+                                    Snackbar.make(itemView.getContext(), view, String.format("Clicked on view #%s. Color: %s", mapPart.getId(), Color.valueOf(color)), BaseTransientBottomBar.LENGTH_SHORT).show();
                                     return true;
                                 }
                                 else

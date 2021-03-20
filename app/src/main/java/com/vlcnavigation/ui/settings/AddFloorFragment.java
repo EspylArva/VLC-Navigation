@@ -19,6 +19,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
@@ -73,7 +75,7 @@ public class AddFloorFragment extends Fragment {
                         Util.hideKeyboard(getActivity());                               // Remove soft keyboard
 
                         // UX
-                        Toast.makeText(getContext(), R.string.floor_added, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(getContext(), v, getResources().getString(R.string.floor_added), BaseTransientBottomBar.LENGTH_SHORT).show();
                     }
                 }
                 else
