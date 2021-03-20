@@ -9,6 +9,10 @@
     <string name="lorem">Lorem ipsum</string>
 
     <!-- Text field hints & Titles-->
+        <!-- Permission requests -->
+    <string name="manage_permissions">Manage your permissions</string>
+    <string name="permission_read_internal_file">Permission: read internal files</string>
+    <string name="permission_listen_microphone">Permission: listen to the microphone</string>
         <!-- Fragment Live Map -->
     <string name="room_search">Search for a room</string>
         <!-- Fragment Settings -->
@@ -48,5 +52,7 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_floors">com.vlcnavigation.floors</string>
+    <string name="permission_already_granted">Permission has already been granted</string>
+
 
 </resources>
