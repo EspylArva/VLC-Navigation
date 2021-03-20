@@ -14,19 +14,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.vlcnavigation.R;
+import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 
 public class LiveMapFragment extends Fragment {
 
 //    private FloatingActionButton fab1, fab2, fab3;
 
-    private LiveMapViewModel liveMapViewModel;
+//    private LiveMapViewModel liveMapViewModel;
+    private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_floors, recycler_availableFloors;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
+//        liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
+        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
@@ -83,7 +86,8 @@ public class LiveMapFragment extends Fragment {
     private void setRecyclerDisplayFloors() {
         recycler_floors.setHasFixedSize(true);
         //  Values
-        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(liveMapViewModel);
+        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(settingsViewModel);
+//        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(liveMapViewModel);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
@@ -98,7 +102,8 @@ public class LiveMapFragment extends Fragment {
     private void setRecyclerAvailableFloors() {
         recycler_availableFloors.setHasFixedSize(true);
         //  Values
-        FloorOrderAdapter floorAdapter = new FloorOrderAdapter(liveMapViewModel, recycler_floors);
+        FloorOrderAdapter floorAdapter = new FloorOrderAdapter(settingsViewModel, recycler_floors);
+//        FloorOrderAdapter floorAdapter = new FloorOrderAdapter(liveMapViewModel, recycler_floors);
         recycler_availableFloors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());

@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.trilateration.Floor;
+import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class FloorOrderAdapter extends RecyclerView.Adapter<FloorOrderAdapter.St
 
     private List<Floor> list;
     private RecyclerView recyclerView;
-    public FloorOrderAdapter(LiveMapViewModel vm, RecyclerView recycler_floors) { this.list = vm.getListOfFloors().getValue(); this.recyclerView = recycler_floors; }
+    public FloorOrderAdapter(SettingsViewModel vm, RecyclerView recycler_floors) { this.list = vm.getListOfFloors().getValue(); this.recyclerView = recycler_floors; }
 
     @NonNull
     @Override

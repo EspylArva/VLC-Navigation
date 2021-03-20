@@ -1,5 +1,7 @@
 package com.vlcnavigation;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -21,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
         Timber.plant(new CustomDebugTree());
 //        Sharp.setLogLevel(Sharp.LOG_LEVEL_INFO);
 
+        askPermissions();
+
         setContentView(R.layout.activity_main);
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -31,6 +35,24 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+    }
+
+    private void askPermissions() {
+
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+//            if (shouldShowRequestPermissionRationale(
+//                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+//                // Explain to the user why we need to read the contacts
+//
+//            }
+
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 500);
+
+            // MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE is an app-defined int constant that should be quite unique
+
+            return;
+        }
     }
 
     public class CustomDebugTree extends Timber.DebugTree {

@@ -1,29 +1,35 @@
 <resources>
     <string name="app_name">VLC Navigation</string>
+    <!-- Menus -->
     <string name="title_live_map">Map of positions</string>
     <string name="title_fft">FFTs</string>
     <string name="title_settings">Settings</string>
 
+    <!-- String resources -->
     <string name="lorem">Lorem ipsum</string>
 
-    <!-- Text field hints -->
+    <!-- Text field hints & Titles-->
         <!-- Fragment Live Map -->
     <string name="room_search">Search for a room</string>
         <!-- Fragment Settings -->
+            <!-- Backdrop -->
+    <string name="title_backdrop_header">Add a Light or a Floor</string>
+    <string name="title_addFloor">Add a floor</string>
+    <string name="title_addLight">Add a light</string>
+            <!-- Recycler lights -->
     <string name="light_description">Description</string>
     <string name="light_lambda">Wavelength</string>
     <string name="light_posX">Position X</string>
     <string name="light_posY">Position Y</string>
     <string name="light_floor">Floor</string>
     <string name="light_distance">Distance to captor</string>
-
-    <string name="light_wavelength">Light\'s wavelength</string>
+            <!-- Recycler floors -->
     <string name="floor_order">Floor localisation</string>
     <string name="floor_description">Floor description</string>
     <string name="floor_path">Path to resource file</string>
 
     <!-- Toasts and GUI feedbacks -->
-    <string name="floor_added">Added a new floor</string>
+    <string name="floor_added">Successfully added a new floor!</string>
     <string name="light_added">Successfully added a new light!</string>
 
     <!-- Errors (text input empty) -->
@@ -41,7 +47,6 @@
     <!-- Shared Preferences -->
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
-    <string name="sp_map">com.vlcnavigation.floors</string>
-    <string name="title_addFloor">Add a floor</string>
-    <string name="title_addLight">Add a light</string>
+    <string name="sp_floors">com.vlcnavigation.floors</string>
+
 </resources>

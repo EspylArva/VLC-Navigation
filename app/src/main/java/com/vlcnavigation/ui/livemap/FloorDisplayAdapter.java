@@ -19,18 +19,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pixplicity.sharp.Sharp;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.ui.settings.SettingsViewModel;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import timber.log.Timber;
 
 public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapter.FloorDisplayHolder>{
-    private final LiveMapViewModel vm;
-    public FloorDisplayAdapter(LiveMapViewModel vm) { this.vm = vm; }
+//    private final LiveMapViewModel vm;
+    private final SettingsViewModel vm;
+    public FloorDisplayAdapter(SettingsViewModel vm) { this.vm = vm; }
 
     @NonNull
     @Override
@@ -50,12 +54,12 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
     }
 
     public class FloorDisplayHolder extends RecyclerView.ViewHolder {
-        private final LiveMapViewModel vm;
+        private final SettingsViewModel vm;
         // Views
         private ConstraintLayout container_map;
         public ConstraintLayout getContainer() { return this.container_map; }
 
-        public FloorDisplayHolder(@NonNull View itemView, LiveMapViewModel vm) {
+        public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm) {
             super(itemView);
             this.vm = vm;
 
@@ -75,30 +79,25 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
         }
 
-        private InputStream getInputStreamFromUri(Uri uri) throws FileNotFoundException {
-            return itemView.getContext().getContentResolver().openInputStream(uri);
-        }
-
         public void refreshUI()
         {
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
             Timber.d("Displaying the map for floor %s", vm.getListOfFloors().getValue().get(getAdapterPosition()).toString());
 
-            try{
-                InputStream svg = getInputStreamFromUri(Uri.parse(filePath));
-                List<String> svgs = SvgSplitter.parse(svg);
-                if(svgs != null && svgs.size() > 0) {
-                    for(String s : svgs) {
-                        try{
-                            makeMap(s);
-                        } catch (IOException e) { Timber.e(e); }
-                    }
-                }
-            } catch(IOException e) { Timber.e(e); }
+            if(filePath != null && !filePath.isEmpty())
+            {
+                try{
+                    // Get the InputStream for the file
+                    InputStream is =  itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+                    List<String> svgs = SvgSplitter.parse(is);
+                    if(svgs != null && svgs.size() > 0) { svgs.forEach(this::makeMap); }
+                    is.close();
+                } catch(IOException e) { Timber.e(e); }
+            }
         }
 
         @SuppressLint("ClickableViewAccessibility")
-        private void makeMap(String str) throws IOException {
+        private void makeMap(String str) {
             ImageView mapPart = new ImageView(itemView.getContext());
             mapPart.setId(View.generateViewId());
 
@@ -114,12 +113,16 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                             {
                                 Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache());
                                 int color = bmp.getPixel((int) event.getX(), (int) event.getY());
-                                boolean transparent = true;
-                                if (color != Color.TRANSPARENT) { transparent = false; }
+                                if (color != Color.TRANSPARENT) {
 
-                                Timber.d("Transparent for %s: %s (color: %s)", mapPart.getId(), transparent, color);
-                                Timber.d("%s", view.isClickable());
-                                return !transparent;
+                                    Timber.d("Not transparent for %s (color: %s)", mapPart.getId(), color);
+                                    return true;
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+
                             } return false;
                         }
                     });
@@ -127,23 +130,28 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             Timber.d("Id: %s", mapPart.getId());
 
             mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-            Drawable drawable;
+            Drawable drawable = null;
             if(str.equals("")) {
                 drawable = Sharp.loadResource(itemView.getResources(), R.raw.isep_map).getDrawable();
             }
             else {
-                InputStream is = new ByteArrayInputStream(str.getBytes());
-                drawable = Sharp.loadInputStream(is).getDrawable();
-                is.close();
+                try {
+                    InputStream is = new ByteArrayInputStream(str.getBytes());
+                    drawable = Sharp.loadInputStream(is).getDrawable();
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             mapPart.setImageDrawable(drawable);
 
-            mapPart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                }
-            });
+//            mapPart.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Timber.d("Click here");
+//                }
+//            });
             container_map.addView(mapPart);
         }
     }

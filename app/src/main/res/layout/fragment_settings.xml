@@ -37,7 +37,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     style="@style/TextAppearance.AppCompat.Headline"
-                    android:text="Add a Light or a Floor"
+                    android:text="@string/title_backdrop_header"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"

@@ -110,7 +110,10 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
         {
             this.txtInputLayout_order.getEditText().setText(String.valueOf(floor.getOrder()));
             this.txtInputLayout_description.getEditText().setText(floor.getDescription());
-            this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath().split("%2F")[floor.getFilePath().split("%2F").length-1]);
+            if(floor.getFilePath() != null && !floor.getFilePath().isEmpty())
+            {
+                this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath().split("%2F")[floor.getFilePath().split("%2F").length-1]);
+            }
         }
 
         private void initTextChangeListener(){

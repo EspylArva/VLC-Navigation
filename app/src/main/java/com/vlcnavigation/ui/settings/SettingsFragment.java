@@ -1,6 +1,8 @@
 package com.vlcnavigation.ui.settings;
 
+import android.app.Application;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -41,11 +43,17 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.components.DotIndicatorDecoration;
 import com.vlcnavigation.components.RecyclerViewMargin;
+import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 import com.vlcnavigation.module.utils.Util;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -121,6 +129,14 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        btn_loadFromFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Read the file and import the sharedPreferences
+                startActivityForResult(JsonFileReader.lookForJsonIntent(), JsonFileReader.READ_JSON_REQUEST_CODE);
+            }
+        });
+
         btn_openBackdrop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,5 +146,31 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null && resultCode == RESULT_OK) {
+            Timber.d("Activity Result caught. Request code: %s. Result code: %s", requestCode, resultCode);
+            String filePath = data.getData().toString();
+            if (requestCode == JsonFileReader.READ_JSON_REQUEST_CODE) {
+                try {
+                    // Get the InputStream from the file
+                    InputStream is = getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+
+                    // Write into SharedPreferences
+                    JsonFileReader.importDataFromFile(is, getContext());
+                    settingsViewModel.importLightsFromSp();
+                    settingsViewModel.importFloorsFromSp();
+                    is.close();
+
+                    // Refresh the UI
+                    notifyLightRecycler(); notifyFloorRecycler();
+                    Util.hideKeyboard(getActivity());
+                } catch (IOException e) {
+                    Timber.e(e);
+                }
+            }
+        } else { Timber.e("Could not find file"); }
     }
 }
