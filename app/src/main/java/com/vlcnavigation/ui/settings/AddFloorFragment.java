@@ -160,6 +160,9 @@ public class AddFloorFragment extends Fragment {
         txtInputLayout_newFloorFilePath.setErrorEnabled(false);
     }
 
+    /**
+     * Handle startActivityForResult from Button "Add floor"
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data != null && resultCode == RESULT_OK) {

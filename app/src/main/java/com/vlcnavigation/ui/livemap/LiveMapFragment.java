@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.vlcnavigation.R;
+import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
+import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
+
+import timber.log.Timber;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class LiveMapFragment extends Fragment {
@@ -86,7 +93,7 @@ public class LiveMapFragment extends Fragment {
     private void setRecyclerDisplayFloors() {
         recycler_floors.setHasFixedSize(true);
         //  Values
-        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(settingsViewModel);
+        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(settingsViewModel, this);
 //        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(liveMapViewModel);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
@@ -114,4 +121,5 @@ public class LiveMapFragment extends Fragment {
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_availableFloors);
     }
+
 }

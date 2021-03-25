@@ -148,6 +148,9 @@ public class SettingsFragment extends Fragment {
 
     }
 
+    /**
+     * Handle startActivityForResult from Button "Load data from file" (JSON file importer)
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data != null && resultCode == RESULT_OK) {

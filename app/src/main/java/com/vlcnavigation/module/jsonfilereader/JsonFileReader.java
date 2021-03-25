@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.provider.DocumentsContract;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
@@ -32,6 +34,7 @@ public class JsonFileReader {
     private static final Type TYPE_LIST_OF_FLOOR = new TypeToken<ArrayList<Floor>>() {}.getType();
     private static final Type TYPE_DATA_OBJECT = DataObject.class;
     public static final int READ_JSON_REQUEST_CODE = 305;
+//    public static final int REQUIRE_FILE_ACCESS_CODE = 306;
 
     public static Intent lookForJsonIntent() {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
@@ -44,6 +47,17 @@ public class JsonFileReader {
         intent.setType("application/*");
         return intent;
     }
+
+//    public static Intent requirePermissionForStaticURI(String uri)
+//    {
+//        // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
+//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//        // Filter to only show results that can be "opened", such as a file (as opposed to a list of contacts or timezones)
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        intent.setType("*/*");
+//        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+//        return intent;
+//    }
 
     public static void importDataFromFile(InputStream is, Context context) throws IOException {
 

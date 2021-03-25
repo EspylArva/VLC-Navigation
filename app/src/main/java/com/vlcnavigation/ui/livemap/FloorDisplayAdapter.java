@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,29 +22,36 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.pixplicity.sharp.Sharp;
 import com.vlcnavigation.R;
+import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Scanner;
 
 import timber.log.Timber;
 
 public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapter.FloorDisplayHolder>{
 //    private final LiveMapViewModel vm;
     private final SettingsViewModel vm;
-    public FloorDisplayAdapter(SettingsViewModel vm) { this.vm = vm; }
+    private final LiveMapFragment fragment;
+    public FloorDisplayAdapter(SettingsViewModel vm, LiveMapFragment fragment ) { this.vm = vm; this.fragment = fragment; }
 
     @NonNull
     @Override
     public FloorDisplayHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_floor_display, parent, false);
-        return new FloorDisplayHolder(v, vm);
+        return new FloorDisplayHolder(v, vm, fragment);
     }
 
     @Override
@@ -57,13 +66,15 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
     public class FloorDisplayHolder extends RecyclerView.ViewHolder {
         private final SettingsViewModel vm;
+        private final LiveMapFragment fragment;
         // Views
         private ConstraintLayout container_map;
         public ConstraintLayout getContainer() { return this.container_map; }
 
-        public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm) {
+        public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm, LiveMapFragment fragment) {
             super(itemView);
             this.vm = vm;
+            this.fragment = fragment;
 
             initViews(itemView);        // Instantiate views
             initOnClickListeners();     // Click listeners. Currently: 0
@@ -90,11 +101,14 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             {
                 try{
                     // Get the InputStream for the file
+                    Uri uri = Uri.parse(filePath); Timber.d(uri.getPath());
                     InputStream is =  itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
                     List<String> svgs = SvgSplitter.parse(is);
                     if(svgs != null && svgs.size() > 0) { svgs.forEach(this::makeMap); }
                     is.close();
-                } catch(IOException e) { Timber.e(e); }
+                }
+                catch (IOException e1) { Timber.e(e1);}
+                catch (SecurityException e2) { Timber.e(e2.getLocalizedMessage()); }
             }
         }
 

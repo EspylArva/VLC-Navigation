@@ -95,6 +95,9 @@ public class FloorsLightsManagerFragment extends Fragment {
         snap.attachToRecyclerView(recycler_lights);
     }
 
+    /**
+     * Handle startActivityForResult from Adapter (RecyclerView) "Floor"
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data != null && resultCode == RESULT_OK) {
