@@ -15,9 +15,6 @@ public class Light {
         this.description = description;
     }
 
-    private Pair<Double, Double> sort(Pair<Double, Double> unsortedPair) { return (unsortedPair.first < unsortedPair.second) ? unsortedPair : new Pair<Double, Double>( unsortedPair.second, unsortedPair.first ); }
-    private Pair<Double, Double> sort(double x, double y) { return (x < y) ? new Pair<Double, Double>(x, y) : new Pair<Double, Double>(y, x); }
-
     @Override
     public String toString()
     {
@@ -40,12 +37,14 @@ public class Light {
     public double getLambda() { return this.lambda; }
     public Floor getFloor() { return this.floor; }
 
+    public void setDescription(String description) { this.description = description; }
     public void setPosX(double newPosX) { this.posX = newPosX; }
     public void setPosY(double newPosY) { this.posY = newPosY; }
+    public void setDistance(double distance) { this.distance = distance; }
     public void setLambda(double newLambda) { this.lambda = newLambda; }
     public void setFloor(Floor newFloor) { this.floor = newFloor; }
 
-    public static class Builder{
+    public static class Builder {
         // Mandatory
         private double x, y;
         private Floor floor;

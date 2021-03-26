@@ -22,7 +22,7 @@ public class Floor implements Comparable<Floor> {
 
     @Override
     public int compareTo(Floor o) {
-        return Integer.compare(this.order, ((Floor) o).order);
+        return Integer.compare(this.order,  o.order);
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.vlcnavigation.module.svg2vector;
 
 import android.util.Xml;
 
+import com.vlcnavigation.module.utils.XmlParser;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -14,6 +16,13 @@ import timber.log.Timber;
 
 public class SvgSplitter extends XmlParser {
 
+    /**
+     * TODO
+     *
+     * @param in
+     * @return
+     * @throws IOException
+     */
     public static List<String> parse(InputStream in) throws IOException {
         try{
             XmlPullParser parser = Xml.newPullParser();
@@ -32,7 +41,6 @@ public class SvgSplitter extends XmlParser {
     }
 
     private static List<String> readFeed(XmlPullParser parser) throws IOException, XmlPullParserException {
-
         String tag = getLineContent(parser);
         tag = "<" + tag.substring(1, tag.length()-1)
                 .replace("<", "&lt;")
@@ -69,13 +77,12 @@ public class SvgSplitter extends XmlParser {
         return svgs;
     }
 
+    /**
+     * Pulls the content of a XML beacon
+     * @param parser
+     * @return content of the XML beacon
+     */
     private static String getLineContent(XmlPullParser parser) {
         return parser.getPositionDescription().substring(parser.getPositionDescription().indexOf("<"), parser.getPositionDescription().lastIndexOf(">") + 1);
     }
-
-    private String format(String svg) {
-        return svg.replace("<", "&lt;");
-    }
-
-
 }

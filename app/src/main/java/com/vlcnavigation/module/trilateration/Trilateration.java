@@ -9,6 +9,7 @@ import org.apache.commons.math3.fitting.leastsquares.LeastSquaresOptimizer;
 import org.apache.commons.math3.fitting.leastsquares.LevenbergMarquardtOptimizer;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.SingularMatrixException;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -25,21 +26,26 @@ public class Trilateration {
     public static final double CONST_HEIGHT = 2.5;
     private static List<Map.Entry<Light, Double>> ADDED_LIGHTS = new ArrayList<Map.Entry<Light, Double>>();
 
-    public static double[] triangulate() throws InsufficientLightsException {
-        int nbLights = ADDED_LIGHTS.size();
-        if(nbLights < 3)
-        {
-            throw new InsufficientLightsException(String.format("Not enough lights were registered: currently %s.", nbLights));
-        }
+    /**
+     * Uses trilateration to locate the user.
+     * Trilateration uses distances from an object A to at least 3 objects Li and Li XY positions.
+     * We will get the distances for A to Li using Li.getDistance() and Li position using Li.getPosX() and Li.getPosY()
+     *
+     * @param lights Lights used for trilateration
+     * @return double[2] array reflecting the XY position of the user
+     * @throws InsufficientLightsException if the number of lights is inferior to 3
+     */
+    public static double[] trilaterate(List<Light> lights) throws InsufficientLightsException, SingularMatrixException {
+        if(lights.size() < 3) { throw new InsufficientLightsException(String.format("Not enough lights were registered: currently %s.", lights.size())); }
         else
         {
-            double[][] positions = new double[nbLights][];
-            for(int it=0; it<nbLights; it++)
-            {
-                Light light = ADDED_LIGHTS.get(it).getKey();
-                positions[it] = new double[] { light.getPosX(), light.getPosY() };
-            }
+            double[][] positions = new double[lights.size()][];
             double[] distances = new double[] { 8.06, 13.97, 23.32, 15.31 };
+            for(int it=0; it<lights.size(); it++)
+            {
+                positions[it] = new double[] { lights.get(it).getPosX(), lights.get(it).getPosY() };
+                // distances[it] = lights.get(it).getDistance(); // FIXME When working on trilateration with real data, this line should be uncommented
+            }
 
             NonLinearLeastSquaresSolver solver = new NonLinearLeastSquaresSolver(new TrilaterationFunction(positions, distances), new LevenbergMarquardtOptimizer());
             LeastSquaresOptimizer.Optimum optimum = solver.solve();

@@ -26,16 +26,13 @@ import static android.app.Activity.RESULT_OK;
 
 public class LiveMapFragment extends Fragment {
 
-//    private FloatingActionButton fab1, fab2, fab3;
-
-//    private LiveMapViewModel liveMapViewModel;
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_floors, recycler_availableFloors;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-//        liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
+        // liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
         settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         View root = initViews(inflater, container);
         initObservers();
@@ -51,12 +48,34 @@ public class LiveMapFragment extends Fragment {
     }
 
     /**
-     *  Sets the position to the highest floor
+     * FIXME
      */
     private void refreshUI() {
+        // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
         recycler_floors.scrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+
+        // Display lights. According to documentation, the color should be purple.
+        displayLights();
+        // Display users. According to documentation, the color should be orange.
+        displayUsers();
+
     }
+
+    /**
+     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
+     * Lights' position should be refreshed on light edit and on floor selection change.
+     */
+    private void displayLights() {
+    }
+
+    /**
+     * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
+     * Users' position should be displayed only if they are on the selected floor, and should be refreshed once every second.
+     */
+    private void displayUsers() {
+    }
+
 
     private void initListeners() {
         recycler_floors.setOnScrollChangeListener(new View.OnScrollChangeListener() {
@@ -76,8 +95,17 @@ public class LiveMapFragment extends Fragment {
         });
     }
 
+    /**
+     * Observe LiveData from the ViewModel.
+     */
     private void initObservers() { }
 
+    /**
+     * FIXME
+     * @param inflater
+     * @param container
+     * @return
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container) {
         View root = inflater.inflate(R.layout.fragment_live_map, container, false);
 
@@ -90,11 +118,16 @@ public class LiveMapFragment extends Fragment {
         return root;
     }
 
+
+    /**
+     * Settings for the indoor map.
+     * Every ViewHolder is associated to a storey level.
+     * Other parameters include the orientation of the recycler view and behaviours related to a carousel
+     */
     private void setRecyclerDisplayFloors() {
         recycler_floors.setHasFixedSize(true);
         //  Values
         FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(settingsViewModel, this);
-//        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(liveMapViewModel);
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
@@ -106,11 +139,14 @@ public class LiveMapFragment extends Fragment {
         snap.attachToRecyclerView(recycler_floors);
     }
 
+    /**
+     * FIXME
+     */
     private void setRecyclerAvailableFloors() {
+        // FIXME: rework with settingsViewModel.getFloorLevels().getValue()
         recycler_availableFloors.setHasFixedSize(true);
         //  Values
         FloorOrderAdapter floorAdapter = new FloorOrderAdapter(settingsViewModel, recycler_floors);
-//        FloorOrderAdapter floorAdapter = new FloorOrderAdapter(liveMapViewModel, recycler_floors);
         recycler_availableFloors.setAdapter(floorAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());

@@ -1,4 +1,4 @@
-package com.vlcnavigation.module.svg2vector;
+package com.vlcnavigation.module.utils;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

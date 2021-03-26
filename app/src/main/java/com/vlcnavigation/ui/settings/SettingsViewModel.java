@@ -103,9 +103,9 @@ public class SettingsViewModel extends AndroidViewModel {
     public LiveData<List<Floor>> getListOfFloors() { return mListOfFloors; }
 
     protected void removeFloorAt(int position) {
-        saveFloors();
         mListOfFloors.getValue().remove(position);
         mListOfFloorLevels.getValue().remove(position);
+        saveFloors();
     }
 
     protected void removeLightAt(int position) {

@@ -6,6 +6,10 @@ import android.view.View;
 import androidx.annotation.IntRange;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * Resource taken from
+ * https://stackoverflow.com/questions/37507937/margin-between-items-in-recycler-view-android
+ */
 public class RecyclerViewMargin extends RecyclerView.ItemDecoration
 {
     private final int columns;

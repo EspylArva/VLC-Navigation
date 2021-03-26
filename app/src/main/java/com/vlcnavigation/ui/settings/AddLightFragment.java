@@ -55,8 +55,6 @@ public class AddLightFragment extends Fragment {
     private void initListeners() {
         ListPopupWindow listPopupWindow = new ListPopupWindow(getContext(), null, R.attr.listPopupWindowStyle);
         listPopupWindow.setAnchorView(txtInputLayout_newLightFloor);
-//        List<Integer> floorOrders = new ArrayList<>(); settingsViewModel.getListOfFloors().getValue().forEach(floor -> floorOrders.add(floor.getOrder()));
-//        Timber.d("List: %s", floorOrders);
         ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(getContext(), R.layout.menu_layout_floor, settingsViewModel.getListOfFloorLevels().getValue());
         listPopupWindow.setAdapter(adapter);
 
