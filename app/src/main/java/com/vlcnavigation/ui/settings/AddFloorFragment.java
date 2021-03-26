@@ -153,9 +153,11 @@ public class AddFloorFragment extends Fragment {
     }
 
     private void resetFloorPanel() {
+        txtInputLayout_newFloorOrder.getEditText().getText().clear();
         txtInputLayout_newFloorDescription.getEditText().getText().clear();
         txtInputLayout_newFloorFilePath.getEditText().getText().clear();
 
+        txtInputLayout_newFloorOrder.setErrorEnabled(false);
         txtInputLayout_newFloorDescription.setErrorEnabled(false);
         txtInputLayout_newFloorFilePath.setErrorEnabled(false);
     }

@@ -34,6 +34,9 @@ public class SettingsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<List<Light>> mListOfLights;
     private final MutableLiveData<List<Floor>> mListOfFloors;
+
+    private final MutableLiveData<List<Integer>> mListOfFloorLevels;
+
     private final SharedPreferences preferences;
     private final Resources resources;
 
@@ -41,9 +44,11 @@ public class SettingsViewModel extends AndroidViewModel {
         super(app);
         mListOfLights = new MutableLiveData<>();
         mListOfFloors = new MutableLiveData<>();
+        mListOfFloorLevels = new MutableLiveData<>();
 
         mListOfLights.setValue(new ArrayList<Light>());
         mListOfFloors.setValue(new ArrayList<Floor>());
+        mListOfFloorLevels.setValue(new ArrayList<Integer>());
 
         resources = getApplication().getResources();
         preferences = getApplication().getSharedPreferences(resources.getString(R.string.sp_base), Context.MODE_PRIVATE);
@@ -82,12 +87,15 @@ public class SettingsViewModel extends AndroidViewModel {
         saveLights();
     }
 
-    protected void addFloor(Floor floor){
+    protected void addFloor(Floor floor) {
         if(!mListOfFloors.getValue().stream().anyMatch(f -> f.getOrder() == floor.getOrder()))
         {
             mListOfFloors.getValue().add(floor);
             mListOfFloors.getValue().sort(Floor::compareTo);
             saveFloors();
+
+            mListOfFloorLevels.getValue().add(floor.getOrder());
+            mListOfFloorLevels.getValue().sort(Integer::compareTo);
         }
     }
 
@@ -95,8 +103,9 @@ public class SettingsViewModel extends AndroidViewModel {
     public LiveData<List<Floor>> getListOfFloors() { return mListOfFloors; }
 
     protected void removeFloorAt(int position) {
-        mListOfFloors.getValue().remove(position);
         saveFloors();
+        mListOfFloors.getValue().remove(position);
+        mListOfFloorLevels.getValue().remove(position);
     }
 
     protected void removeLightAt(int position) {
@@ -121,5 +130,13 @@ public class SettingsViewModel extends AndroidViewModel {
             return mListOfFloors.getValue().stream().filter(floor -> floor.getOrder() == index).findFirst().get();
         }
         else { Timber.e("CANT FIND FLOOR"); return null; }
+    }
+
+    public boolean floorExists(Floor floor) {
+        return mListOfFloors.getValue().stream().anyMatch(f -> f.getOrder() == floor.getOrder());
+    }
+
+    public LiveData<List<Integer>> getListOfFloorLevels() {
+        return mListOfFloorLevels;
     }
 }

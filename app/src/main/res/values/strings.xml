@@ -17,24 +17,27 @@
     <string name="room_search">Search for a room</string>
         <!-- Fragment Settings -->
             <!-- Backdrop -->
-    <string name="title_backdrop_header">Add a Light or a Floor</string>
-    <string name="title_addFloor">Add a floor</string>
+    <string name="title_backdrop_header">Add a Light or a Storey</string>
+    <string name="title_addFloor">Add a storey</string>
     <string name="title_addLight">Add a light</string>
+    <string name="import_sample">Add sample data</string>
+    <string name="import_from_json">Load data from file (json)</string>
             <!-- Recycler lights -->
     <string name="light_description">Description</string>
     <string name="light_lambda">Wavelength</string>
     <string name="light_posX">Position X</string>
     <string name="light_posY">Position Y</string>
-    <string name="light_floor">Floor</string>
+    <string name="light_floor">Storey</string>
     <string name="light_distance">Distance to captor</string>
             <!-- Recycler floors -->
-    <string name="floor_order">Floor localisation</string>
-    <string name="floor_description">Floor description</string>
-    <string name="floor_path">Path to resource file</string>
+    <string name="floor_order">Storey level</string>
+    <string name="floor_description">Description</string>
+    <string name="floor_path">Path to resource file (svg)</string>
 
     <!-- Toasts and GUI feedbacks -->
-    <string name="floor_added">Successfully added a new floor!</string>
+    <string name="floor_added">Successfully added a new storey!</string>
     <string name="light_added">Successfully added a new light!</string>
+    <string name="permission_already_granted">Permission has already been granted</string>
 
     <!-- Errors (text input empty) -->
     <string name="light_x_null">Position X is required</string>
@@ -52,7 +55,6 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_floors">com.vlcnavigation.floors</string>
-    <string name="permission_already_granted">Permission has already been granted</string>
 
 
 </resources>

@@ -77,9 +77,9 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
 
     public class FloorHolder extends RecyclerView.ViewHolder {
 
-        private final SettingsViewModel vm;      // Data
+        private final SettingsViewModel vm;                 // Data
         private final FloorsLightsManagerFragment fragment; // Necessary to handle the callback
-        private Floor floor;                     // Not necessary, but makes the code shorter
+        private Floor floor;                                // Not necessary, but makes the code shorter
 
         // Views
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;

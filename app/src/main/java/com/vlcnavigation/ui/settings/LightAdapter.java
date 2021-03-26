@@ -86,10 +86,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             super(itemView);
             this.vm = vm;
             initViews(itemView);        // Instantiate views
-
         }
-
-
 
         public void setLight() { this.light = vm.getListOfLights().getValue().get(getAdapterPosition()); }
 
@@ -111,8 +108,10 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             this.txtInputLayout_posY.getEditText().setText(String.valueOf(light.getPosY()));
             this.txtInputLayout_lambda.getEditText().setText(String.valueOf(light.getLambda()));
             this.txtInputLayout_distance.getEditText().setText(String.valueOf(light.getDistance()));
-            this.txtInputLayout_floor.setText(String.valueOf(light.getFloor().getOrder()));
-
+            if(light.getFloor() != null)
+            {
+                this.txtInputLayout_floor.setText(String.valueOf(light.getFloor().getOrder()));
+            }
         }
 
         public void test()
@@ -211,19 +210,24 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
 
         }
 
-        private void initFloorMenuListener()
+        public void initFloorMenuListener()
         {
+            if(!this.vm.floorExists(this.light.getFloor()))
+            {
+                Timber.d("Seems like this floor no longer exists: %s", this.light.getFloor());
+                txtInputLayout_floor.setError("Seems like this floor no longer exists"); // FIXME: replace with a string resource
+            }
+
             ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, R.attr.listPopupWindowStyle);
             listPopupWindow.setAnchorView(txtInputLayout_floor);
 
-            List<Integer> floorOrders = new ArrayList<>(); vm.getListOfFloors().getValue().forEach(floor -> floorOrders.add(floor.getOrder()));
-            ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(itemView.getContext(), R.layout.menu_layout_floor, floorOrders);
+            ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(itemView.getContext(), R.layout.menu_layout_floor, vm.getListOfFloorLevels().getValue());
             listPopupWindow.setAdapter(adapter);
 
             listPopupWindow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    int newFloorOrder = floorOrders.get(position);
+                    int newFloorOrder = vm.getListOfFloorLevels().getValue().get(position);
                     vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setOrder(newFloorOrder);
                     txtInputLayout_floor.setText(String.valueOf(newFloorOrder));
                     listPopupWindow.dismiss();

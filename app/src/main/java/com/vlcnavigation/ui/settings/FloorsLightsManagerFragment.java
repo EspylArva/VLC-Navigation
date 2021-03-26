@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -63,11 +64,26 @@ public class FloorsLightsManagerFragment extends Fragment {
         //  Values
         // FIXME
         FloorAdapter floorAdapter = new FloorAdapter(settingsViewModel, this); //settingsViewModel.getListOfFloors().getValue(), this);
+//        floorAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeChanged(int positionStart, int itemCount) {
+//                super.onItemRangeChanged(positionStart, itemCount);
+//                Timber.d("onItemRangeChanged (floors). PositionStart: %s/%s", positionStart, itemCount);
+//                for(int i = 0; i<itemCount; i++)
+//                {
+//                    Timber.d("Updating menu for index %s", i);
+////                    ((LightAdapter.LightHolder)recycler_lights.findViewHolderForAdapterPosition(i)).initFloorMenuListener();
+//                }
+//
+//                // AddFloorFragment
+//            }
+//        });
+
         recycler_floors.setAdapter(floorAdapter);
         // Orientation
-        LinearLayoutManager recycler_layout2 = new LinearLayoutManager(getContext());
-        recycler_layout2.setOrientation(LinearLayoutManager.HORIZONTAL);
-        recycler_floors.setLayoutManager(recycler_layout2);
+        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
+        recycler_layout.setOrientation(LinearLayoutManager.HORIZONTAL);
+        recycler_floors.setLayoutManager(recycler_layout);
         // Margin between items
         // recycler_lights.addItemDecoration(new RecyclerViewMargin(4, 1));
         // Item position
@@ -76,11 +92,25 @@ public class FloorsLightsManagerFragment extends Fragment {
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_floors);
     }
+
     private void setRecyclerLights(View root) {
         recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);
         //  Values
         LightAdapter lightAdapter = new LightAdapter(settingsViewModel); // settingsViewModel.getListOfLights().getValue(), settingsViewModel.getListOfFloors().getValue());
+//        lightAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                super.onItemRangeInserted(positionStart, itemCount);
+//                Timber.d("onItemRangeInserted (lights). PositionStart: %s/%s", positionStart, itemCount);
+//            }
+//
+//            @Override
+//            public void onItemRangeRemoved(int positionStart, int itemCount) {
+//                super.onItemRangeRemoved(positionStart, itemCount);
+//                Timber.d("onItemRangeRemoved (lights). PositionStart: %s/%s", positionStart, itemCount);
+//            }
+//        });
         recycler_lights.setAdapter(lightAdapter);
         // Orientation
         LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
