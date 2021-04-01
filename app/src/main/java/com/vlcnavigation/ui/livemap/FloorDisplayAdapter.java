@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import timber.log.Timber;
@@ -103,8 +104,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                     // Get the InputStream for the file
                     Uri uri = Uri.parse(filePath); Timber.d(uri.getPath());
                     InputStream is =  itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
-                    List<String> svgs = SvgSplitter.parse(is);
-                    if(svgs != null && svgs.size() > 0) { svgs.forEach(this::makeMap); }
+                    Map<String, String> svgs = SvgSplitter.parse(is);
+                    if(svgs != null && svgs.size() > 0) { svgs.entrySet().forEach(this::makeMap); }
                     is.close();
                 }
                 catch (IOException e1) { Timber.e(e1);}
@@ -113,7 +114,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         }
 
         @SuppressLint("ClickableViewAccessibility")
-        private void makeMap(String str) {
+        private void makeMap(Map.Entry<String, String> entry) {
             ImageView mapPart = new ImageView(itemView.getContext());
             mapPart.setId(View.generateViewId());
 
@@ -121,6 +122,22 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             mapPart.setClickable(false);
             Timber.d("%s", mapPart.isClickable());
 
+
+
+            Timber.d("Id: %s", mapPart.getId());
+
+            mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            Drawable drawable = null;
+            try {
+                Timber.d("SVG: %s", entry.getValue());
+                    InputStream is = new ByteArrayInputStream(entry.getValue().getBytes());
+                    drawable = Sharp.loadInputStream(is).getDrawable();
+                    is.close();
+            } catch (IOException e) {
+                    e.printStackTrace();
+            }
+
+            mapPart.setImageDrawable(drawable);
             mapPart.setOnTouchListener(
                     new View.OnTouchListener() {
                         @Override
@@ -132,7 +149,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                                 if (color != Color.TRANSPARENT) {
 
                                     Timber.d("Not transparent for %s (color: %s)", mapPart.getId(), color);
-                                    Snackbar.make(itemView.getContext(), view, String.format("Clicked on view #%s. Color: %s", mapPart.getId(), Color.valueOf(color)), BaseTransientBottomBar.LENGTH_SHORT).show();
+//                                    Snackbar.make(itemView.getContext(), view, String.format("Clicked on view #%s. Color: %s", mapPart.getId(), Color.valueOf(color)), BaseTransientBottomBar.LENGTH_SHORT).show();
+                                    Snackbar.make(itemView.getContext(), view, entry.getKey(), BaseTransientBottomBar.LENGTH_SHORT).show();
                                     return true;
                                 }
                                 else
@@ -143,32 +161,6 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                             } return false;
                         }
                     });
-
-            Timber.d("Id: %s", mapPart.getId());
-
-            mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-            Drawable drawable = null;
-            if(str.equals("")) {
-                drawable = Sharp.loadResource(itemView.getResources(), R.raw.isep_map).getDrawable();
-            }
-            else {
-                try {
-                    InputStream is = new ByteArrayInputStream(str.getBytes());
-                    drawable = Sharp.loadInputStream(is).getDrawable();
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            mapPart.setImageDrawable(drawable);
-
-//            mapPart.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Timber.d("Click here");
-//                }
-//            });
             container_map.addView(mapPart);
         }
     }

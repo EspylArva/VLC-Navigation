@@ -9,12 +9,26 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
 public class SvgSplitter extends XmlParser {
+
+    private static String text;
+    private static boolean isSvgComponentTag(String tagName)
+    {
+        return !tagName.equalsIgnoreCase("xml") &&
+                !tagName.equalsIgnoreCase("DOCTYPE") &&
+                !tagName.equalsIgnoreCase("svg") &&
+                !tagName.equalsIgnoreCase("defs") &&
+                !tagName.equalsIgnoreCase("g");
+    }
 
     /**
      * TODO
@@ -23,12 +37,12 @@ public class SvgSplitter extends XmlParser {
      * @return
      * @throws IOException
      */
-    public static List<String> parse(InputStream in) throws IOException {
+    public static Map<String, String> parse(InputStream in) throws IOException {
         try{
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
-            parser.nextTag();
+            parser.nextTag(); // Read first tag
             return readFeed(parser);
         }
         catch (XmlPullParserException | IOException e) {
@@ -40,41 +54,56 @@ public class SvgSplitter extends XmlParser {
         }
     }
 
-    private static List<String> readFeed(XmlPullParser parser) throws IOException, XmlPullParserException {
-        String tag = getLineContent(parser);
-        tag = "<" + tag.substring(1, tag.length()-1)
+    private static Map<String, String> readFeed(XmlPullParser parser) throws IOException, XmlPullParserException {
+        String header = getLineContent(parser);
+        header = "<" + header.substring(1, header.length()-1)
                 .replace("<", "&lt;")
                 .replace(">", "&gt;")
                 .replace("\"", "&quot;")
                 .replace("'", "\"") + ">";
-        Timber.d(tag);
+        header = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">%s<g>", header);
 
-        String header = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">%s<g>", tag);
+        Timber.d("Header: %s", header);
         String footer = "</g></svg>";
         return fillSvgList(parser, header, footer);
     }
 
-    private static List<String> fillSvgList(XmlPullParser parser, String header, String footer) throws IOException, XmlPullParserException {
-        List<String> svgs = new ArrayList<String>();
-        parser.require(XmlPullParser.START_TAG, ns, "svg");
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) { continue; }
-            Timber.d(getLineContent(parser));
-            String gEntry = parser.getName();
-            if(gEntry.equals("g"))
+    private static Map<String, String> fillSvgList(XmlPullParser parser, String header, String footer) throws IOException, XmlPullParserException {
+        // Collection to return
+        Map<String, String> svgMap = new HashMap<String, String>();
+
+        int eventType;              // Type of event to treat
+        String svgContent = "";     // Contains the SVG graphic component
+        String description = "";    // The room description
+        String tagName = "";
+        while ((eventType = parser.getEventType()) != XmlPullParser.END_DOCUMENT)
+        {
+             tagName = parser.getName();
+            switch (eventType)
             {
-                parser.require(XmlPullParser.START_TAG, ns, "g");
-                while (parser.next() != XmlPullParser.END_TAG) {
-                    if (parser.getEventType() != XmlPullParser.START_TAG) { continue; }
-                    String svgContent = getLineContent(parser).substring(0, getLineContent(parser).length() - 1) + "/>";
-                    Timber.d("Line: %s", svgContent);
-                    svgs.add(String.format("%s%s%s", header, svgContent, footer));
-                    parser.next();
-                }
+                case XmlPullParser.START_TAG:
+                    if(isSvgComponentTag(tagName))
+                    {
+                        svgContent = getLineContent(parser).substring(0, getLineContent(parser).length() - 1) + "/>";
+                        Timber.d("SVG graphic part: %s", svgContent);
+                    }
+                    break;
+                case XmlPullParser.TEXT:
+                    if(!parser.getText().trim().isEmpty())
+                    {
+                        description = parser.getText();
+                        Timber.d("Text: %s", description);
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    if(isSvgComponentTag(tagName)) { svgMap.put(description, String.format("%s%s%s", header, svgContent, footer)); }
+                    break;
+                default:
+                    break;
             }
-            else { Timber.d(gEntry); skip(parser); }
+            parser.next();
         }
-        return svgs;
+        return svgMap;
     }
 
     /**
