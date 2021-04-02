@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,11 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class FloorOrderAdapter extends RecyclerView.Adapter<FloorOrderAdapter.StringHolder> {
+public class FloorHintAdapter extends RecyclerView.Adapter<FloorHintAdapter.StringHolder> {
 
     private List<Floor> list;
     private RecyclerView recyclerView;
-    public FloorOrderAdapter(SettingsViewModel vm, RecyclerView recycler_floors) { this.list = vm.getListOfFloors().getValue(); this.recyclerView = recycler_floors; }
+    public FloorHintAdapter(SettingsViewModel vm, RecyclerView recycler_floors) { this.list = vm.getListOfFloors().getValue(); this.recyclerView = recycler_floors; }
 
     @NonNull
     @Override
@@ -49,6 +50,14 @@ public class FloorOrderAdapter extends RecyclerView.Adapter<FloorOrderAdapter.St
         public StringHolder(@NonNull View itemView) {
             super(itemView);
             this.tv = itemView.findViewById(R.id.simple_tv);
+            this.tv.setBackgroundResource(R.drawable.ic_circle);
+            final float scale = itemView.getContext().getResources().getDisplayMetrics().density;
+            int size = (int) (56 * scale + 0.5f);
+            int margins = (int) (2 * scale + 0.5f);
+            this.tv.setGravity(Gravity.CENTER);
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(size, size);
+            params.setMargins(0,margins,0,margins);
+            this.tv.setLayoutParams(params);
             Timber.d("%s", tv == null);
 
 

@@ -93,23 +93,26 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
         }
 
-        public void refreshUI()
-        {
+        public void refreshUI() {
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
             Timber.d("Displaying the map for floor %s", vm.getListOfFloors().getValue().get(getAdapterPosition()).toString());
 
-            if(filePath != null && !filePath.isEmpty())
-            {
-                try{
+            if (filePath != null && !filePath.isEmpty()) {
+                try {
                     // Get the InputStream for the file
-                    Uri uri = Uri.parse(filePath); Timber.d(uri.getPath());
-                    InputStream is =  itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+                    Uri uri = Uri.parse(filePath);
+                    Timber.d(uri.getPath());
+                    InputStream is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
                     Map<String, String> svgs = SvgSplitter.parse(is);
-                    if(svgs != null && svgs.size() > 0) { svgs.entrySet().forEach(this::makeMap); }
+                    if (svgs != null && svgs.size() > 0) {
+                        svgs.entrySet().forEach(this::makeMap);
+                    }
                     is.close();
+                } catch (IOException e1) {
+                    Timber.e(e1);
+                } catch (SecurityException e2) {
+                    Timber.e(e2.getLocalizedMessage());
                 }
-                catch (IOException e1) { Timber.e(e1);}
-                catch (SecurityException e2) { Timber.e(e2.getLocalizedMessage()); }
             }
         }
 
@@ -120,21 +123,16 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
             mapPart.setDrawingCacheEnabled(true);
             mapPart.setClickable(false);
-            Timber.d("%s", mapPart.isClickable());
-
-
-
-            Timber.d("Id: %s", mapPart.getId());
 
             mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
             Drawable drawable = null;
             try {
-                Timber.d("SVG: %s", entry.getValue());
                     InputStream is = new ByteArrayInputStream(entry.getValue().getBytes());
                     drawable = Sharp.loadInputStream(is).getDrawable();
                     is.close();
             } catch (IOException e) {
                     e.printStackTrace();
+                    Timber.e("SVG: %s", entry.getValue());
             }
 
             mapPart.setImageDrawable(drawable);
@@ -149,7 +147,6 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                                 if (color != Color.TRANSPARENT) {
 
                                     Timber.d("Not transparent for %s (color: %s)", mapPart.getId(), color);
-//                                    Snackbar.make(itemView.getContext(), view, String.format("Clicked on view #%s. Color: %s", mapPart.getId(), Color.valueOf(color)), BaseTransientBottomBar.LENGTH_SHORT).show();
                                     Snackbar.make(itemView.getContext(), view, entry.getKey(), BaseTransientBottomBar.LENGTH_SHORT).show();
                                     return true;
                                 }
