@@ -1,9 +1,14 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -15,8 +20,16 @@ import androidx.recyclerview.widget.SnapHelper;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
+import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.settings.FloorAdapter;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Objects;
 
 import timber.log.Timber;
 
@@ -56,7 +69,7 @@ public class LiveMapFragment extends Fragment {
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
-        displayLights();
+//        displayLights();
         // Display users. According to documentation, the color should be orange.
         displayUsers();
     }
@@ -65,9 +78,44 @@ public class LiveMapFragment extends Fragment {
      * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
      * Lights' position should be refreshed on light edit and on floor selection change.
      */
-    private void displayLights() {
+    private void displayLights(int i) {
         // Use color @color/purple_500
         int colorId = R.color.purple_500;
+        // To display a marker at position X,Y, we need to calculate the density of the screen
+
+        float defaultMargin = getResources().getDimension(R.dimen.default_margin);
+
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float widthOfMapDp = displayMetrics.widthPixels / displayMetrics.density - 2*defaultMargin;
+        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME
+
+        Light l = settingsViewModel.getListOfLights().getValue().get(0);
+
+//        Uri uri = Uri.parse(filePath);
+//        Timber.d(uri.getPath());
+
+        int widthOfMapPx = 0;
+        int heightOfMapPx = 0;
+
+        try {
+            InputStream is = requireContext().getContentResolver().openInputStream(Uri.parse(l.getFloor().getFilePath()));
+            Pair<Integer, Integer> mapSizePx = SvgSplitter.getMapSize(is);
+            widthOfMapPx = mapSizePx.first;
+            heightOfMapPx = mapSizePx.second;
+
+
+            FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(i));
+            if(holder != null) {
+                holder.makeMarker(mapSizePx, colorId);
+            } else { Timber.d("Could not create marker. Holder is null"); }
+
+
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Position of X = defaultMargin + (widthOfMapDp / widthOfMapPx) * posXPx
     }
 
     /**
@@ -90,6 +138,8 @@ public class LiveMapFragment extends Fragment {
                         if (i == ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             holder.getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
+
+                            displayLights(i);
 
                         } else { holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
                     }

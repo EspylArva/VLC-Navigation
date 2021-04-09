@@ -5,6 +5,8 @@ import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.NonNull;
+
 public class Util {
 
     /**
@@ -32,4 +34,11 @@ public class Util {
         InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
+
+    public static int pxToDp(int px, Context context)
+    {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (px * scale + 0.5f);
+    }
+
 }

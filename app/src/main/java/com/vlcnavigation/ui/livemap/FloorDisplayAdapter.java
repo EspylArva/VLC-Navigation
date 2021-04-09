@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -159,6 +160,21 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                         }
                     });
             container_map.addView(mapPart);
+        }
+
+        public void makeMarker(Pair<Integer, Integer> posXY, int colorId)
+        {
+
+            Timber.w("Making a marker");
+
+            ImageView marker = new ImageView(itemView.getContext());
+            marker.setId(View.generateViewId());
+            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(100, 100);
+//            params.setMargins(posXY.first, posXY.second, 0, 0);
+            marker.setLayoutParams(params);
+
+
+            marker.setBackgroundResource(R.drawable.ic_circle);
         }
     }
 }

@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.trilateration.Floor;
+import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.util.List;
@@ -52,15 +53,15 @@ public class FloorHintAdapter extends RecyclerView.Adapter<FloorHintAdapter.Stri
             this.tv = itemView.findViewById(R.id.simple_tv);
             this.tv.setBackgroundResource(R.drawable.ic_circle);
             final float scale = itemView.getContext().getResources().getDisplayMetrics().density;
-            int size = (int) (56 * scale + 0.5f);
-            int margins = (int) (2 * scale + 0.5f);
+
+            int size = Util.pxToDp(56, itemView.getContext());
+            int margins = Util.pxToDp(2, itemView.getContext());
+
             this.tv.setGravity(Gravity.CENTER);
             ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(size, size);
-            params.setMargins(0,margins,0,margins);
+            params.setMargins(0, margins,0, margins);
             this.tv.setLayoutParams(params);
-            Timber.d("%s", tv == null);
-
-
+//            Timber.d("%s", tv == null);
         }
         public void setText(String txt) { this.tv.setText(txt); }
         public TextView getTv() { return this.tv; }
