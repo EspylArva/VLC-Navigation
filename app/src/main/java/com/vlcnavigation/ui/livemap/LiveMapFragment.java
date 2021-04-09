@@ -33,7 +33,7 @@ import java.util.Objects;
 
 import timber.log.Timber;
 
-
+//TODO: Javadoc
 public class LiveMapFragment extends Fragment {
 
     private SettingsViewModel settingsViewModel;
@@ -58,9 +58,7 @@ public class LiveMapFragment extends Fragment {
         return root;
     }
 
-    /**
-     * FIXME
-     */
+
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
@@ -87,7 +85,7 @@ public class LiveMapFragment extends Fragment {
 
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float widthOfMapDp = displayMetrics.widthPixels / displayMetrics.density - 2*defaultMargin;
-        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME
+        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME: height should take into account available space, as well as bottom navigation bar
 
         Light l = settingsViewModel.getListOfLights().getValue().get(0);
 
@@ -127,6 +125,9 @@ public class LiveMapFragment extends Fragment {
     }
 
 
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners() {
         recycler_floors.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -159,10 +160,7 @@ public class LiveMapFragment extends Fragment {
     private void initObservers() { }
 
     /**
-     * FIXME
-     * @param inflater
-     * @param container
-     * @return
+     * Binds views to the XML layout
      */
     private View initViews(LayoutInflater inflater, ViewGroup container) {
         View root = inflater.inflate(R.layout.fragment_live_map, container, false);
@@ -198,9 +196,7 @@ public class LiveMapFragment extends Fragment {
         snap.attachToRecyclerView(recycler_floors);
     }
 
-    /**
-     * FIXME
-     */
+
     private void setRecyclerAvailableFloors() {
         // FIXME: rework with settingsViewModel.getFloorLevels().getValue()
         recycler_availableFloors.setHasFixedSize(true);

@@ -23,7 +23,6 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     private ExpandableFabLayout container_fabs;
-//    private ExpandableFab fab_permissions;
     private FabOption opt_microphone, opt_readFiles;
     private final int PERMISSION_REQUEST_MICROPHONE = 301;
     private final int PERMISSION_REQUEST_READ_FILES = 302;
@@ -111,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public class CustomDebugTree extends Timber.DebugTree {
+    /**
+     * Custom logging tree for Timber
+     */
+    private class CustomDebugTree extends Timber.DebugTree {
         @Override
         protected String createStackElementTag(StackTraceElement element) {
             return String.format("[%s:%s | %s]",

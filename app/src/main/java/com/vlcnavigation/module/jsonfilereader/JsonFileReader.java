@@ -50,7 +50,7 @@ public class JsonFileReader {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         // Json is not a valid MIME type according to Android: https://stackoverflow.com/questions/58055318/how-filter-json-files-with-intent-action-open-document
         // This filters out images, videos, audios but is not a perfect filter
-        //        intent.setType("application/octet-stream"); // TODO
+        //        intent.setType("application/octet-stream"); // TODO: Filter JSON files only
         intent.setType("application/*");
         return intent;
     }
@@ -106,6 +106,7 @@ public class JsonFileReader {
     }
 
 
+    // Needed for unmarshalling
     private class DataObject {
         private List<Light> lights;
         private List<Floor> floors;

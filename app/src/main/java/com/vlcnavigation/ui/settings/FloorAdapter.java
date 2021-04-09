@@ -46,6 +46,7 @@ import timber.log.Timber;
 import static android.app.Activity.RESULT_OK;
 import static com.vlcnavigation.module.svg2vector.SvgFetcher.READ_SVG_REQUEST_CODE;
 
+//TODO: Javadoc
 public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>{
 
     private final SettingsViewModel vm;

@@ -44,6 +44,8 @@ import java.util.Set;
 
 import timber.log.Timber;
 
+//TODO: Javadoc
+
 public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder> {
     private final SettingsViewModel vm;
 
@@ -191,22 +193,24 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                     }
                 }
             });
-            txtInputLayout_floor.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void afterTextChanged(Editable s) { }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
-                        txtInputLayout_floor.setError(itemView.getContext().getResources().getString(R.string.light_floor_null));
-//                        txtInputLayout_floor.setErrorEnabled(true); // FIXME
-                    }
-                    else
-                    {
-//                        txtInputLayout_floor.setErrorEnabled(false); // FIXME
-                        vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setDescription(s.toString());
-                        vm.saveLights();
-                    }
-                }
-            });
+
+            // CLEANME: not sure if it is useful, as Floor should be chosen using the dropdown list
+//            txtInputLayout_floor.addTextChangedListener(new TextWatcher() {
+//                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//                @Override public void afterTextChanged(Editable s) { }
+//                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                    if (s.length() == 0 || s.toString().equals("-") || s.toString().equals("+") || s.toString().equals(".")) {
+//                        txtInputLayout_floor.setError(itemView.getContext().getResources().getString(R.string.light_floor_null));
+////                        txtInputLayout_floor.setErrorEnabled(true);
+//                    }
+//                    else
+//                    {
+////                        txtInputLayout_floor.setErrorEnabled(false);
+//                        vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setDescription(s.toString());
+//                        vm.saveLights();
+//                    }
+//                }
+//            });
 
         }
 
@@ -215,7 +219,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
             if(!this.vm.floorExists(this.light.getFloor()))
             {
                 Timber.d("Seems like this floor no longer exists: %s", this.light.getFloor());
-                txtInputLayout_floor.setError("Seems like this floor no longer exists"); // FIXME: replace with a string resource
+                txtInputLayout_floor.setError(itemView.getResources().getString(R.string.floor_does_not_exist));
             }
 
             ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, R.attr.listPopupWindowStyle);

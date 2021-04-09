@@ -43,12 +43,21 @@ public class FloorsLightsManagerFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners() {
     }
 
+    /**
+     * Observe LiveData from the ViewModel.
+     */
     private void initObservers() {
     }
 
+    /**
+     * Binds views to the XML layout
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
         View root = inflater.inflate(R.layout.tabitem_floors_and_lights, container, false);
@@ -58,6 +67,13 @@ public class FloorsLightsManagerFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Setting the recycler view used to display registered floors.
+     * The settings are set to make the recycler view look like a carousel:
+     * - views snap to display one ViewHolder
+     * - indicator shows which view is currently displayed, and the number of items
+     * - views are displayed horizontally
+     */
     private void setRecyclerFloors(View root) {
         recycler_floors = root.findViewById(R.id.recycler_floors);
         recycler_floors.setHasFixedSize(true);
@@ -77,6 +93,13 @@ public class FloorsLightsManagerFragment extends Fragment {
         snap.attachToRecyclerView(recycler_floors);
     }
 
+    /**
+     * Setting the recycler view used to display registered lights.
+     * The settings are set to make the recycler view look like a carousel:
+     * - views snap to display one ViewHolder
+     * - indicator shows which view is currently displayed, and the number of items
+     * - views are displayed horizontally
+     */
     private void setRecyclerLights(View root) {
         recycler_lights = root.findViewById(R.id.recycler_lights);
         recycler_lights.setHasFixedSize(true);

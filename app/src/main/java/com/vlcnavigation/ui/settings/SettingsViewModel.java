@@ -30,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 
 import timber.log.Timber;
 
+//TODO: Javadoc
 public class SettingsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<List<Light>> mListOfLights;

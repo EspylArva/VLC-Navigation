@@ -4,6 +4,8 @@ import android.util.Pair;
 
 import java.util.Map;
 
+// TODO: JAVADOC NEEDED
+
 public class Light {
 
     private Light(double x, double y, double distance, String description, Floor floor, double lambda) {

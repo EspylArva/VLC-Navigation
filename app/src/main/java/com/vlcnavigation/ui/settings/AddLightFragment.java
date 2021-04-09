@@ -52,6 +52,9 @@ public class AddLightFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners() {
         ListPopupWindow listPopupWindow = new ListPopupWindow(getContext(), null, R.attr.listPopupWindowStyle);
         listPopupWindow.setAnchorView(txtInputLayout_newLightFloor);
@@ -161,9 +164,15 @@ public class AddLightFragment extends Fragment {
         });
     }
 
+    /**
+     * Observe LiveData from the ViewModel.
+     */
     private void initObservers() {
     }
 
+    /**
+     * Binds views to the XML layout
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
         View root = inflater.inflate(R.layout.tabitem_add_light, container, false);
@@ -177,6 +186,9 @@ public class AddLightFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Resets the UI by clearing all text fields and removing possible errors
+     */
     private void resetLightPanel() {
         txtInputLayout_newLightDescription.getEditText().getText().clear();
         txtInputLayout_newLightXPos.getEditText().getText().clear();

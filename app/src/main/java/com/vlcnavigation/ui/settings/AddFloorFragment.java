@@ -49,6 +49,9 @@ public class AddFloorFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners() {
         fab_addFloor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,9 +141,15 @@ public class AddFloorFragment extends Fragment {
         });
     }
 
+    /**
+     * Observe LiveData from the ViewModel.
+     */
     private void initObservers() {
     }
 
+    /**
+     * Binds views to the XML layout
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
         View root = inflater.inflate(R.layout.tabitem_add_floor, container, false);
@@ -152,6 +161,9 @@ public class AddFloorFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Resets the UI by clearing all text fields and removing possible errors
+     */
     private void resetFloorPanel() {
         txtInputLayout_newFloorOrder.getEditText().getText().clear();
         txtInputLayout_newFloorDescription.getEditText().getText().clear();

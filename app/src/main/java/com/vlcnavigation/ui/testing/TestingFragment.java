@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 
 import timber.log.Timber;
 
-// FIXME: https://github.com/brandonlw/magstripereader
+// https://github.com/brandonlw/magstripereader
 public class TestingFragment extends Fragment {
     private TextView textView;
     private TestingViewModel testingViewModel;

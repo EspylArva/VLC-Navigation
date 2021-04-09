@@ -35,6 +35,13 @@ public class Util {
         imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
     }
 
+    /**
+     * Converts a size in pixel to a size in density-independent pixel
+     *
+     * @param px size in pixels
+     * @param context Context
+     * @return size in density-independent pixels
+     */
     public static int pxToDp(int px, Context context)
     {
         final float scale = context.getResources().getDisplayMetrics().density;

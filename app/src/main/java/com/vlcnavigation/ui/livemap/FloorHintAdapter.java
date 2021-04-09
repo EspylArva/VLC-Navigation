@@ -19,6 +19,7 @@ import java.util.List;
 
 import timber.log.Timber;
 
+//TODO: Javadoc
 public class FloorHintAdapter extends RecyclerView.Adapter<FloorHintAdapter.StringHolder> {
 
     private List<Floor> list;

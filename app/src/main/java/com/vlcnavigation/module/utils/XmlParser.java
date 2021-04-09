@@ -99,6 +99,12 @@ public class XmlParser {
         return result;
     }
 
+    /**
+     * Turns a start-tag element to an empty-tag element
+     *
+     * @param startTag start-tag element to convert
+     * @return empty-tag formatted element
+     */
     protected static String startTagToEmptyTag(String startTag)
     {
         return startTag.substring(0, startTag.length() - 1) + "/>";

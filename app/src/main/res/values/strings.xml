@@ -55,6 +55,7 @@
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_floors">com.vlcnavigation.floors</string>
+    <string name="floor_does_not_exist">\"Seems like this floor no longer exists\"</string>
 
 
 </resources>

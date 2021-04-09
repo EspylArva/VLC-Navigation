@@ -85,10 +85,12 @@ public class SvgSplitter extends XmlParser {
 
 
     /**
-     * TODO
+     * Return a dictionary containing:
+     * - the room description as key
+     * - the graphical component of the room as String, in SVG format
      *
-     * @param in
-     * @return
+     * @param in InputStream representing the document
+     * @return Dictionary containing rooms descriptions and graphical component as SVG-formatted String
      * @throws IOException
      */
     public static Map<String, String> parse(InputStream in) throws IOException {
@@ -97,7 +99,7 @@ public class SvgSplitter extends XmlParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag(); // Read first tag
-            return readFeed();
+            return fillSvgList();
         }
         catch (XmlPullParserException | IOException e) {
             Timber.e(e);
@@ -108,7 +110,16 @@ public class SvgSplitter extends XmlParser {
         }
     }
 
-    private static Map<String, String> readFeed() throws IOException, XmlPullParserException {
+    /**
+     * Return a header and a footer for an SVG-formatted document, leaving the actual graphical content to be added.
+     * This should only be used to split an SVG into multiple SVGs, as the size of the splits will be determined by the size of the original document.
+     * The first element of the pair is the header, while the second element is the footer of the SVG.
+     *
+     * @return Pair containing the header as first element and the footer as second element
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    private static Pair<String, String> buildHeaderFooter() throws IOException, XmlPullParserException {
         String header = getLineContent();
         header = "<" + header.substring(1, header.length()-1)
                 .replace("<", "&lt;")
@@ -117,12 +128,19 @@ public class SvgSplitter extends XmlParser {
                 .replace("'", "\"") + ">";
         header = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">%s<g>", header);
         String footer = "</g></svg>";
-        return fillSvgList(parser, header, footer);
+        return new Pair<String, String>(header, footer);
     }
 
-    private static Map<String, String> fillSvgList(XmlPullParser parser, String header, String footer) throws IOException, XmlPullParserException {
-        // Collection to return
+    /**
+     * Reads the whole document and parses the content accordingly.
+     *
+     * @return
+     * @throws IOException
+     * @throws XmlPullParserException
+     */
+    private static Map<String, String> fillSvgList() throws IOException, XmlPullParserException {
         Map<String, String> svgMap = new HashMap<String, String>();
+        Pair<String, String> headerFooter = buildHeaderFooter();
 
         int eventType;              // Type of event to treat
         String svgContent = "";     // Contains the SVG graphic component
@@ -149,7 +167,7 @@ public class SvgSplitter extends XmlParser {
                     }
                     break;
                 case XmlPullParser.END_TAG:
-                    if(isSvgComponentTag(tagName)) { svgMap.put(description, String.format("%s%s%s", header, svgContent, footer)); }
+                    if(isSvgComponentTag(tagName)) { svgMap.put(description, String.format("%s%s%s", headerFooter.first, svgContent, headerFooter.second)); }
                     break;
                 default:
                     break;

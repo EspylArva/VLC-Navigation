@@ -1,5 +1,7 @@
 package com.vlcnavigation.module.trilateration;
 
+// TODO: JAVADOC NEEDED
+
 public class Floor implements Comparable<Floor> {
     private int order;
     private String description;

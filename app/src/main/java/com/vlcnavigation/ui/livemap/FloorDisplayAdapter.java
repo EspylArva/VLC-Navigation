@@ -43,6 +43,7 @@ import java.util.Scanner;
 
 import timber.log.Timber;
 
+//TODO: Javadoc
 public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapter.FloorDisplayHolder>{
 //    private final LiveMapViewModel vm;
     private final SettingsViewModel vm;
@@ -140,7 +141,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             mapPart.setOnTouchListener(
                     new View.OnTouchListener() {
                         @Override
-                        public boolean onTouch(View view, MotionEvent event) {  // FIXME: view is clickable despite line 129 ( mapPart.setClickable(false); )
+                        public boolean onTouch(View view, MotionEvent event) {
                             if(event.getAction() == MotionEvent.ACTION_DOWN)
                             {
                                 Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache());

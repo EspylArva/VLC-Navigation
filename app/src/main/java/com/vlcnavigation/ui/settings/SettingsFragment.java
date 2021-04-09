@@ -82,15 +82,26 @@ public class SettingsFragment extends Fragment {
         return root;
     }
 
+    // FIXME: issue with notification when user adds an item and size of collection is 0
     public void notifyLightRecycler(int index) { manager.getLightRecycler().getAdapter().notifyItemInserted(index); collapse(); }
     public void notifyFloorRecycler(int index) { manager.getFloorRecycler().getAdapter().notifyItemInserted(index); collapse(); }
     public void notifyLightRecycler() { manager.getLightRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfLights().getValue().size() -1); collapse();}
     public void notifyFloorRecycler() { manager.getFloorRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfFloors().getValue().size() -1); collapse();}
 
 
+    /**
+     * Collapses the backdrop
+     */
     private void collapse() { BottomSheetBehavior.from(contentLayout).setState(BottomSheetBehavior.STATE_COLLAPSED); }
+
+    /**
+     * Expands the backdrop
+     */
     private void expand() { BottomSheetBehavior.from(contentLayout).setState(BottomSheetBehavior.STATE_EXPANDED); }
 
+    /**
+     * Binds views to the XML layout
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container)
     {
         View root = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -102,9 +113,14 @@ public class SettingsFragment extends Fragment {
         return root;
     }
 
-
+    /**
+     * Observe LiveData from the ViewModel.
+     */
     private void initObservers() { }
 
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners()
     {
         btn_addSample.setOnClickListener(new View.OnClickListener() {
