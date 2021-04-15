@@ -233,6 +233,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     int newFloorOrder = vm.getListOfFloorLevels().getValue().get(position);
                     vm.getListOfLights().getValue().get(getAdapterPosition()).getFloor().setOrder(newFloorOrder);
+                    vm.saveLights();
                     txtInputLayout_floor.setText(String.valueOf(newFloorOrder));
                     listPopupWindow.dismiss();
                 }

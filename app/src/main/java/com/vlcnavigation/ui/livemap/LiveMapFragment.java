@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -79,41 +82,32 @@ public class LiveMapFragment extends Fragment {
     private void displayLights(int i) {
         // Use color @color/purple_500
         int colorId = R.color.purple_500;
+//        int colorId = R.color.orange_500;
         // To display a marker at position X,Y, we need to calculate the density of the screen
 
-        float defaultMargin = getResources().getDimension(R.dimen.default_margin);
+//        float defaultMargin = getResources().getDimension(R.dimen.default_margin);
 
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        float widthOfMapDp = displayMetrics.widthPixels / displayMetrics.density - 2*defaultMargin;
-        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME: height should take into account available space, as well as bottom navigation bar
+//        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+//        float widthOfMapDp = displayMetrics.widthPixels / displayMetrics.density;// - 2*defaultMargin;
+//        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME: height should take into account available space, as well as bottom navigation bar
+//
+//        Timber.d("Screen size in px: %sx%s", displayMetrics.widthPixels, displayMetrics.heightPixels);
+//        Timber.d("Screen size in dp: %sx%s", widthOfMapDp, heightOfMapDp);
 
-        Light l = settingsViewModel.getListOfLights().getValue().get(0);
-
-//        Uri uri = Uri.parse(filePath);
-//        Timber.d(uri.getPath());
-
-        int widthOfMapPx = 0;
-        int heightOfMapPx = 0;
-
-        try {
-            InputStream is = requireContext().getContentResolver().openInputStream(Uri.parse(l.getFloor().getFilePath()));
-            Pair<Integer, Integer> mapSizePx = SvgSplitter.getMapSize(is);
-            widthOfMapPx = mapSizePx.first;
-            heightOfMapPx = mapSizePx.second;
-
-
-            FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(i));
-            if(holder != null) {
-                holder.makeMarker(mapSizePx, colorId);
-            } else { Timber.d("Could not create marker. Holder is null"); }
-
-
-            is.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for(Light l : settingsViewModel.getListOfLights().getValue())
+        {
+            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(i)))
+            {
+                try {
+                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(i));
+                    if(holder != null) {
+                        holder.makeMarker(l.getPosX(), l.getPosY(), colorId, 100);
+                    } else { Timber.d("Could not create marker. Holder is null"); }
+                } catch (IOException e) {
+                    Timber.e(e);
+                }
+            }
         }
-
-        // Position of X = defaultMargin + (widthOfMapDp / widthOfMapPx) * posXPx
     }
 
     /**
@@ -135,14 +129,19 @@ public class LiveMapFragment extends Fragment {
                 for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++)
                 {
                     FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
+                    GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
                     if(holder != null) {
                         if (i == ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
-                            holder.getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
+                            // ?attr/colorPrimary
+                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
+                            holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
 
                             displayLights(i);
 
-                        } else { holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
+                        } else {
+                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
+                            holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
                     }
                     else
                     {

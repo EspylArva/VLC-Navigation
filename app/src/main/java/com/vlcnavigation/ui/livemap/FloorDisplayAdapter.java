@@ -1,9 +1,12 @@
 package com.vlcnavigation.ui.livemap;
 
 import android.annotation.SuppressLint;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -14,9 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -71,8 +77,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         private final SettingsViewModel vm;
         private final LiveMapFragment fragment;
         // Views
-        private ConstraintLayout container_map;
-        public ConstraintLayout getContainer() { return this.container_map; }
+        private RelativeLayout container_map;
+        public RelativeLayout getContainer() { return this.container_map; }
 
         public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm, LiveMapFragment fragment) {
             super(itemView);
@@ -125,15 +131,16 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
             mapPart.setDrawingCacheEnabled(true);
             mapPart.setClickable(false);
+            mapPart.setScaleType(ImageView.ScaleType.FIT_START);
 
-            mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
+            mapPart.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
             Drawable drawable = null;
             try {
                     InputStream is = new ByteArrayInputStream(entry.getValue().getBytes());
                     drawable = Sharp.loadInputStream(is).getDrawable();
                     is.close();
             } catch (IOException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
                     Timber.e("SVG: %s", entry.getValue());
             }
 
@@ -163,19 +170,34 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             container_map.addView(mapPart);
         }
 
-        public void makeMarker(Pair<Integer, Integer> posXY, int colorId)
-        {
+        public void makeMarker(double posX, double posY, int colorId, int... markerSize) throws IOException {
 
-            Timber.w("Making a marker");
+            double dotSize = markerSize.length == 1 ? markerSize[0] : 100;
+            String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
+            InputStream is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+            Pair<Integer, Integer> mapSizePx = SvgSplitter.getMapSize(is);
+            double density = ((double)container_map.getWidth())/((double)mapSizePx.first);
+            double leftMargin = (posX*density) - (dotSize/2);
+            double topMargin = (posY*density) - (dotSize/2);
+            is.close();
 
+            Timber.w("Requesting a marker. Size: %sx%s. Position: %s:%s", dotSize, dotSize, posX, posY);
+            Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());
+            Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);
+            Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);
+
+            // Making the marker
             ImageView marker = new ImageView(itemView.getContext());
             marker.setId(View.generateViewId());
-            ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(100, 100);
-//            params.setMargins(posXY.first, posXY.second, 0, 0);
-            marker.setLayoutParams(params);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100, 100);//LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT); // 100, 100);
+            params.leftMargin = (int) leftMargin;
+            params.topMargin = (int) topMargin;
 
+            GradientDrawable whiteCircle = (GradientDrawable)ResourcesCompat.getDrawable(itemView.getResources(), R.drawable.ic_circle, itemView.getContext().getTheme());
+            whiteCircle.setColor(ContextCompat.getColorStateList(itemView.getContext(), colorId));
+            marker.setBackground(whiteCircle);
 
-            marker.setBackgroundResource(R.drawable.ic_circle);
+            container_map.addView(marker, params);
         }
     }
 }

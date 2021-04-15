@@ -76,7 +76,7 @@ public class SvgSplitter extends XmlParser {
         }
         catch (XmlPullParserException | IOException e) {
             Timber.e(e);
-            return null;
+            return new Pair<Integer, Integer>(0,0);
         }
         finally {
             in.close();

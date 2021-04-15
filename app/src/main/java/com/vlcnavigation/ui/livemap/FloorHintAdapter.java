@@ -52,8 +52,7 @@ public class FloorHintAdapter extends RecyclerView.Adapter<FloorHintAdapter.Stri
         public StringHolder(@NonNull View itemView) {
             super(itemView);
             this.tv = itemView.findViewById(R.id.simple_tv);
-            this.tv.setBackgroundResource(R.drawable.ic_circle);
-            final float scale = itemView.getContext().getResources().getDisplayMetrics().density;
+//            this.tv.setBackgroundResource(R.drawable.ic_circle);
 
             int size = Util.pxToDp(56, itemView.getContext());
             int margins = Util.pxToDp(2, itemView.getContext());

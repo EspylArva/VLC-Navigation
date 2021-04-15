@@ -46,6 +46,8 @@ public class Light {
     public void setLambda(double newLambda) { this.lambda = newLambda; }
     public void setFloor(Floor newFloor) { this.floor = newFloor; }
 
+    public boolean isOnFloor(Floor f) { return f.equals(this.floor); }
+
     public static class Builder {
         // Mandatory
         private double x, y;
