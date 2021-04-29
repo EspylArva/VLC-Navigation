@@ -5,6 +5,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import timber.log.Timber;
+
 public class XmlParser {
 
     /**
@@ -62,8 +64,12 @@ public class XmlParser {
     protected static String readCompressedXml(String beacon, String attribute) throws IOException, XmlPullParserException{
         parser.require(XmlPullParser.START_TAG, ns, beacon);
         String content = parser.getAttributeValue(null, attribute);
-        parser.nextTag();
-        parser.require(XmlPullParser.END_TAG, ns, beacon);
+        Timber.d(content);
+//        while(parser.nextTag() != XmlPullParser.END_TAG)
+//        {
+//            parser.nextTag();
+//            parser.require(XmlPullParser.END_TAG, ns, beacon);
+//        }
         return content;
     }
 

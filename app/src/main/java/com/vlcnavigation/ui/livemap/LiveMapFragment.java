@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
@@ -82,17 +83,7 @@ public class LiveMapFragment extends Fragment {
     private void displayLights(int i) {
         // Use color @color/purple_500
         int colorId = R.color.purple_500;
-//        int colorId = R.color.orange_500;
-        // To display a marker at position X,Y, we need to calculate the density of the screen
-
-//        float defaultMargin = getResources().getDimension(R.dimen.default_margin);
-
-//        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-//        float widthOfMapDp = displayMetrics.widthPixels / displayMetrics.density;// - 2*defaultMargin;
-//        float heightOfMapDp = displayMetrics.heightPixels / displayMetrics.density; // FIXME: height should take into account available space, as well as bottom navigation bar
-//
-//        Timber.d("Screen size in px: %sx%s", displayMetrics.widthPixels, displayMetrics.heightPixels);
-//        Timber.d("Screen size in dp: %sx%s", widthOfMapDp, heightOfMapDp);
+        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
 
         for(Light l : settingsViewModel.getListOfLights().getValue())
         {
@@ -101,7 +92,7 @@ public class LiveMapFragment extends Fragment {
                 try {
                     FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(i));
                     if(holder != null) {
-                        holder.makeMarker(l.getPosX(), l.getPosY(), colorId, 100);
+                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
                     } else { Timber.d("Could not create marker. Holder is null"); }
                 } catch (IOException e) {
                     Timber.e(e);

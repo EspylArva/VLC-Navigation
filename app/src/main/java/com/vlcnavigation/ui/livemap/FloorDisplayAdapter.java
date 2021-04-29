@@ -1,6 +1,7 @@
 package com.vlcnavigation.ui.livemap;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
@@ -31,6 +33,8 @@ import com.pixplicity.sharp.Sharp;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.io.BufferedReader;
@@ -122,6 +126,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                     Timber.e(e2.getLocalizedMessage());
                 }
             }
+
+            makeLights();
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -170,7 +176,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             container_map.addView(mapPart);
         }
 
-        public void makeMarker(double posX, double posY, int colorId, int... markerSize) throws IOException {
+        public void makeMarker(double posX, double posY, @ColorInt int color, int... markerSize) throws IOException {
 
             double dotSize = markerSize.length == 1 ? markerSize[0] : 100;
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
@@ -181,7 +187,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             double topMargin = (posY*density) - (dotSize/2);
             is.close();
 
-            Timber.w("Requesting a marker. Size: %sx%s. Position: %s:%s", dotSize, dotSize, posX, posY);
+            Timber.w("Requesting a marker of size: %sx%s at position: %s:%s", dotSize, dotSize, posX, posY);
             Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());
             Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);
             Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);
@@ -194,10 +200,26 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             params.topMargin = (int) topMargin;
 
             GradientDrawable whiteCircle = (GradientDrawable)ResourcesCompat.getDrawable(itemView.getResources(), R.drawable.ic_circle, itemView.getContext().getTheme());
-            whiteCircle.setColor(ContextCompat.getColorStateList(itemView.getContext(), colorId));
+            whiteCircle.setColor(ColorStateList.valueOf(color));
             marker.setBackground(whiteCircle);
 
             container_map.addView(marker, params);
+        }
+
+        private void makeLights()
+        {
+            int colorId = R.color.purple_500;
+            int color = Util.modifyAlpha(ContextCompat.getColor(itemView.getContext(), colorId), 128);
+
+            for(Light l : vm.getListOfLights().getValue())
+            {
+                if(l.isOnFloor(vm.getListOfFloors().getValue().get(getAdapterPosition())))
+                {
+                    try {
+                        makeMarker(l.getPosX(), l.getPosY(), color, 100);
+                    } catch (IOException e) { Timber.e(e); }
+                }
+            }
         }
     }
 }

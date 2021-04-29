@@ -13,6 +13,7 @@
     <string name="manage_permissions">Manage your permissions</string>
     <string name="permission_read_internal_file">Permission: read internal files</string>
     <string name="permission_listen_microphone">Permission: listen to the microphone</string>
+    <string name="permission_all">Permission: give all the permissions</string>
         <!-- Fragment Live Map -->
     <string name="room_search">Search for a room</string>
         <!-- Fragment Settings -->
