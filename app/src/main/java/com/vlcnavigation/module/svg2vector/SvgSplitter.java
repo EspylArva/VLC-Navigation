@@ -64,12 +64,12 @@ public class SvgSplitter extends XmlParser {
             parser.setInput(in, null);
             parser.nextTag(); // Read first tag
 
-            Timber.d(parser.getName());
+//            Timber.d(parser.getName());
             parser.require(XmlPullParser.START_TAG, ns, "svg");
 
             String width = parser.getAttributeValue(null, "width").substring(0, parser.getAttributeValue(null, "width").length() -2);
             String height = parser.getAttributeValue(null, "height").substring(0, parser.getAttributeValue(null, "height").length() -2);
-            Timber.d("Width: %s -- Height: %s", width, height);
+//            Timber.d("Width: %s -- Height: %s", width, height);
 
             Pair<Integer, Integer> sizeXY = new Pair<Integer, Integer>(Integer.parseInt(width), Integer.parseInt(height));
             return sizeXY;
@@ -157,7 +157,7 @@ public class SvgSplitter extends XmlParser {
                     {
                         // Convert start-tag to empty-tag
                         svgContent = startTagToEmptyTag(getLineContent());
-                        Timber.d("SVG graphic part: %s (%s)", svgContent, parser.getName());
+//                        Timber.d("SVG graphic part: %s (%s)", svgContent, parser.getName());
 
                         switch(parser.getName().toLowerCase())
                         {
@@ -173,7 +173,7 @@ public class SvgSplitter extends XmlParser {
                                 break;
                         }
 
-                        Timber.d("SVG graphic part: %s (%s:%s)", svgContent, parser.getName(), posXY);
+//                        Timber.d("SVG graphic part: %s (%s:%s)", svgContent, parser.getName(), posXY);
 
                     }
                     break;
@@ -181,7 +181,7 @@ public class SvgSplitter extends XmlParser {
                     if(!parser.getText().trim().isEmpty())
                     {
                         description = parser.getText();
-                        Timber.d("Text: %s", description);
+//                        Timber.d("Room description: %s", description);
                     }
                     break;
                 case XmlPullParser.END_TAG:

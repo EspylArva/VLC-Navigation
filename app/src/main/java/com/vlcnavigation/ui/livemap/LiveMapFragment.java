@@ -66,12 +66,15 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
+        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        Timber.d("%s", position);
+        position = settingsViewModel.findZeroFloor();
+        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        Timber.d("%s", position);
 
-        recycler_floors.scrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
-//        displayLights();
         // Display users. According to documentation, the color should be orange.
         displayUsers();
     }
@@ -119,6 +122,8 @@ public class LiveMapFragment extends Fragment {
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++)
                 {
+//                    Timber.e("Focused child: %s", recycler_availableFloors.findViewHolderForLayoutPosition().);
+
                     FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
                     GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
                     if(holder != null) {
@@ -127,15 +132,13 @@ public class LiveMapFragment extends Fragment {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
-
                             displayLights(i);
-
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
-                            holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
+                            holder.getTv().setBackgroundResource(R.drawable.ic_circle);
+                        } // reset style
                     }
-                    else
-                    {
+                    else {
                         Timber.e("Holder is null");
                     }
                 }

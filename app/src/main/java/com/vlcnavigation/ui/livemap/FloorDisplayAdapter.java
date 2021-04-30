@@ -70,6 +70,9 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
     @Override
     public void onBindViewHolder(@NonNull FloorDisplayHolder holder, int position) {
         holder.refreshUI();
+//        Timber.e("Making lights!");
+//        holder.makeLights();
+//        Timber.e("Finished making lights!");
     }
 
     @Override
@@ -82,7 +85,6 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         private final LiveMapFragment fragment;
         // Views
         private RelativeLayout container_map;
-        public RelativeLayout getContainer() { return this.container_map; }
 
         public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm, LiveMapFragment fragment) {
             super(itemView);
@@ -102,7 +104,6 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
         private void initViews(View itemView) {
             container_map = itemView.findViewById(R.id.container_map);
-
         }
 
         public void refreshUI() {
@@ -114,7 +115,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                     // Get the InputStream for the file
                     Uri uri = Uri.parse(filePath);
                     Timber.d(uri.getPath());
-                    InputStream is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+                    InputStream is = itemView.getContext().getContentResolver().openInputStream(uri);
                     Map<String, String> svgs = SvgSplitter.parse(is);
                     if (svgs != null && svgs.size() > 0) {
                         svgs.entrySet().forEach(this::makeMap);
@@ -127,7 +128,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                 }
             }
 
-            makeLights();
+//            makeLights();
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -142,12 +143,11 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             mapPart.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT));
             Drawable drawable = null;
             try {
-                    InputStream is = new ByteArrayInputStream(entry.getValue().getBytes());
-                    drawable = Sharp.loadInputStream(is).getDrawable();
-                    is.close();
+                InputStream is = new ByteArrayInputStream(entry.getValue().getBytes());
+                drawable = Sharp.loadInputStream(is).getDrawable();
+                is.close();
             } catch (IOException e) {
-//                    e.printStackTrace();
-                    Timber.e("SVG: %s", entry.getValue());
+                Timber.e("SVG: %s", entry.getValue());
             }
 
             mapPart.setImageDrawable(drawable);
@@ -160,16 +160,11 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                                 Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache());
                                 int color = bmp.getPixel((int) event.getX(), (int) event.getY());
                                 if (color != Color.TRANSPARENT) {
-
                                     Timber.d("Not transparent for %s (color: %s)", mapPart.getId(), color);
                                     Snackbar.make(itemView.getContext(), view, entry.getKey(), BaseTransientBottomBar.LENGTH_SHORT).show();
                                     return true;
                                 }
-                                else
-                                {
-                                    return false;
-                                }
-
+                                else { return false; }
                             } return false;
                         }
                     });
@@ -187,7 +182,9 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             double topMargin = (posY*density) - (dotSize/2);
             is.close();
 
-            Timber.w("Requesting a marker of size: %sx%s at position: %s:%s", dotSize, dotSize, posX, posY);
+
+            Timber.d("Requesting a marker of size: %sx%s at position: %s:%s", dotSize, dotSize, posX, posY);
+            Timber.d("%sx%s", itemView.getWidth(), itemView.getHeight());
             Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());
             Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);
             Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);

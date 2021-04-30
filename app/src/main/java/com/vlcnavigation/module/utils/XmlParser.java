@@ -64,12 +64,6 @@ public class XmlParser {
     protected static String readCompressedXml(String beacon, String attribute) throws IOException, XmlPullParserException{
         parser.require(XmlPullParser.START_TAG, ns, beacon);
         String content = parser.getAttributeValue(null, attribute);
-        Timber.d(content);
-//        while(parser.nextTag() != XmlPullParser.END_TAG)
-//        {
-//            parser.nextTag();
-//            parser.require(XmlPullParser.END_TAG, ns, beacon);
-//        }
         return content;
     }
 

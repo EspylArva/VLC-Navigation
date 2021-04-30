@@ -126,11 +126,27 @@ public class SettingsViewModel extends AndroidViewModel {
     }
 
     protected Floor findFloor(int index) {
-        if(mListOfFloors.getValue().stream().anyMatch(floor -> floor.getOrder() == index))
-        {
+        if(mListOfFloors.getValue().stream().anyMatch(floor -> floor.getOrder() == index)) {
             return mListOfFloors.getValue().stream().filter(floor -> floor.getOrder() == index).findFirst().get();
         }
         else { Timber.e("CANT FIND FLOOR"); return null; }
+    }
+
+    public int findZeroFloor()
+    {
+        if(mListOfFloors.getValue().isEmpty() || mListOfFloors.getValue() == null) {
+            return 0;
+        }
+        else {
+            int current = Integer.MAX_VALUE;
+            for(int i = 0; i<mListOfFloors.getValue().size(); i++)
+            {
+                if(Math.abs(mListOfFloors.getValue().get(i).getOrder()) < current) {
+                    current = mListOfFloors.getValue().get(i).getOrder();
+                }
+            }
+            return current;
+        }
     }
 
     public boolean floorExists(Floor floor) {
