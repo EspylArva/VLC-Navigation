@@ -5,7 +5,6 @@ package com.vlcnavigation.ui.fft;
 
 
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,23 +21,14 @@ import com.vlcnavigation.R;
 
 //csv reading
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-
-
-
-
-import timber.log.Timber;
 
 
 public class FFTFragment extends Fragment {
@@ -63,7 +53,7 @@ public class FFTFragment extends Fragment {
 
                 //parse data from csv
                 dataParser();
-                fftComputing();
+                distanceComputing();
 
             }
         });
@@ -130,10 +120,9 @@ public class FFTFragment extends Fragment {
 
     }
 
-    public void fftComputing() {
+    public void distanceComputing() {
 
         distancesArray = new double[5][4];
-
 
         double m, P, Ts, H, A, Dx1, Dx2, Dx3, Dx4;
         A = 1;
