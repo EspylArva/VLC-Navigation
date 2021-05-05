@@ -65,6 +65,15 @@ dependencies {
     // Backdrop (material) @ https://github.com/kishan2612/Material-Backdrop-Android
     implementation 'com.github.kishan2612:Material-Backdrop-Android:v1.1.0'
 
+    // Opening csv
+    implementation 'com.opencsv:opencsv:4.6'
+    implementation 'org.apache.commons:commons-csv:1.5'
+
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'commons-codec:commons-codec:1.13'
+
+    implementation 'com.badlogicgames.gdx:gdx-tools:1.5.4'
+
 
 
 
