@@ -25,9 +25,10 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     private ExpandableFabLayout container_fabs;
-    private FabOption opt_microphone, opt_readFiles;
+    private FabOption opt_microphone, opt_readFiles, opt_all;
     private final int PERMISSION_REQUEST_MICROPHONE = 301;
     private final int PERMISSION_REQUEST_READ_FILES = 302;
+    private final int PERMISSION_REQUEST_ALL = 399;
 
 
     @Override
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         container_fabs = findViewById(R.id.fab_permissions);
         opt_microphone = findViewById(R.id.fabOpt_listen_microphone);
         opt_readFiles = findViewById(R.id.fabOpt_read_files);
+        opt_all = findViewById(R.id.fabOpt_allow_all);
     }
 
     private void initListeners()
@@ -73,6 +75,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) { requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_READ_FILES); }
                 else { Toast.makeText(getApplicationContext(), getResources().getString(R.string.permission_already_granted), Toast.LENGTH_SHORT).show(); }
+            }
+        });
+        opt_all.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 requestPermissions( new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_ALL); 
+//                if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) { requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_READ_FILES); }
             }
         });
     }

@@ -32,8 +32,7 @@
         app:layout_constraintTop_toBottomOf="@id/txtInputLayout_roomSearchField"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/recycler_available_floors"
-        />
+        app:layout_constraintBottom_toTopOf="@id/recycler_available_floors"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/lbl_floor_title"

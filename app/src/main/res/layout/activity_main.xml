@@ -66,6 +66,13 @@
             app:fab_icon="@drawable/ic_baseline_mic_24"
             android:id="@+id/fabOpt_listen_microphone"
             app:label_text="@string/permission_listen_microphone" />
+        <com.nambimobile.widgets.efab.FabOption
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_color="@color/red"
+            app:fab_icon="@drawable/ic_baseline_vpn_key_24"
+            android:id="@+id/fabOpt_allow_all"
+            app:label_text="@string/permission_all" />
     </com.nambimobile.widgets.efab.ExpandableFabLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

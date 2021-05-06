@@ -64,10 +64,18 @@ public class SvgSplitter extends XmlParser {
             parser.setInput(in, null);
             parser.nextTag(); // Read first tag
 
+<<<<<<< HEAD
+=======
+//            Timber.d(parser.getName());
+>>>>>>> c411950e1e5039d3f9ea99febe74ee399715f7e4
             parser.require(XmlPullParser.START_TAG, ns, "svg");
 
             String width = parser.getAttributeValue(null, "width").substring(0, parser.getAttributeValue(null, "width").length() -2);
             String height = parser.getAttributeValue(null, "height").substring(0, parser.getAttributeValue(null, "height").length() -2);
+<<<<<<< HEAD
+=======
+//            Timber.d("Width: %s -- Height: %s", width, height);
+>>>>>>> c411950e1e5039d3f9ea99febe74ee399715f7e4
 
             Pair<Integer, Integer> sizeXY = new Pair<Integer, Integer>(Integer.parseInt(width), Integer.parseInt(height));
             return sizeXY;
@@ -143,6 +151,7 @@ public class SvgSplitter extends XmlParser {
         int eventType;              // Type of event to treat
         String svgContent = "";     // Contains the SVG graphic component
         String description = "";    // The room description
+        Pair<Integer, Integer> posXY = null;
         String tagName = "";
         while ((eventType = parser.getEventType()) != XmlPullParser.END_DOCUMENT)
         {
@@ -154,14 +163,31 @@ public class SvgSplitter extends XmlParser {
                     {
                         // Convert start-tag to empty-tag
                         svgContent = startTagToEmptyTag(getLineContent());
-//                        Timber.d("SVG graphic part: %s", svgContent);
+//                        Timber.d("SVG graphic part: %s (%s)", svgContent, parser.getName());
+
+                        switch(parser.getName().toLowerCase())
+                        {
+                            case "rect":
+                                posXY = new Pair<Integer, Integer>(Integer.parseInt(readCompressedXml("rect", "x")), Integer.parseInt(readCompressedXml("rect", "y")));
+//                                svgContent = svgContent.replace(String.format("x='%s' y='%s'", posXY.first, posXY.second), "x='0' y='0'");
+                                break;
+                            case "path":
+                                posXY = new Pair<Integer, Integer>(Integer.parseInt(readCompressedXml("path", "d").split(" ")[1]), Integer.parseInt(readCompressedXml("path", "d").split(" ")[2]));
+//                                svgContent = svgContent.replace(String.format("M %s %s", posXY.first, posXY.second), "M %s %s");
+                                break;
+                            default:
+                                break;
+                        }
+
+//                        Timber.d("SVG graphic part: %s (%s:%s)", svgContent, parser.getName(), posXY);
+
                     }
                     break;
                 case XmlPullParser.TEXT:
                     if(!parser.getText().trim().isEmpty())
                     {
                         description = parser.getText();
-//                        Timber.d("Text: %s", description);
+//                        Timber.d("Room description: %s", description);
                     }
                     break;
                 case XmlPullParser.END_TAG:

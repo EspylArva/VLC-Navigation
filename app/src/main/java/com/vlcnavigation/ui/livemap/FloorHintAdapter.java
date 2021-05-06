@@ -39,7 +39,7 @@ public class FloorHintAdapter extends RecyclerView.Adapter<FloorHintAdapter.Stri
         holder.getTv().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recyclerView.scrollToPosition(position);
+                recyclerView.smoothScrollToPosition(position);
             }
         });
     }

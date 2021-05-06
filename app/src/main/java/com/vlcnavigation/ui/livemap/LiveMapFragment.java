@@ -1,5 +1,6 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
@@ -66,8 +67,12 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
+        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        Timber.d("%s", position);
+        position = settingsViewModel.findZeroFloor();
+        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        Timber.d("%s", position);
 
-        recycler_floors.scrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
@@ -83,6 +88,8 @@ public class LiveMapFragment extends Fragment {
     private void displayLights(int position) {
         // Use color @color/purple_500
         int colorId = R.color.purple_500;
+        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
+
         for(Light l : settingsViewModel.getListOfLights().getValue())
         {
             if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
@@ -90,7 +97,7 @@ public class LiveMapFragment extends Fragment {
                 try {
                     FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
                     if(holder != null) {
-                        holder.makeMarker(l.getPosX(), l.getPosY(), colorId, 100);
+                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
                     } else { Timber.d("Could not create marker. Holder is null"); }
                 } catch (IOException e) {
                     Timber.e(e);
@@ -117,6 +124,8 @@ public class LiveMapFragment extends Fragment {
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++)
                 {
+//                    Timber.e("Focused child: %s", recycler_availableFloors.findViewHolderForLayoutPosition().);
+
                     FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
                     GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
 //                    if(holder != null) {
@@ -125,17 +134,10 @@ public class LiveMapFragment extends Fragment {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
-
                             displayLights(i);
-
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
-//                    }
-//                    else
-//                    {
-//                        Timber.e("Holder is null");
-//                    }
                 }
             }
         });

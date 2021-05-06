@@ -2,9 +2,11 @@ package com.vlcnavigation.module.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 public class Util {
@@ -46,6 +48,15 @@ public class Util {
     {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (px * scale + 0.5f);
+    }
+
+    @ColorInt
+    public static int modifyAlpha(@ColorInt int color, int alpha)
+    {
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
     }
 
 }
