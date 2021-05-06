@@ -64,12 +64,10 @@ public class SvgSplitter extends XmlParser {
             parser.setInput(in, null);
             parser.nextTag(); // Read first tag
 
-            Timber.d(parser.getName());
             parser.require(XmlPullParser.START_TAG, ns, "svg");
 
             String width = parser.getAttributeValue(null, "width").substring(0, parser.getAttributeValue(null, "width").length() -2);
             String height = parser.getAttributeValue(null, "height").substring(0, parser.getAttributeValue(null, "height").length() -2);
-            Timber.d("Width: %s -- Height: %s", width, height);
 
             Pair<Integer, Integer> sizeXY = new Pair<Integer, Integer>(Integer.parseInt(width), Integer.parseInt(height));
             return sizeXY;
