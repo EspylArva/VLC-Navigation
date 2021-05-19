@@ -5,11 +5,14 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -22,9 +25,11 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.settings.FloorAdapter;
@@ -32,6 +37,7 @@ import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +48,8 @@ public class LiveMapFragment extends Fragment {
 
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_floors, recycler_availableFloors;
-    private TextInputLayout lbl_floor_title;
+    private TextInputLayout lbl_floorTitle;
+    private MaterialAutoCompleteTextView txt_roomSearchField;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -144,6 +151,20 @@ public class LiveMapFragment extends Fragment {
                 }
             }
         });
+        txt_roomSearchField.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                Timber.d("Searching for: %s", s);
+                try {
+                    Floor f = settingsViewModel.findRoom(s.toString());
+                    if(f != null) {
+                        Timber.d("Floor: %s (%s)", f.getDescription(), f.getOrder());
+                    } else { Timber.d("Room not found"); }
+                } catch (IOException e) { Timber.e(e); }
+            }
+        });
 
     }
 
@@ -160,10 +181,19 @@ public class LiveMapFragment extends Fragment {
 
         recycler_floors = root.findViewById(R.id.recycler_display_floors);
         recycler_availableFloors = root.findViewById(R.id.recycler_available_floors);
-        lbl_floor_title = root.findViewById(R.id.lbl_floor_title);
+        lbl_floorTitle = root.findViewById(R.id.lbl_floor_title);
+        txt_roomSearchField = root.findViewById(R.id.txtInputLayout_roomSearchField);
 
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
+        try {
+            List<String> rooms = settingsViewModel.getListOfRooms();
+            Timber.d(rooms.toString());
+            ArrayAdapter<String> autocompletionAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, rooms);
+            txt_roomSearchField.setAdapter(autocompletionAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return root;
     }
@@ -189,7 +219,6 @@ public class LiveMapFragment extends Fragment {
         snap.attachToRecyclerView(recycler_floors);
     }
 
-
     private void setRecyclerAvailableFloors() {
         // FIXME: rework with settingsViewModel.getFloorLevels().getValue()
         recycler_availableFloors.setHasFixedSize(true);
@@ -207,6 +236,6 @@ public class LiveMapFragment extends Fragment {
     }
 
     public void setFloorDescription(String description) {
-        this.lbl_floor_title.getEditText().setText(description);
+        this.lbl_floorTitle.getEditText().setText(description);
     }
 }

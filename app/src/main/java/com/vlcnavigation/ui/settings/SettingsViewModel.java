@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -15,14 +16,19 @@ import androidx.lifecycle.ViewModel;
 import com.google.gson.Gson;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
+import com.vlcnavigation.module.svg2vector.SvgSplitter;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -153,7 +159,37 @@ public class SettingsViewModel extends AndroidViewModel {
         return mListOfFloors.getValue().stream().anyMatch(f -> f.getOrder() == floor.getOrder());
     }
 
+    public Floor findRoom(String roomName) throws IOException {
+        for(Floor f : mListOfFloors.getValue())
+        {
+            Uri uri = Uri.parse(f.getFilePath());
+            InputStream is = getApplication().getContentResolver().openInputStream(uri);
+            Map<String, String> svgs = SvgSplitter.parse(is);
+            is.close();
+            if (svgs != null && svgs.size() > 0) {
+                if(svgs.containsKey(roomName)) { return f; }
+            }
+        }
+        return null;
+    }
+
     public LiveData<List<Integer>> getListOfFloorLevels() {
         return mListOfFloorLevels;
+    }
+
+    public List<String> getListOfRooms() throws IOException {
+        List<String> rooms = new ArrayList<String>();
+        for(Floor f : mListOfFloors.getValue())
+        {
+            Uri uri = Uri.parse(f.getFilePath());
+            InputStream is = getApplication().getContentResolver().openInputStream(uri);
+            Map<String, String> svgs = SvgSplitter.parse(is);
+            is.close();
+            if(svgs != null)
+            {
+                rooms.addAll(svgs.keySet());
+            }
+        }
+        return rooms;
     }
 }
