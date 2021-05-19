@@ -31,12 +31,46 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 
+//FFTPack imports
+
+import android.media.AudioFormat;
+
+import android.media.AudioRecord;
+
+import android.media.MediaRecorder;
+
+import android.os.AsyncTask;
+
+import android.util.Log;
+
+import android.view.View.OnClickListener;
+
+import android.widget.Button;
+
+import ca.uol.aig.fftpack.RealDoubleFFT;
+
+
 public class FFTFragment extends Fragment {
 
     private FFTViewModel FFTViewModel;
     //private List<String> rssData = new ArrayList<String>();
     private double[][] rssData;
     private double[][] distancesArray;
+
+    int audioSource = MediaRecorder.AudioSource.MIC;    // Audio source is the device MIC
+    int channelConfig = AudioFormat.CHANNEL_IN_MONO;    // Recording in mono
+    int audioEncoding = AudioFormat.ENCODING_PCM_16BIT; // Records in 16bit
+
+    //private DoubleFFT_1D fft;                           // The fft double array
+    private RealDoubleFFT transformer;
+    int blockSize = 256;                               // deal with this many samples at a time
+    int sampleRate = 8000;                             // Sample rate in Hz
+    public double frequency = 0.0;                      // the frequency given
+
+    RecordAudio recordTask;                             // Creates a Record Audio command
+    TextView textView;                                        // Creates a text view for the frequency
+    boolean started = false;
+    Button startStopButton;
 
 
 
@@ -45,21 +79,189 @@ public class FFTFragment extends Fragment {
         FFTViewModel =
                 new ViewModelProvider(this).get(FFTViewModel.class);
         View root = inflater.inflate(R.layout.fragment_fft, container, false);
-        final TextView textView = root.findViewById(R.id.textView3);
+
+        //findviews
+        textView = root.findViewById(R.id.textView3);
+        startStopButton = (Button) root.findViewById(R.id.StartStopButton);
+
+
+        //FFT
+        transformer = new RealDoubleFFT(blockSize); //Here is the setup of the ImageView and related object for drawing.
+
+
+
+        startStopButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (started) {
+
+                    started = false;
+
+                    startStopButton.setText("Start");
+                    recordTask.cancel(true);
+                } else {
+
+                    started = true;
+
+                    startStopButton.setText("Stop");
+                    recordTask = new FFTFragment.RecordAudio();
+                    recordTask.execute();
+
+                }
+            }
+        });
+
+
+
+
+
         FFTViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
 
                 //parse data from csv
+                /*
                 dataParser();
                 distanceComputing();
+                */
+
+
+
+
+
 
             }
         });
 
         return root;
     }
+
+
+
+    //Most of the work in this activity is done in the following class, called RecordAudio, which extends AsyncTask. Using AsyncTask, we run the methods that will tie up the user interface on a separate thread. Anything that is placed in the doInBackground method will be run in this manner.
+
+    private class RecordAudio extends AsyncTask<Void, Double, Void>{
+        @Override
+        protected Void doInBackground(Void... params){
+
+            /*Calculates the fft and frequency of the input*/
+            //try{
+            int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioEncoding);                // Gets the minimum buffer needed
+            AudioRecord audioRecord = new AudioRecord(audioSource, sampleRate, channelConfig, audioEncoding, bufferSize);   // The RAW PCM sample recording
+
+
+
+            short[] buffer = new short[blockSize];          // Save the raw PCM samples as short bytes
+
+            //  double[] audioDataDoubles = new double[(blockSize*2)]; // Same values as above, as doubles
+            //   -----------------------------------------------
+            double[] re = new double[blockSize];
+            double[] im = new double[blockSize];
+            double[] magnitude = new double[blockSize];
+            //   ----------------------------------------------------
+            double[] toTransform = new double[blockSize];
+
+            textView.setText("Hello");
+            // fft = new DoubleFFT_1D(blockSize);
+
+
+            try{
+                audioRecord.startRecording();  //Start
+                Log.d("AudioRecord","Recording started");
+            }catch(Throwable t){
+                Log.e("AudioRecord", "Recording Failed");
+            }
+
+            while(started){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                /* Reads the data from the microphone. it takes in data
+                 * to the size of the window "blockSize". The data is then
+                 * given in to audioRecord. The int returned is the number
+                 * of bytes that were read*/
+
+                int bufferReadResult = audioRecord.read(buffer, 0, blockSize);
+
+                // Read in the data from the mic to the array
+                for(int i = 0; i < blockSize && i < bufferReadResult; i++) {
+
+                    /* dividing the short by 32768.0 gives us the
+                     * result in a range -1.0 to 1.0.
+                     * Data for the compextForward is given back
+                     * as two numbers in sequence. Therefore audioDataDoubles
+                     * needs to be twice as large*/
+
+                    // audioDataDoubles[2*i] = (double) buffer[i]/32768.0; // signed 16 bit
+                    //audioDataDoubles[(2*i)+1] = 0.0;
+                    toTransform[i] = (double) buffer[i] / 32768.0; // signed 16 bit
+
+                }
+
+                //audiodataDoubles now holds data to work with
+                // fft.complexForward(audioDataDoubles);
+                transformer.ft(toTransform);
+                //------------------------------------------------------------------------------------------
+                // Calculate the Real and imaginary and Magnitude.
+                System.out.println("------------");
+                for(int i = 0; i < blockSize; i++){
+                    try {
+                        // real is stored in first part of array
+                        re[i] = toTransform[i * 2];
+                        //System.out.println("Re = "+re[i]);
+                        // imaginary is stored in the sequential part
+                        im[i] = toTransform[(i * 2) + 1];
+                        //System.out.println("im = "+im[i]);
+                        // magnitude is calculated by the square root of (imaginary^2 + real^2)
+                        magnitude[i] = Math.sqrt((re[i] * re[i]) + (im[i] * im[i]));
+                        //System.out.println("magnitude = "+magnitude[i]);
+                    }catch (ArrayIndexOutOfBoundsException e){
+                        Log.e("test", "NULL");
+                    }
+                }
+
+                double peak = -1.0;
+                // Get the largest magnitude peak
+                for(int i = 0; i < blockSize; i++){
+                    if(peak < magnitude[i])
+                        peak = magnitude[i];
+                    System.out.println("peak = "+peak);
+                    System.out.println("magnitude = "+magnitude[i]);
+
+                }
+                // calculated the frequency
+                frequency = ((sampleRate * peak)/blockSize);
+                System.out.println("frequency = "+frequency);
+//----------------------------------------------------------------------------------------------
+                /* calls onProgressUpdate
+                 * publishes the frequency
+                 */
+                publishProgress(frequency);
+                try{
+                    audioRecord.stop();
+                }
+                catch(IllegalStateException e){
+                    Log.e("Stop failed", e.toString());
+
+                }
+            }
+
+            //    }
+            return null;
+        }
+
+        protected void onProgressUpdate(Double... frequencies){
+            //print the frequency
+            String info = Double.toString(frequencies[0]);
+            textView.setText(info);
+        }
+
+    }
+
+    //onProgressUpdate runs on the main thread in our activity and can therefore interact with the user interface without problems. In this implementation, we are passing in the data after it has been run through the FFT object. This method takes care of drawing the data on the screen as a series of lines at most 100 pixels tall. Each line represents one of the elements in the array and therefore a range of 15.625 Hz. The first line represents frequencies ranging from 0 to 15.625 Hz, and the last line represents frequencies ranging from 3,984.375 to 4,000 Hz. Figure 8-1 shows what this looks like in action.
 
 
 

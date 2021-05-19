@@ -34,7 +34,11 @@ import com.vlcnavigation.R;
 
 import ca.uol.aig.fftpack.RealDoubleFFT;
 
+
+
 public class FFTPack extends Activity implements OnClickListener {
+
+
 
     //We'll use a frequency of 8 kHz, one audio channel, and 16 bit samples in the AudioRecord object.
 
@@ -118,7 +122,7 @@ public class FFTPack extends Activity implements OnClickListener {
 
     //Most of the work in this activity is done in the following class, called RecordAudio, which extends AsyncTask. Using AsyncTask, we run the methods that will tie up the user interface on a separate thread. Anything that is placed in the doInBackground method will be run in this manner.
 
-        private class RecordAudio extends AsyncTask<Void, double[], Void> {
+        class RecordAudio extends AsyncTask<Void, double[], Void> {
             @Override
             protected Void doInBackground(Void... params) {
                 try {
@@ -160,7 +164,7 @@ public class FFTPack extends Activity implements OnClickListener {
 
                             publishProgress(toTransform);
 
-                            Log.e("AudioRecord", "Recording Failed");
+                            //Log.e("AudioRecord", "Recording Failed");
 
 
 
@@ -176,7 +180,11 @@ public class FFTPack extends Activity implements OnClickListener {
             }
 
         }
+
+
     }
+
+
 
 
 
