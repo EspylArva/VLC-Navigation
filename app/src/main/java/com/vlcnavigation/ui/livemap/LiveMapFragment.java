@@ -12,6 +12,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
@@ -25,6 +26,8 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
@@ -159,9 +162,17 @@ public class LiveMapFragment extends Fragment {
                 try {
                     Floor f = settingsViewModel.findRoom(s.toString());
                     if(f != null) {
-                        Timber.d("Floor: %s (%s)", f.getDescription(), f.getOrder());
+                        String log = String.format("Floor: %s (%s)", f.getDescription(), f.getOrder());
+                        Timber.d(log);
+                        Snackbar.make(getContext(), getView(), log, BaseTransientBottomBar.LENGTH_SHORT).show();
                     } else { Timber.d("Room not found"); }
                 } catch (IOException e) { Timber.e(e); }
+            }
+        });
+        txt_roomSearchField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Util.hideKeyboardFromView(getView());
             }
         });
 
