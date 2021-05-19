@@ -164,17 +164,18 @@ public class LiveMapFragment extends Fragment {
                     if(f != null) {
                         String log = String.format("Floor: %s (%s)", f.getDescription(), f.getOrder());
                         Timber.d(log);
+                        Util.hideKeyboardFromView(getView());
+                        txt_roomSearchField.dismissDropDown();
                         Snackbar.make(getContext(), getView(), log, BaseTransientBottomBar.LENGTH_SHORT).show();
                     } else { Timber.d("Room not found"); }
                 } catch (IOException e) { Timber.e(e); }
             }
         });
-        txt_roomSearchField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Util.hideKeyboardFromView(getView());
-            }
-        });
+//        txt_roomSearchField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//            }
+//        });
 
     }
 
