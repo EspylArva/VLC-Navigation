@@ -24,11 +24,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -47,11 +49,15 @@ public class SettingsViewModel extends AndroidViewModel {
     private final SharedPreferences preferences;
     private final Resources resources;
 
+    private Map<Floor, List<String>> mapRooms;
+
     public SettingsViewModel(@NonNull Application app) {
         super(app);
         mListOfLights = new MutableLiveData<>();
         mListOfFloors = new MutableLiveData<>();
         mListOfFloorLevels = new MutableLiveData<>();
+
+        mapRooms = new HashMap<Floor, List<String>>();
 
         mListOfLights.setValue(new ArrayList<Light>());
         mListOfFloors.setValue(new ArrayList<Floor>());
@@ -62,6 +68,22 @@ public class SettingsViewModel extends AndroidViewModel {
 
         importLightsFromSp();
         importFloorsFromSp();
+
+        for(Floor f : mListOfFloors.getValue())
+        {
+            try
+            {
+                Uri uri = Uri.parse(f.getFilePath());
+                InputStream is = getApplication().getContentResolver().openInputStream(uri);
+                Map<String, String> svgs = SvgSplitter.parse(is);
+                is.close();
+                if (svgs != null && svgs.size() > 0) {
+                    mapRooms.put(f, new ArrayList<>(svgs.keySet()));
+                }
+            }catch(IOException e){ Timber.e(e); }
+        }
+
+
     }
 
     protected void importFloorsFromSp() {
@@ -160,15 +182,9 @@ public class SettingsViewModel extends AndroidViewModel {
     }
 
     public Floor findRoom(String roomName) throws IOException {
-        for(Floor f : mListOfFloors.getValue())
+        for(Map.Entry<Floor, List<String>> entry : mapRooms.entrySet())
         {
-            Uri uri = Uri.parse(f.getFilePath());
-            InputStream is = getApplication().getContentResolver().openInputStream(uri);
-            Map<String, String> svgs = SvgSplitter.parse(is);
-            is.close();
-            if (svgs != null && svgs.size() > 0) {
-                if(svgs.containsKey(roomName)) { return f; }
-            }
+            if(entry.getValue().contains(roomName)) { return entry.getKey(); }
         }
         return null;
     }
@@ -179,17 +195,7 @@ public class SettingsViewModel extends AndroidViewModel {
 
     public List<String> getListOfRooms() throws IOException {
         List<String> rooms = new ArrayList<String>();
-        for(Floor f : mListOfFloors.getValue())
-        {
-            Uri uri = Uri.parse(f.getFilePath());
-            InputStream is = getApplication().getContentResolver().openInputStream(uri);
-            Map<String, String> svgs = SvgSplitter.parse(is);
-            is.close();
-            if(svgs != null)
-            {
-                rooms.addAll(svgs.keySet());
-            }
-        }
+        mapRooms.values().forEach(rooms::addAll);
         return rooms;
     }
 }

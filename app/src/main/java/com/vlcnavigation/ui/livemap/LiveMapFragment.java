@@ -171,12 +171,6 @@ public class LiveMapFragment extends Fragment {
                 } catch (IOException e) { Timber.e(e); }
             }
         });
-//        txt_roomSearchField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//            }
-//        });
-
     }
 
     /**
