@@ -59,8 +59,9 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
+        recycler_floors.scrollToPosition(1);
 
-        refreshUI();
+//        refreshUI();
 
 //        try{
 //            Trilateration.triangulate();
@@ -82,25 +83,26 @@ public class LiveMapFragment extends Fragment {
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
+        displayLights(position);
         // Display users. According to documentation, the color should be orange.
-        displayUsers();
+        displayUsers(position);
     }
 
     /**
      * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
      * Lights' position should be refreshed on light edit and on floor selection change.
      */
-    private void displayLights(int i) {
+    private void displayLights(int position) {
         // Use color @color/purple_500
         int colorId = R.color.purple_500;
         int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
 
         for(Light l : settingsViewModel.getListOfLights().getValue())
         {
-            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(i)))
+            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
             {
                 try {
-                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(i));
+                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
                     if(holder != null) {
                         holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
                     } else { Timber.d("Could not create marker. Holder is null"); }
@@ -115,7 +117,7 @@ public class LiveMapFragment extends Fragment {
      * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
      * Users' position should be displayed only if they are on the selected floor, and should be refreshed once every second.
      */
-    private void displayUsers() {
+    private void displayUsers(int position) {
         int colorId = R.color.orange_500;
     }
 
@@ -133,7 +135,7 @@ public class LiveMapFragment extends Fragment {
 
                     FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
                     GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
-                    if(holder != null) {
+//                    if(holder != null) {
                         if (i == ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // ?attr/colorPrimary
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
@@ -142,12 +144,7 @@ public class LiveMapFragment extends Fragment {
                             displayLights(i);
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
-                            holder.getTv().setBackgroundResource(R.drawable.ic_circle);
-                        } // reset style
-                    }
-                    else {
-                        Timber.e("Holder is null");
-                    }
+                            holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
                 }
             }
         });
