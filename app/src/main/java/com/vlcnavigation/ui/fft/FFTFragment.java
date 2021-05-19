@@ -45,7 +45,7 @@ public class FFTFragment extends Fragment {
         FFTViewModel =
                 new ViewModelProvider(this).get(FFTViewModel.class);
         View root = inflater.inflate(R.layout.fragment_fft, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
+        final TextView textView = root.findViewById(R.id.textView3);
         FFTViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
