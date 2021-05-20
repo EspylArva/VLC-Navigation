@@ -62,7 +62,7 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
-        recycler_floors.scrollToPosition(1);
+//        recycler_floors.smoothScrollToPosition(1);
 
 //        refreshUI();
 
@@ -86,9 +86,9 @@ public class LiveMapFragment extends Fragment {
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
-        displayLights(position);
+//        displayLights(position);
         // Display users. According to documentation, the color should be orange.
-        displayUsers(position);
+//        displayUsers(position);
     }
 
     /**
@@ -144,7 +144,7 @@ public class LiveMapFragment extends Fragment {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
-                            displayLights(i);
+//                            displayLights(i);
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle);
