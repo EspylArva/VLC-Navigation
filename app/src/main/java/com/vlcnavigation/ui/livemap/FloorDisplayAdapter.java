@@ -218,5 +218,6 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                 }
             }
         }
+
     }
 }
