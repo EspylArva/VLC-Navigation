@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -73,6 +74,20 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 //        Timber.e("Making lights!");
 //        holder.makeLights();
 //        Timber.e("Finished making lights!");
+
+        final ViewTreeObserver observer = holder.container_map.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                holder.container_map.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+
+                int containerWidth = holder.container_map.getWidth();
+                int containerHeight = holder.container_map.getHeight();
+                Timber.e("Width: %s - Height: %s", containerWidth, containerHeight);
+                holder.makeLights(containerWidth, containerHeight);
+            }
+        });
+
     }
 
     @Override
@@ -128,7 +143,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                 }
             }
 
-            makeLights();
+//            makeLights();
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -171,23 +186,24 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             container_map.addView(mapPart);
         }
 
-        public void makeMarker(double posX, double posY, @ColorInt int color, int... markerSize) throws IOException {
+        public void makeMarker(double posX, double posY, int width, int height, @ColorInt int color, int... markerSize) throws IOException {
 
             double dotSize = markerSize.length == 1 ? markerSize[0] : 100;
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
             InputStream is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
             Pair<Integer, Integer> mapSizePx = SvgSplitter.getMapSize(is);
-            double density = ((double)container_map.getWidth())/((double)mapSizePx.first);
+            double density = ((double)width)/((double)mapSizePx.first);
             double leftMargin = (posX*density) - (dotSize/2);
             double topMargin = (posY*density) - (dotSize/2);
             is.close();
 
 
             Timber.d("Requesting a marker of size: %sx%s at position: %s:%s", dotSize, dotSize, posX, posY);
-            Timber.d("%sx%s", itemView.getWidth(), itemView.getHeight());
-            Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());
-            Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);
+            Timber.d("%sx%s", width, height);                                       // 1008x794
+//            Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());        // 1008x794
+            Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);                           // 522x202
             Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);
+
 
             // Making the marker
             ImageView marker = new ImageView(itemView.getContext());
@@ -203,7 +219,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             container_map.addView(marker, params);
         }
 
-        private void makeLights()
+        private void makeLights(int width, int height)
         {
             int colorId = R.color.purple_500;
             int color = Util.modifyAlpha(ContextCompat.getColor(itemView.getContext(), colorId), 128);
@@ -213,7 +229,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                 if(l.isOnFloor(vm.getListOfFloors().getValue().get(getAdapterPosition())))
                 {
                     try {
-                        makeMarker(l.getPosX(), l.getPosY(), color, 100);
+                        makeMarker(l.getPosX(), l.getPosY(), width, height, color, 100);
                     } catch (IOException e) { Timber.e(e); }
                 }
             }

@@ -91,30 +91,30 @@ public class LiveMapFragment extends Fragment {
 //        displayUsers(position);
     }
 
-    /**
-     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
-     * Lights' position should be refreshed on light edit and on floor selection change.
-     */
-    private void displayLights(int position) {
-        // Use color @color/purple_500
-        int colorId = R.color.purple_500;
-        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
-
-        for(Light l : settingsViewModel.getListOfLights().getValue())
-        {
-            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
-            {
-                try {
-                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
-                    if(holder != null) {
-                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
-                    } else { Timber.d("Could not create marker. Holder is null"); }
-                } catch (IOException e) {
-                    Timber.e(e);
-                }
-            }
-        }
-    }
+//    /**
+//     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
+//     * Lights' position should be refreshed on light edit and on floor selection change.
+//     */
+//    private void displayLights(int position) {
+//        // Use color @color/purple_500
+//        int colorId = R.color.purple_500;
+//        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
+//
+//        for(Light l : settingsViewModel.getListOfLights().getValue())
+//        {
+//            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
+//            {
+//                try {
+//                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
+//                    if(holder != null) {
+//                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
+//                    } else { Timber.d("Could not create marker. Holder is null"); }
+//                } catch (IOException e) {
+//                    Timber.e(e);
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
@@ -189,11 +189,15 @@ public class LiveMapFragment extends Fragment {
         lbl_floorTitle = root.findViewById(R.id.lbl_floor_title);
         txt_roomSearchField = root.findViewById(R.id.txtInputLayout_roomSearchField);
 
+
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
+
+        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
+
         try {
             List<String> rooms = settingsViewModel.getListOfRooms();
-            Timber.d(rooms.toString());
             ArrayAdapter<String> autocompletionAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, rooms);
             txt_roomSearchField.setAdapter(autocompletionAdapter);
         } catch (IOException e) {
