@@ -2,18 +2,23 @@ package com.vlcnavigation;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nambimobile.widgets.efab.ExpandableFabLayout;
 import com.nambimobile.widgets.efab.FabOption;
 import com.pixplicity.sharp.SharpDrawable;
 import com.pixplicity.sharp.SharpPicture;
+import com.vlcnavigation.module.audiorecord.AudioRecorder;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -24,11 +29,16 @@ import java.util.Arrays;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
+    private FloatingActionButton fab_record;
     private ExpandableFabLayout container_fabs;
     private FabOption opt_microphone, opt_readFiles, opt_all;
     private final int PERMISSION_REQUEST_MICROPHONE = 301;
     private final int PERMISSION_REQUEST_READ_FILES = 302;
     private final int PERMISSION_REQUEST_ALL = 399;
+
+    private AudioRecorder audioRecorder;
+
+    private MutableLiveData<Boolean> record;
 
 
     @Override
@@ -49,19 +59,44 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
         initViews();
-        if(checkPermissions()){ initListeners(); }
+        initListeners();
     }
 
     private void initViews()
     {
+        fab_record = findViewById(R.id.fab_record_mic);
         container_fabs = findViewById(R.id.fab_permissions);
         opt_microphone = findViewById(R.id.fabOpt_listen_microphone);
         opt_readFiles = findViewById(R.id.fabOpt_read_files);
         opt_all = findViewById(R.id.fabOpt_allow_all);
+
+        record = new MutableLiveData<Boolean>();
+        record.setValue(false);
+
+
     }
 
     private void initListeners()
     {
+        fab_record.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                record.setValue(!record.getValue());
+                Timber.d(String.valueOf(record));
+                if(record.getValue())
+                {
+                    fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green)));
+                    audioRecorder = new AudioRecorder(record);
+                    audioRecorder.start();
+                }
+                else
+                {
+                    fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
+                }
+
+            }
+        });
+
         opt_microphone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

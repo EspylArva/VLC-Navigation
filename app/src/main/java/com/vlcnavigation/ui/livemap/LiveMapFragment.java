@@ -128,8 +128,8 @@ public class LiveMapFragment extends Fragment {
 
                     FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
                     GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
-//                    if(holder != null) {
-                        if (i == ((LinearLayoutManager)recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
+                    if(holder != null) {
+                        if (i == ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // ?attr/colorPrimary
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
                             holder.getTv().setBackground(whiteCircle);
@@ -137,7 +137,9 @@ public class LiveMapFragment extends Fragment {
                             displayLights(i);
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
-                            holder.getTv().setBackgroundResource(R.drawable.ic_circle); } // reset style
+                            holder.getTv().setBackgroundResource(R.drawable.ic_circle);
+                        } // reset style
+                    }
                 }
             }
         });
