@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 //import com.android.ide.common.vectordrawable.Svg2Vector;
+import com.androidplot.xy.XYPlot;
 import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.audiorecord.SignalView;
@@ -31,46 +32,47 @@ public class FFTFragment extends Fragment {
 
     private FFTViewModel FFTViewModel;
     private SignalView signalView;
+    private XYPlot plot_fft;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         FFTViewModel =
                 new ViewModelProvider(this).get(FFTViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_fft, container, false);
-//        final TextView textView = root.findViewById(R.id.text_dashboard);
-//        FFTViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
 
-        signalView = root.findViewById(R.id.signalview);
+        View root = initViews(inflater, container);
+        initObservers();
+        initListeners();
 
-//        signalView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                display();
-//            }
-//        });
 
 
 
         return root;
     }
 
-    private void display() {
-        final Handler handler = new Handler();
-        final int delay = 100;
-            handler.postDelayed(new Runnable() {
-                public void run() {
-                    signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
-                    handler.postDelayed(this, delay);
-                }
-            }, delay);
-
-//        }
+    private void initObservers() {
     }
 
-    public SignalView getSignalView() { return this.signalView; }
+    private void initListeners() {
+    }
+
+    private View initViews(LayoutInflater inflater, ViewGroup container) {
+        View root = inflater.inflate(R.layout.fragment_fft, container, false);
+        signalView = root.findViewById(R.id.signalview);
+        plot_fft = root.findViewById(R.id.plot_fft);
+
+        signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
+        return root;
+    }
+
+//    private void display() {
+//        final Handler handler = new Handler();
+//        final int delay = 100;
+//            handler.postDelayed(new Runnable() {
+//                public void run() {
+//                    signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
+//                    handler.postDelayed(this, delay);
+//                }
+//            }, delay);
+//    }
+
 }

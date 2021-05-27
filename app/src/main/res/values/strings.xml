@@ -57,6 +57,7 @@
     <string name="sp_lights">com.vlcnavigation.lights</string>
     <string name="sp_floors">com.vlcnavigation.floors</string>
     <string name="floor_does_not_exist">\"Seems like this floor no longer exists\"</string>
+    <string name="fast_fourier_transform">Fast Fourier Transform</string>
 
 
 </resources>

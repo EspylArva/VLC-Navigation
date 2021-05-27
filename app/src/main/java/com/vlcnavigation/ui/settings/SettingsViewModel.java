@@ -80,7 +80,7 @@ public class SettingsViewModel extends AndroidViewModel {
                 if (svgs != null && svgs.size() > 0) {
                     mapRooms.put(f, new ArrayList<>(svgs.keySet()));
                 }
-            }catch(IOException e){ Timber.e(e); }
+            }catch(IOException | SecurityException e){ Timber.e(e); }
         }
 
 

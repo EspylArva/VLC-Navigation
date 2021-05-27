@@ -10,13 +10,15 @@ import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.ui.fft.FFTFragment;
 
 
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.transform.TransformType;
+//import org.apache.commons.math3.complex.Complex;
+//import org.apache.commons.math3.transform.TransformType;
 
 import java.util.Arrays;
 
+import edu.princeton.cs.algorithms.Complex;
+import edu.princeton.cs.algorithms.FFT;
 import timber.log.Timber;
-import uk.me.berndporr.kiss_fft.KISSFastFourierTransformer;
+//import uk.me.berndporr.kiss_fft.KISSFastFourierTransformer;
 
 public class AudioRecorder extends Thread {
 
@@ -52,14 +54,13 @@ public class AudioRecorder extends Thread {
             short[] buffer = new short[bufferSize];
             int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);// ����bufferSize���ȵ�����
 
-            Timber.d(Arrays.toString(buffer));
             MainActivity.BUFFER = buffer;
             MainActivity.BUFFER_READ_RESULT = bufferReadResult;
 
 
             if(signalView != null)
             {
-                signalView.sndAudioBuf(buffer,bufferReadResult);
+                signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
             }
 
             int flag = 0;
@@ -85,14 +86,20 @@ public class AudioRecorder extends Thread {
                 }
             }
 
-//            KISSFastFourierTransformer kissFastFourierTransformer = new KISSFastFourierTransformer();
-//            double[] temp = new double[tmp.length];
-//            for(int i=0; i<tmp.length; i++) { temp[i] = tmp[i]; }
-////            double[] temp = new double[MainActivity.BUFFER.length];
-////            for(int i=0; i<MainActivity.BUFFER.length; i++) { temp[i] = MainActivity.BUFFER[i]; }
-//            Complex[] outdata = kissFastFourierTransformer.transformRealOptimisedForward(temp);
-//
-//            Timber.e(Arrays.toString(outdata));
+            // FFT
+                // closest power of 2 to the size
+            int n = (int) Math.pow(2, tmp.length == 0 ? 0 : 31 - Integer.numberOfLeadingZeros(tmp.length - 1)); //= 1024;
+            Timber.d("Size: %s (initial size: %s)", n, tmp.length);
+            Complex[] x = new Complex[n];
+
+            // original data
+            for (int i = 0; i < n; i++) {
+                x[i] = new Complex(tmp[i], 0);
+//                        Math.sin(i), 0);
+            }
+
+            Complex[] y = FFT.fft(x);
+            Timber.d("Frequency: %s", getFreq(y));
 
 
 //            // ����Decoder�࣬����
@@ -108,5 +115,25 @@ public class AudioRecorder extends Thread {
         Timber.d("Stopped recording");
         audioRecord.stop();
         audioRecord.release();
+    }
+
+    private double getFreq(Complex[] fft)
+    {
+        Double[] doubleFFT = Arrays.stream(fft).map(Complex::abs).toArray(Double[]::new);
+        Arrays.sort(doubleFFT);
+        double peak1 = doubleFFT[doubleFFT.length-1];
+        double peak2 = doubleFFT[doubleFFT.length-2];
+
+        int index1 = 0; int index2 = 0;
+        doubleFFT = Arrays.stream(fft).map(Complex::abs).toArray(Double[]::new);
+        for(int i=0; i<fft.length; i++) {
+            if(doubleFFT[i] == peak1) {
+                index1 = i;
+            }
+            else if(doubleFFT[i] == peak2) {
+                index2 = i;
+            }
+        }
+        return (index1+index2)/2;
     }
 }
