@@ -85,14 +85,14 @@ public class AudioRecorder extends Thread {
                 }
             }
 
-            KISSFastFourierTransformer kissFastFourierTransformer = new KISSFastFourierTransformer();
-            double[] temp = new double[tmp.length];
-            for(int i=0; i<tmp.length; i++) { temp[i] = tmp[i]; }
-//            double[] temp = new double[MainActivity.BUFFER.length];
-//            for(int i=0; i<MainActivity.BUFFER.length; i++) { temp[i] = MainActivity.BUFFER[i]; }
-            Complex[] outdata = kissFastFourierTransformer.transformRealOptimisedForward(temp);
-
-            Timber.e(Arrays.toString(outdata));
+//            KISSFastFourierTransformer kissFastFourierTransformer = new KISSFastFourierTransformer();
+//            double[] temp = new double[tmp.length];
+//            for(int i=0; i<tmp.length; i++) { temp[i] = tmp[i]; }
+////            double[] temp = new double[MainActivity.BUFFER.length];
+////            for(int i=0; i<MainActivity.BUFFER.length; i++) { temp[i] = MainActivity.BUFFER[i]; }
+//            Complex[] outdata = kissFastFourierTransformer.transformRealOptimisedForward(temp);
+//
+//            Timber.e(Arrays.toString(outdata));
 
 
 //            // ����Decoder�࣬����
