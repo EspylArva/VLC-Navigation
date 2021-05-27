@@ -63,7 +63,6 @@ public class SvgSplitter extends XmlParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in, null);
             parser.nextTag(); // Read first tag
-
 //            Timber.d(parser.getName());
             parser.require(XmlPullParser.START_TAG, ns, "svg");
 

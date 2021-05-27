@@ -5,11 +5,15 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -22,9 +26,13 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.settings.FloorAdapter;
@@ -32,6 +40,7 @@ import com.vlcnavigation.ui.settings.SettingsViewModel;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +51,8 @@ public class LiveMapFragment extends Fragment {
 
     private SettingsViewModel settingsViewModel;
     private RecyclerView recycler_floors, recycler_availableFloors;
-    private TextInputLayout lbl_floor_title;
+    private TextInputLayout lbl_floorTitle;
+    private MaterialAutoCompleteTextView txt_roomSearchField;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -52,7 +62,7 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
-        recycler_floors.scrollToPosition(1);
+//        recycler_floors.smoothScrollToPosition(1);
 
 //        refreshUI();
 
@@ -76,35 +86,35 @@ public class LiveMapFragment extends Fragment {
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
 
         // Display lights. According to documentation, the color should be purple.
-        displayLights(position);
+//        displayLights(position);
         // Display users. According to documentation, the color should be orange.
-        displayUsers(position);
+//        displayUsers(position);
     }
 
-    /**
-     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
-     * Lights' position should be refreshed on light edit and on floor selection change.
-     */
-    private void displayLights(int position) {
-        // Use color @color/purple_500
-        int colorId = R.color.purple_500;
-        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
-
-        for(Light l : settingsViewModel.getListOfLights().getValue())
-        {
-            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
-            {
-                try {
-                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
-                    if(holder != null) {
-                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
-                    } else { Timber.d("Could not create marker. Holder is null"); }
-                } catch (IOException e) {
-                    Timber.e(e);
-                }
-            }
-        }
-    }
+//    /**
+//     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
+//     * Lights' position should be refreshed on light edit and on floor selection change.
+//     */
+//    private void displayLights(int position) {
+//        // Use color @color/purple_500
+//        int colorId = R.color.purple_500;
+//        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
+//
+//        for(Light l : settingsViewModel.getListOfLights().getValue())
+//        {
+//            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
+//            {
+//                try {
+//                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
+//                    if(holder != null) {
+//                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
+//                    } else { Timber.d("Could not create marker. Holder is null"); }
+//                } catch (IOException e) {
+//                    Timber.e(e);
+//                }
+//            }
+//        }
+//    }
 
     /**
      * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
@@ -134,7 +144,7 @@ public class LiveMapFragment extends Fragment {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
-                            displayLights(i);
+//                            displayLights(i);
                         } else {
                             whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle);
@@ -143,7 +153,24 @@ public class LiveMapFragment extends Fragment {
                 }
             }
         });
-
+        txt_roomSearchField.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            @Override
+            public void afterTextChanged(Editable s) {
+                Timber.d("Searching for: %s", s);
+                try {
+                    Floor f = settingsViewModel.findRoom(s.toString());
+                    if(f != null) {
+                        String log = String.format("Floor: %s (%s)", f.getDescription(), f.getOrder());
+                        Timber.d(log);
+                        Util.hideKeyboardFromView(getView());
+                        txt_roomSearchField.dismissDropDown();
+                        Snackbar.make(getContext(), getView(), log, BaseTransientBottomBar.LENGTH_SHORT).show();
+                    } else { Timber.d("Room not found"); }
+                } catch (IOException e) { Timber.e(e); }
+            }
+        });
     }
 
     /**
@@ -159,10 +186,23 @@ public class LiveMapFragment extends Fragment {
 
         recycler_floors = root.findViewById(R.id.recycler_display_floors);
         recycler_availableFloors = root.findViewById(R.id.recycler_available_floors);
-        lbl_floor_title = root.findViewById(R.id.lbl_floor_title);
+        lbl_floorTitle = root.findViewById(R.id.lbl_floor_title);
+        txt_roomSearchField = root.findViewById(R.id.txtInputLayout_roomSearchField);
+
 
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
+
+        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
+
+        try {
+            List<String> rooms = settingsViewModel.getListOfRooms();
+            ArrayAdapter<String> autocompletionAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, rooms);
+            txt_roomSearchField.setAdapter(autocompletionAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return root;
     }
@@ -188,7 +228,6 @@ public class LiveMapFragment extends Fragment {
         snap.attachToRecyclerView(recycler_floors);
     }
 
-
     private void setRecyclerAvailableFloors() {
         // FIXME: rework with settingsViewModel.getFloorLevels().getValue()
         recycler_availableFloors.setHasFixedSize(true);
@@ -206,6 +245,6 @@ public class LiveMapFragment extends Fragment {
     }
 
     public void setFloorDescription(String description) {
-        this.lbl_floor_title.getEditText().setText(description);
+        this.lbl_floorTitle.getEditText().setText(description);
     }
 }

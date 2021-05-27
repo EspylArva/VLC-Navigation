@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
@@ -15,14 +16,21 @@ import androidx.lifecycle.ViewModel;
 import com.google.gson.Gson;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.jsonfilereader.JsonFileReader;
+import com.vlcnavigation.module.svg2vector.SvgSplitter;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -41,11 +49,15 @@ public class SettingsViewModel extends AndroidViewModel {
     private final SharedPreferences preferences;
     private final Resources resources;
 
+    private Map<Floor, List<String>> mapRooms;
+
     public SettingsViewModel(@NonNull Application app) {
         super(app);
         mListOfLights = new MutableLiveData<>();
         mListOfFloors = new MutableLiveData<>();
         mListOfFloorLevels = new MutableLiveData<>();
+
+        mapRooms = new HashMap<Floor, List<String>>();
 
         mListOfLights.setValue(new ArrayList<Light>());
         mListOfFloors.setValue(new ArrayList<Floor>());
@@ -56,6 +68,22 @@ public class SettingsViewModel extends AndroidViewModel {
 
         importLightsFromSp();
         importFloorsFromSp();
+
+        for(Floor f : mListOfFloors.getValue())
+        {
+            try
+            {
+                Uri uri = Uri.parse(f.getFilePath());
+                InputStream is = getApplication().getContentResolver().openInputStream(uri);
+                Map<String, String> svgs = SvgSplitter.parse(is);
+                is.close();
+                if (svgs != null && svgs.size() > 0) {
+                    mapRooms.put(f, new ArrayList<>(svgs.keySet()));
+                }
+            }catch(IOException e){ Timber.e(e); }
+        }
+
+
     }
 
     protected void importFloorsFromSp() {
@@ -153,7 +181,21 @@ public class SettingsViewModel extends AndroidViewModel {
         return mListOfFloors.getValue().stream().anyMatch(f -> f.getOrder() == floor.getOrder());
     }
 
+    public Floor findRoom(String roomName) throws IOException {
+        for(Map.Entry<Floor, List<String>> entry : mapRooms.entrySet())
+        {
+            if(entry.getValue().contains(roomName)) { return entry.getKey(); }
+        }
+        return null;
+    }
+
     public LiveData<List<Integer>> getListOfFloorLevels() {
         return mListOfFloorLevels;
+    }
+
+    public List<String> getListOfRooms() throws IOException {
+        List<String> rooms = new ArrayList<String>();
+        mapRooms.values().forEach(rooms::addAll);
+        return rooms;
     }
 }

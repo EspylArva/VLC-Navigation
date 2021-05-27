@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.livemap.LiveMapFragment">
 
-    <com.google.android.material.textfield.TextInputLayout
+
+    <com.google.android.material.textfield.MaterialAutoCompleteTextView
         android:id="@+id/txtInputLayout_roomSearchField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/room_search"
         android:layout_margin="@dimen/default_margin"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:hint="@string/room_search"
+        android:completionThreshold="1"
+        android:completionHint="@string/room_search"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/recycler_display_floors">
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        app:layout_constraintBottom_toTopOf="@id/recycler_display_floors"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_display_floors"
