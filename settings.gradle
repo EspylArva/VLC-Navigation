@@ -1,2 +1,3 @@
+include ':kissfft'
 include ':app'
 rootProject.name = "VLC Navigation"

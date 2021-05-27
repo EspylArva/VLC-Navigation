@@ -65,7 +65,5 @@ dependencies {
     // Backdrop (material) @ https://github.com/kishan2612/Material-Backdrop-Android
     implementation 'com.github.kishan2612:Material-Backdrop-Android:v1.1.0'
 
-
-
-
+    implementation project(":kissfft")
 }

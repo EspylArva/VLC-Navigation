@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
     private MutableLiveData<Boolean> record;
 
+    public static short[] BUFFER;
+    public static int BUFFER_READ_RESULT;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
         record = new MutableLiveData<Boolean>();
         record.setValue(false);
 
+        if(!checkPermissions())
+        {
+            container_fabs.setVisibility(View.GONE);
+        }
 
     }
 
@@ -86,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
                 if(record.getValue())
                 {
                     fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green)));
-                    audioRecorder = new AudioRecorder(record);
+                    audioRecorder = new AudioRecorder(record, findViewById(R.id.signalview));
                     audioRecorder.start();
                 }
                 else
                 {
                     fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
+                    audioRecorder.interrupt();
                 }
 
             }
@@ -141,16 +149,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Timber.d("%s - %s - %s", requestCode, Arrays.toString(permissions), Arrays.toString(grantResults));
-//        if(grantResults[0] == RESULT_OK)
-//        {
-//            switch (requestCode)
-//            {
-//                case PERMISSION_REQUEST_MICROPHONE:
-//                    break;
-//                case PERMISSION_REQUEST_READ_FILES:
-//                    break;
-//            }
-//        }
         checkPermissions();
     }
 
