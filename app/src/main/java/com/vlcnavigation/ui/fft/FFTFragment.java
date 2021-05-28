@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+//import org.apache.commons.math3.complex.Complex;
 
 
 //FFTPack imports
@@ -75,7 +77,7 @@ public class FFTFragment extends Fragment {
     RecordAudio recordTask;                             // Creates a Record Audio command
     TextView textView;                                        // Creates a text view for the frequency
     boolean started = false;
-    Button startStopButton, playButton;
+    Button startStopButton, playButton, stopButton;
 
     ImageView imageView;
     Bitmap bitmap;
@@ -88,6 +90,31 @@ public class FFTFragment extends Fragment {
     //private DoubleFFT_1D fft;                           // The fft double array
     private RealDoubleFFT transformer;
 
+
+
+    //https://stackoverflow.com/questions/17429407/get-frequency-wav-audio-using-fft-and-complex-class²
+    private static final int RECORDER_BPP = 16;
+    private static final String AUDIO_RECORDER_FILE_EXT_WAV = ".wav";
+    private static final String AUDIO_RECORDER_FOLDER = "AudioRecorder";
+    private static final String AUDIO_RECORDER_TEMP_FILE = "record_temp.raw";
+    private static final int RECORDER_SAMPLERATE = 44100;
+    private static final int RECORDER_CHANNELS = AudioFormat.CHANNEL_IN_STEREO;
+    private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    short[] audioData;
+
+    private AudioRecord recorder = null;
+    private int bufferSize = 0;
+    private Thread recordingThread = null;
+    private boolean isRecording = false;
+    Complex[] fftTempArray;
+    Complex[] fftArray;
+    int[] bufferData;
+    int bytesRecorded;
+    double[] absNormalizedSignal;
+    int mPeakPos;
+
+
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         FFTViewModel =
@@ -97,19 +124,17 @@ public class FFTFragment extends Fragment {
         //findviews
         textView = root.findViewById(R.id.textView3);
         startStopButton = root.findViewById(R.id.StartStopButton);
+        stopButton = root.findViewById(R.id.stopButton);
         playButton = root.findViewById(R.id.PlayButton);
-
         imageView = root.findViewById(R.id.ImageView01);
-        bitmap = Bitmap.createBitmap(256, 100,
-                Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(bitmap);
-        paint = new Paint();
-        paint.setColor(Color.GREEN);
-        imageView.setImageBitmap(bitmap);
 
 
-        //FFT
-        transformer = new RealDoubleFFT(blockSize); //Here is the setup of the ImageView and related object for drawing.
+        //https://stackoverflow.com/questions/17429407/get-frequency-wav-audio-using-fft-and-complex-class
+        bufferSize = AudioRecord.getMinBufferSize
+                (RECORDER_SAMPLERATE,RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING)*3;
+
+        audioData = new short [bufferSize]; //short array that pcm data is put into.
+
 
         playButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -117,6 +142,7 @@ public class FFTFragment extends Fragment {
 
                 //play sound on speaker
 
+                /*
                 //SoundPoolPlayer qSound = new SoundPoolPlayer(getContext());
                 //qSound.playShortResource(R.raw.q);
 
@@ -126,36 +152,40 @@ public class FFTFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                */
+
 
 
                 //read sound
 
-                File file = null;file = new File(Environment.getExternalStorageDirectory()+"/"+"Download/q.wav");
-                byte[] byteData = new byte[(int) file.length()];
-                FileInputStream in = null;
-                try {
-                    in = new FileInputStream( file );
-                    in.read( byteData );
-                    in.close(); }
-                catch (Throwable throwable){
-                    throwable.printStackTrace();
-                }
 
+
+
+
+                /*
                 double[] transformed = new double[(int) file.length()];
                 for (int j=1;j<file.length();j++) {
                     transformed[j] = byteData[j]; }
 
+                */
+
+
+                //compute fft
+                /*
 
                 //audiodataDoubles now holds data to work with
                 // fft.complexForward(audioDataDoubles);
                 try{
-                   // transformer.ft(transformed);
+                    transformer.ft(transformed);
+                    System.out.println("fft array : "+Arrays.toString(transformed));
                 } catch(IllegalArgumentException e){
                     e.printStackTrace();
                 }
 
                 //publishProgress(transformed);
 
+                */
+                /*
 
 
                 //FFT
@@ -197,6 +227,9 @@ public class FFTFragment extends Fragment {
                 frequency = ((sampleRate * peak) / blockSize);
                 System.out.println("frequency = " + frequency);
 
+                */
+
+
 
 
             }
@@ -206,22 +239,36 @@ public class FFTFragment extends Fragment {
         startStopButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (started) {
 
-                    started = false;
+                //startRecording();
 
-                    startStopButton.setText("Start");
-                    recordTask.cancel(true);
-                } else {
 
-                    started = true;
-
-                    startStopButton.setText("Stop");
-                    recordTask = new FFTFragment.RecordAudio();
-
-                    recordTask.execute();
-
+                File file = null;file = new File(Environment.getExternalStorageDirectory()+"/"+"Download/sin_1000.wav");
+                byte[] byteData = new byte[(int) file.length()];
+                FileInputStream in = null;
+                try {
+                    in = new FileInputStream( file );
+                    in.read( byteData );
+                    in.close(); }
+                catch (Throwable throwable){
+                    throwable.printStackTrace();
                 }
+
+
+
+                absNormalizedSignal = calculateFFT(byteData);
+
+                System.out.println("Data FFT absNormalizedSignal : "+Arrays.toString(absNormalizedSignal));
+                System.out.println("Data FFT peak : "+mPeakPos);
+
+            }
+        });
+
+        stopButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopRecording();
+                //calculate();
             }
         });
 
@@ -617,6 +664,218 @@ public class FFTFragment extends Fragment {
         }
 
     }
+
+
+    //https://stackoverflow.com/questions/17429407/get-frequency-wav-audio-using-fft-and-complex-class
+
+    /*private void setButtonHandlers() {
+        ((Button)findViewById(R.id.btStart)).setOnClickListener(btnClick);
+        ((Button)findViewById(R.id.btStop)).setOnClickListener(btnClick);
+    }*/
+
+
+
+    private String getFilename(){
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+        File file = new File(filepath,AUDIO_RECORDER_FOLDER);
+
+        if(!file.exists()){
+            file.mkdirs();
+        }
+
+        return (file.getAbsolutePath() + "/" + System.currentTimeMillis() + AUDIO_RECORDER_FILE_EXT_WAV);
+    }
+
+
+    public void convert(){
+
+
+
+    }
+
+    public double[] calculateFFT(byte[] signal)
+    {
+        final int mNumberOfFFTPoints =1024;
+        double mMaxFFTSample;
+
+        double temp;
+        Complex[] y;
+        Complex[] complexSignal = new Complex[mNumberOfFFTPoints];
+        double[] absSignal = new double[mNumberOfFFTPoints/2];
+
+        for(int i = 0; i < mNumberOfFFTPoints; i++){
+            temp = (double)((signal[2*i] & 0xFF) | (signal[2*i+1] << 8)) / 32768.0F;
+            complexSignal[i] = new Complex(temp,0.0);
+        }
+
+        System.out.println("Complex Signal array : "+Arrays.toString(complexSignal));
+
+        y = FFT.fft(complexSignal); // --> Here I use FFT class
+        System.out.println("Complex Signal array after FFT : "+Arrays.toString(y));
+
+        mMaxFFTSample = 0.0;
+        mPeakPos = 0;
+        for(int i = 0; i < (mNumberOfFFTPoints/2); i++)
+        {
+            absSignal[i] = Math.sqrt(Math.pow(y[i].re(), 2) + Math.pow(y[i].im(), 2));
+            if(absSignal[i] > mMaxFFTSample)
+            {
+                mMaxFFTSample = absSignal[i];
+                mPeakPos = i;
+            }
+        }
+
+        return absSignal;
+
+    }
+
+
+    private String getTempFilename(){
+        String filepath = Environment.getExternalStorageDirectory().getPath();
+        File file = new File(filepath,AUDIO_RECORDER_FOLDER);
+
+        Log.d("getTempFilename","file = "+filepath);
+
+        if(!file.exists()){
+            file.mkdirs();
+        }
+
+        File tempFile = new File(filepath,AUDIO_RECORDER_TEMP_FILE);
+
+
+        if(tempFile.exists())
+            tempFile.delete();
+        try{
+            file.createNewFile();
+        }catch (Error | IOException error){
+            Log.e("File creation problem", String.valueOf(error));
+        }
+
+
+        return (file.getAbsolutePath() + "/" + AUDIO_RECORDER_TEMP_FILE);
+    }
+
+    private void startRecording(){
+        recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                RECORDER_SAMPLERATE, RECORDER_CHANNELS,RECORDER_AUDIO_ENCODING, bufferSize);
+
+        recorder.startRecording();
+
+        isRecording = true;
+
+        recordingThread = new Thread(new Runnable() {
+
+            public void run() {
+                writeAudioDataToFile();
+            }
+        },"AudioRecorder Thread");
+
+        recordingThread.start();
+    }
+
+    private void writeAudioDataToFile(){
+
+        byte data[] = new byte[bufferSize];
+        String filename = getTempFilename();
+        Log.d("writeAudioDataToFile","Filename = "+filename);
+        FileOutputStream os = null;
+
+        try {
+            os = new FileOutputStream(filename);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        int read = 0;
+        if(null != os){
+            while(isRecording){
+                read = recorder.read(data, 0, bufferSize);
+                if(read > 0){
+                    absNormalizedSignal = calculateFFT(data); // --> HERE ^__^
+                }
+
+                if(AudioRecord.ERROR_INVALID_OPERATION != read){
+                    try {
+                        os.write(data);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            try {
+                os.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void stopRecording(){
+        if(null != recorder){
+            isRecording = false;
+
+            recorder.stop();
+            recorder.release();
+
+            recorder = null;
+            recordingThread = null;
+        }
+
+        copyWaveFile(getTempFilename(),getFilename());
+        // deleteTempFile();
+    }
+
+    private void deleteTempFile() {
+        File file = new File(getTempFilename());
+        file.delete();
+    }
+
+    private void copyWaveFile(String inFilename,String outFilename){
+        FileInputStream in = null;
+        FileOutputStream out = null;
+        long totalAudioLen = 0;
+        long totalDataLen = totalAudioLen + 36;
+        long longSampleRate = RECORDER_SAMPLERATE;
+        int channels = 2;
+        long byteRate = RECORDER_BPP * RECORDER_SAMPLERATE * channels/8;
+
+        byte[] data = new byte[bufferSize];
+
+        try {
+            in = new FileInputStream(inFilename);
+            out = new FileOutputStream(outFilename);
+            totalAudioLen = in.getChannel().size();
+            totalDataLen = totalAudioLen + 36;
+
+            Log.d("File size: " , String.valueOf(totalDataLen));
+
+
+            WriteWaveFileHeader(out, totalAudioLen, totalDataLen,
+                    longSampleRate, channels, byteRate);
+
+            while(in.read(data) != -1){
+                out.write(data);
+            }
+
+            in.close();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void WriteWaveFileHeader(
+            FileOutputStream out, long totalAudioLen,
+            long totalDataLen, long longSampleRate, int channels,
+            long byteRate) throws IOException {
+        //another code
+
+    }
+
 
 
 }
