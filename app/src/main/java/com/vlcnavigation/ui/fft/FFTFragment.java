@@ -5,11 +5,11 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -29,7 +29,6 @@ import org.jtransforms.fft.DoubleFFT_1D;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 
@@ -40,6 +39,7 @@ public class FFTFragment extends Fragment {
     private ToggleButton tB;
     protected SeekBar sensBar;
     protected SeekBar sensBarSmooth;
+    protected TextView tvFreq;
 
 
     //plot
@@ -54,6 +54,8 @@ public class FFTFragment extends Fragment {
     protected double fftData[]= new double[1024];
     protected int[] oldSentData=new int[3];
     protected SimpleXYSeries series1;
+    protected double offset = 21.428;
+    protected double frequency = 0;
 
     //audio record
     private AudioRecord audioInput = null;
@@ -84,8 +86,12 @@ public class FFTFragment extends Fragment {
         //the trigger is the toggle button
         liveAudioFFT();
 
+
+
+
+
         //start the wav file audio FFT (results in an array, printed in the terminal)
-        wavAudioFFT();
+        //wavAudioFFT();
 
 
 
@@ -119,11 +125,15 @@ public class FFTFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_fft, container, false);
         signalView = root.findViewById(R.id.signalview);
         plot_fft = root.findViewById(R.id.plot_fft);
-        tB = root.findViewById(R.id.toggleButton);
+        tB = root.findViewById(R.id.toggleButton2);
         sensBar = root.findViewById(R.id.seekBar);
         sensBarSmooth = root.findViewById(R.id.seekBarSmooth);
+        tvFreq = root.findViewById(R.id.tvFreq);
 
         signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
+
+
+
         return root;
     }
 
@@ -190,14 +200,32 @@ public class FFTFragment extends Fragment {
         // Start recording
         audioInput.startRecording();
         isRecording = true;
+
+
         recordingThread = new Thread(new Runnable() {
+
+
+
+
             public void run() {
+
+                //update textview
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                        tvFreq.setText(String.valueOf(frequency));
+                    }
+                });
+
 
                 while (isRecording) {
                     if (tB.isChecked()) {
 
                         // Record audio input
                         audioInput.read(sData, 0, sData.length);
+
+
 
                         // Convert and put sData short array into fftData double array to perform FFT
                         for (int j = 0; j < sData.length; j++) {
@@ -206,10 +234,20 @@ public class FFTFragment extends Fragment {
 
                         // Perform 1D fft
                         fft.realForward(fftData);
+                        //System.out.println("fftData before = "+Arrays.toString(fftData));
+
+                        //convert abs values
                         for (int j = 0; j < fftData.length; j++) fftData[j] = Math.abs(fftData[j]);
+                        //System.out.println("fftData = "+Arrays.toString(fftData));
+
+                        //System.out.println("fftData = "+Arrays.toString(fftData));
+
+                        //Frequency
+                        frequency = calculateFrequency(fftData);
+                        System.out.println("Frequency : "+ frequency);
 
 
-                        System.out.println(Arrays.toString(fftData));
+
 
 
                         // Update plot //
@@ -279,6 +317,31 @@ public class FFTFragment extends Fragment {
 
         System.out.println("Data FFT absNormalizedSignal : "+Arrays.toString(absNormalizedSignal));
         System.out.println("Data FFT peak : "+mPeakPos);
+    }
+
+    public double calculateFrequency(double[] fft)
+    {
+        double[] fftSorted = fft.clone();
+        Arrays.sort(fftSorted);
+        double peak1 = fftSorted[fftSorted.length-1];
+        //System.out.println("Peak 1 = "+peak1);
+        double peak2 = fftSorted[fftSorted.length-2];
+        //System.out.println("Peak 2 = "+peak2);
+
+
+        int index1 = 0; int index2 = 0;
+        for(int i=0; i<fft.length; i++) {
+            if(fft[i] == peak1) {
+                index1 = i;
+            }
+            else if(fft[i] == peak2) {
+                index2 = i;
+            }
+        }
+        //System.out.println("Index 1 = "+index1);
+        //System.out.println("Index 2 = "+index2);
+
+        return ((index1+index2)/2)*offset;
     }
 
 
