@@ -74,4 +74,7 @@ dependencies {
     // Plotting  figures @ https://github.com/halfhp/androidplot/
     implementation 'com.androidplot:androidplot-core:1.5.7'
 
+
+    implementation 'org.apache.commons:commons-lang3:3.1'
+
 }
