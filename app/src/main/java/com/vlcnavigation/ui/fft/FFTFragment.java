@@ -5,6 +5,8 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.VoicemailContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,14 +44,18 @@ import timber.log.Timber;
 
 public class FFTFragment extends Fragment {
 
+    private static final int MESSAGE_UPDATE_TEXT_CHILD_THREAD = 1;
     private FFTViewModel FFTViewModel;
     private SignalView signalView;
     private ToggleButton tB;
     private Button btnAnalyse;
     private EditText edtName,edtOffset,edtSampleRate;
     protected SeekBar sensBar;
+
     protected SeekBar sensBarSmooth;
     protected TextView tvLiveFreq, tvWavFreq;
+    private Handler updateUIHandler = null;
+
 
 
     //plot
@@ -149,6 +155,8 @@ public class FFTFragment extends Fragment {
 
 
 
+
+
         return root;
     }
 
@@ -189,6 +197,10 @@ public class FFTFragment extends Fragment {
         edtName = root.findViewById(R.id.edt_name);
         edtOffset= root.findViewById(R.id.edt_liveoffset);
         edtSampleRate= root.findViewById(R.id.edt_samplerate);
+
+        //init the handler to record audio
+        createUpdateUiHandler();
+
 
 
         //signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
@@ -276,6 +288,11 @@ public class FFTFragment extends Fragment {
             public void run() {
 
 
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
 
                 while (isRecording) {
@@ -302,8 +319,15 @@ public class FFTFragment extends Fragment {
                         //System.out.println("fftData = "+Arrays.toString(fftData));
 
                         //Frequency
-                        liveFrequency = calculateFrequency(fftData, liveOffset,true);
+                        FFTFragment.this.liveFrequency = calculateFrequency(fftData, liveOffset,true);
                         System.out.println("Frequency : "+ liveFrequency);
+
+                        Message freqMsg = new Message();
+                        freqMsg.what = MESSAGE_UPDATE_TEXT_CHILD_THREAD;
+
+
+                        updateUIHandler.sendMessage(freqMsg);
+
 
 
 
@@ -548,7 +572,34 @@ public class FFTFragment extends Fragment {
 
 
 
+    /* Create Handler object in main thread. */
+    private void createUpdateUiHandler()
+    {
+        if(updateUIHandler == null)
+        {
+            updateUIHandler = new Handler()
+            {
+                @Override
+                public void handleMessage(Message msg) {
+                    // Means the message is sent from child thread.
+                    if(msg.what == MESSAGE_UPDATE_TEXT_CHILD_THREAD)
+                    {
+                        // Update ui in main thread.
+                        updateText();
+                    }
+                }
+            };
+        }
+    }
 
+    /* Update ui text.*/
+    private void updateText()
+    {
+       //String userInputText = changeTextEditor.getText().toString();
+        tvLiveFreq.setText(String.valueOf(liveFrequency));
+        plot_fft.redraw();
+        Log.d(TAG,"plot redrawn");
+    }
 
 
 
