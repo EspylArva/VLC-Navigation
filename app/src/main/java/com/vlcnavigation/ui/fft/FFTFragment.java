@@ -121,7 +121,7 @@ public class FFTFragment extends Fragment {
                 String sampleRate = edtSampleRate.getText().toString();
 
                 if (sampleRate.matches("")) {
-                    Toast.makeText(getActivity(), "You did not enter a sample rate. 44100Hz by default.", Toast.LENGTH_SHORT).show();
+
                     Timber.d(TAG,FFTFragment.this.sampleRate);
                     FFTFragment.this.sampleRate = 44100;
                 }
@@ -132,7 +132,6 @@ public class FFTFragment extends Fragment {
                 String offset = edtOffset.getText().toString();
 
                 if (offset.matches("")) {
-                    Toast.makeText(getActivity(), "You did not enter an offset. 21.428 by default.", Toast.LENGTH_SHORT).show();
                     FFTFragment.this.liveOffset = 21.428;
                     Timber.d(TAG,FFTFragment.this.liveOffset);
 
@@ -141,7 +140,20 @@ public class FFTFragment extends Fragment {
                     FFTFragment.this.liveOffset = Double.parseDouble(edtOffset.getText().toString());
                 }
 
-                wavAudioFFT();
+
+                String filename = edtName.getText().toString();
+
+                if (filename.matches("")) {
+                    Toast.makeText(getActivity(), "You did not enter a filename", Toast.LENGTH_SHORT).show();
+                    Timber.w("No filename entered");
+                    return;
+                }
+                else {
+                    //launch wav audio file fft
+                    wavAudioFFT(filename);
+                }
+
+
             }
         });
 
@@ -386,18 +398,16 @@ public class FFTFragment extends Fragment {
 
     }
 
-    private void wavAudioFFT(){
+    private void wavAudioFFT(String filename){
 
-        String filename = edtName.getText().toString();
 
-        if (filename.matches("")) {
-            Toast.makeText(getActivity(), "You did not enter a filename", Toast.LENGTH_SHORT).show();
-            Timber.d("No filename entered");
+        File file = null;
+        file = new File(Environment.getExternalStorageDirectory()+"/"+"Download/"+filename+".wav");
+        if (!file.exists()) {
+            Toast.makeText(getActivity(), "This file does not exist.", Toast.LENGTH_SHORT).show();
+            Timber.e("No such file or directory");
             return;
         }
-
-
-        File file = null;file = new File(Environment.getExternalStorageDirectory()+"/"+"Download/"+filename+".wav");
         byte[] byteData = new byte[(int) file.length()];
         System.out.println("Using "+file.getName()+" ___________________________________________________");
         FileInputStream in = null;
@@ -409,41 +419,42 @@ public class FFTFragment extends Fragment {
             throwable.printStackTrace();
         }
         System.out.println("Wav audio file byteData"+Arrays.toString(byteData));
+        Toast.makeText(getActivity(), "Using "+this.sampleRate+"Hz as sample rate & "+this.liveOffset+" as offset.", Toast.LENGTH_SHORT).show();
+
+        try{
+            //creation of the audio array
+            double[] fftDataWav = new double[byteData.length];
+            double[] absFftDataWav = new double[byteData.length];
 
 
-        //creation of the audio array
-        double[] fftDataWav = new double[byteData.length];
-        double[] absFftDataWav = new double[byteData.length];
+            // Convert and put sData short array into fftDataWav double array to perform FFT
+            for (int j = 0; j < byteData.length; j++) {
+                fftDataWav[j] = (double) byteData[j];
+            }
+
+            System.out.println("Wav audio file fftDataWav double converted"+Arrays.toString(fftDataWav));
 
 
-        // Convert and put sData short array into fftDataWav double array to perform FFT
-        for (int j = 0; j < byteData.length; j++) {
-            fftDataWav[j] = (double) byteData[j];
-        }
+            // Fast Fourier Transform from JTransforms
+            final DoubleFFT_1D fftWav = new DoubleFFT_1D(fftDataWav.length);
+            // Perform 1D fft
+            fftWav.realForward(fftDataWav);
+            System.out.println("Wav audio file fftDataWav after FFT = "+Arrays.toString(fftDataWav));
 
-        System.out.println("Wav audio file fftDataWav double converted"+Arrays.toString(fftDataWav));
+            //convert abs values
+            for (int j = 0; j < fftDataWav.length; j++){
+                double x = fftDataWav[j];
+                //System.out.println("fftDataWav[j] = "+x+" | ");
+                //System.out.println("Math.abs(fftDataWav[j]) = "+Math.abs(x)+" | ");
+                absFftDataWav[j] = Math.abs(x);
+            }
+            System.out.println("absFftDataWav = "+Arrays.toString(absFftDataWav));
 
+            wavFrequency = calculateFrequency(absFftDataWav,wavOffset,false);
 
-        // Fast Fourier Transform from JTransforms
-        final DoubleFFT_1D fftWav = new DoubleFFT_1D(fftDataWav.length);
-        // Perform 1D fft
-        fftWav.realForward(fftDataWav);
-        System.out.println("Wav audio file fftDataWav after FFT = "+Arrays.toString(fftDataWav));
+            tvWavFreq.setText(String.valueOf(wavFrequency));
 
-        //convert abs values
-        for (int j = 0; j < fftDataWav.length; j++){
-            double x = fftDataWav[j];
-            //System.out.println("fftDataWav[j] = "+x+" | ");
-            //System.out.println("Math.abs(fftDataWav[j]) = "+Math.abs(x)+" | ");
-            absFftDataWav[j] = Math.abs(x);
-        }
-        System.out.println("absFftDataWav = "+Arrays.toString(absFftDataWav));
-
-        wavFrequency = calculateFrequency(absFftDataWav,wavOffset,false);
-
-        tvWavFreq.setText(String.valueOf(wavFrequency));
-
-        System.out.println("Wav Audio File Frequency : "+ wavFrequency);
+            System.out.println("Wav Audio File Frequency : "+ wavFrequency);
 
 
         /* OLD method
@@ -454,6 +465,12 @@ public class FFTFragment extends Fragment {
         //System.out.println("Data FFT absNormalizedSignal : "+Arrays.toString(absNormalizedSignal));
         //System.out.println("Data FFT peak : "+mPeakPos);
         */
+        }
+        catch (Error e){
+            Timber.d(e.getMessage());
+        }
+
+
 
     }
 
