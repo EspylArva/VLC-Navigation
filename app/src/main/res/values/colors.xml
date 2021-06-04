@@ -9,8 +9,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FFAA0000</color>
-    <color name="green">#FF00AA00</color>
+<!--    <color name="green">#FF00AA00</color>-->
     <color name="selected">#FFFAFAFA</color>
     <color name="unselected">#8F8F8F</color>
+
+    <color name="light_header_green">#FF69AA69</color>
+    <color name="dark_header_green">#FF185718</color>
+    <color name="even_darker_header_green">#FF093009</color>
 
 </resources>

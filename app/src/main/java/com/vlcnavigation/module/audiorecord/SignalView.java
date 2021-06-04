@@ -9,6 +9,9 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.vlcnavigation.R;
+import com.vlcnavigation.module.utils.Util;
+
 import java.util.ArrayList;
 
 public class SignalView extends SurfaceView implements SurfaceHolder.Callback{
@@ -341,11 +344,11 @@ public class SignalView extends SurfaceView implements SurfaceHolder.Callback{
             Canvas canvas = surfaceHolder.lockCanvas(
                     new Rect(start, 0, start + buffer.length, showHeight));// �ؼ�:��ȡ����
             canvas.drawColor(Color.WHITE);// �������
-            mPaint.setColor(Color.GREEN);
+            mPaint.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
             mPaint.setStrokeWidth(10);
             canvas.drawLine(0, showHeight/2, showWidth, showHeight/2, mPaint);
             mPaint.setStrokeWidth(1);
-            mPaint.setColor(Color.BLUE);
+            mPaint.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimaryVariant));
 
             int y;
             for (int i = 0; i < buffer.length; i++) {// �ж��ٻ�����

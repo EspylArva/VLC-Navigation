@@ -58,6 +58,8 @@
     <string name="sp_floors">com.vlcnavigation.floors</string>
     <string name="floor_does_not_exist">\"Seems like this floor no longer exists\"</string>
     <string name="fast_fourier_transform">Fast Fourier Transform</string>
+    <string name="load_data_from_file">Load data from file</string>
+    <string name="add_sample_data">Add sample data</string>
 
 
 </resources>

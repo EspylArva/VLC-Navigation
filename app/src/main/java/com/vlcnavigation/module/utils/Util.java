@@ -3,11 +3,14 @@ package com.vlcnavigation.module.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+
+import com.vlcnavigation.R;
 
 public class Util {
 
@@ -57,6 +60,20 @@ public class Util {
         int green = Color.green(color);
         int blue = Color.blue(color);
         return Color.argb(alpha, red, green, blue);
+    }
+
+    /**
+     * Returns the color int value from the attr parameter value
+     *
+     * @param context
+     * @param id attr parameter value
+     * @return
+     */
+    @ColorInt
+    public static int getAttrColor (final Context context, int id) {
+        final TypedValue value = new TypedValue ();
+        context.getTheme ().resolveAttribute (id, value, true);
+        return value.data;
     }
 
 }

@@ -39,8 +39,6 @@ public class AudioRecorder extends Thread {
     @Override
     public void run()
     {
-
-
         int bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING);
         AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, bufferSize);
 

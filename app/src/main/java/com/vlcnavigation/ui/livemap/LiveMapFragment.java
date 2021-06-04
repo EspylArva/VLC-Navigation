@@ -77,10 +77,9 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
-        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
-        Timber.d("%s", position);
+        recycler_floors.smoothScrollToPosition(position);
         position = settingsViewModel.findZeroFloor();
-        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        recycler_floors.smoothScrollToPosition(position);
         Timber.d("%s", position);
 
 //        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
@@ -141,12 +140,12 @@ public class LiveMapFragment extends Fragment {
                     if(holder != null) {
                         if (i == ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // ?attr/colorPrimary
-                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
 //                            displayLights(i);
                         } else {
-                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorSecondary));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle);
                         } // reset style
                     }

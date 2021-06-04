@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintHorizontal_weight="2"
         app:srcCompat="@drawable/ic_baseline_add_circle_outline_24"
-        android:backgroundTint="@color/green"
+        android:backgroundTint="?attr/colorPrimary"
         android:layout_marginEnd="@dimen/default_margin"
         app:borderWidth="0dp"
         app:maxImageSize="56dp"
