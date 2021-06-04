@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 record.setValue(!record.getValue());
-                Timber.d(String.valueOf(record));
                 if(record.getValue())
                 {
                     fab_record.setBackgroundTintList(ColorStateList.valueOf(Util.getAttrColor(v.getContext(), R.attr.colorPrimary)));

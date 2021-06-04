@@ -8,9 +8,11 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.text.Layout;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -100,6 +102,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
         private final LiveMapFragment fragment;
         // Views
         private RelativeLayout container_map;
+        private ImageView img_userMarker;
 
         public FloorDisplayHolder(@NonNull View itemView, SettingsViewModel vm, LiveMapFragment fragment) {
             super(itemView);
@@ -119,7 +122,12 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
         private void initViews(View itemView) {
             container_map = itemView.findViewById(R.id.container_map);
+            img_userMarker = itemView.findViewById(R.id.img_user_marker);
+            img_userMarker.setBackgroundResource(R.drawable.ic_user_marker);
+            img_userMarker.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
+
+        public ImageView getMarker() { return img_userMarker; }
 
         public void refreshUI() {
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
@@ -188,6 +196,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
 
         public void makeMarker(double posX, double posY, int width, int height, @ColorInt int color, int... markerSize) throws IOException {
 
+            ImageView marker = makeMarker(color);
+
             double dotSize = markerSize.length == 1 ? markerSize[0] : 100;
             String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
             InputStream is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
@@ -205,18 +215,51 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);
 
 
-            // Making the marker
-            ImageView marker = new ImageView(itemView.getContext());
-            marker.setId(View.generateViewId());
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(100, 100);//LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT); // 100, 100);
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int)dotSize, (int)dotSize);
             params.leftMargin = (int) leftMargin;
             params.topMargin = (int) topMargin;
 
+
+            container_map.addView(marker, params);
+        }
+
+        public void moveMarker(ImageView marker, double newPosX, double newPosY, double dotSize)
+        {
+            try {
+                String filePath = vm.getListOfFloors().getValue().get(getAdapterPosition()).getFilePath();
+                InputStream is = null;
+                    is = itemView.getContext().getContentResolver().openInputStream(Uri.parse(filePath));
+                Pair<Integer, Integer> mapSizePx = SvgSplitter.getMapSize(is);
+                double density = ((double)container_map.getWidth())/((double)mapSizePx.first);
+                double leftMargin = (newPosX*density) - (dotSize/2);
+                double topMargin = (newPosY*density) - (dotSize/2);
+                is.close();
+
+                RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams((int)dotSize, (int)dotSize);
+                params.leftMargin = (int) leftMargin;
+                params.topMargin = (int) topMargin;
+
+                 marker.setLayoutParams(params);
+
+                 Timber.e("Ratio map:container | %s:%s", container_map.getWidth(), mapSizePx.first);
+                Timber.d("Requesting a marker of size: %sx%s at position: %s:%s", dotSize, dotSize, newPosX, newPosY);
+                Timber.d("%sx%s", container_map.getWidth(), container_map.getHeight());                                       // 1008x794
+//            Timber.d("Layout size (in px): %sx%s", container_map.getWidth(), container_map.getHeight());        // 1008x794
+                Timber.d("Image size (in px): %sx%s", mapSizePx.first, mapSizePx.second);                           // 522x202
+                Timber.d("Density: %s | Reworked positions: %s:%s", density, leftMargin, topMargin);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public ImageView makeMarker(@ColorInt int color)
+        {
+            ImageView marker = new ImageView(itemView.getContext());
+            marker.setId(View.generateViewId());
             GradientDrawable whiteCircle = (GradientDrawable)ResourcesCompat.getDrawable(itemView.getResources(), R.drawable.ic_circle, itemView.getContext().getTheme());
             whiteCircle.setColor(ColorStateList.valueOf(color));
             marker.setBackground(whiteCircle);
-
-            container_map.addView(marker, params);
+            return marker;
         }
 
         private void makeLights(int width, int height)

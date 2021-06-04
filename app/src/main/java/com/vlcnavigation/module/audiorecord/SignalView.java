@@ -343,7 +343,7 @@ public class SignalView extends SurfaceView implements SurfaceHolder.Callback{
                 oldX = 0;
             Canvas canvas = surfaceHolder.lockCanvas(
                     new Rect(start, 0, start + buffer.length, showHeight));// �ؼ�:��ȡ����
-            canvas.drawColor(Color.WHITE);// �������
+            canvas.drawColor(Util.getAttrColor(getContext(), R.attr.colorOnSecondary));// �������
             mPaint.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
             mPaint.setStrokeWidth(10);
             canvas.drawLine(0, showHeight/2, showWidth, showHeight/2, mPaint);

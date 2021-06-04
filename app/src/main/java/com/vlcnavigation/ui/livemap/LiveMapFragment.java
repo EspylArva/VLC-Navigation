@@ -5,6 +5,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -43,6 +44,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 import timber.log.Timber;
 
@@ -54,6 +56,9 @@ public class LiveMapFragment extends Fragment {
     private TextInputLayout lbl_floorTitle;
     private MaterialAutoCompleteTextView txt_roomSearchField;
 
+    private final Handler handler = new Handler();
+    private final int USER_POSITION_REFRESH_RATE = 1000;
+    private UserPositionAcquisition thread;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -62,17 +67,20 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
-//        recycler_floors.smoothScrollToPosition(1);
 
-//        refreshUI();
 
-//        try{
-//            Trilateration.triangulate();
-//        } catch (Exception ex){ Timber.e(ex);}
+        refreshUI();
+        displayUsers();
 
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        handler.removeCallbacks(thread);
+
+    }
 
     private void refreshUI() {
         // Sets the FloorPicker hint
@@ -81,46 +89,15 @@ public class LiveMapFragment extends Fragment {
         position = settingsViewModel.findZeroFloor();
         recycler_floors.smoothScrollToPosition(position);
         Timber.d("%s", position);
-
-//        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
-
-        // Display lights. According to documentation, the color should be purple.
-//        displayLights(position);
-        // Display users. According to documentation, the color should be orange.
-//        displayUsers(position);
     }
-
-//    /**
-//     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
-//     * Lights' position should be refreshed on light edit and on floor selection change.
-//     */
-//    private void displayLights(int position) {
-//        // Use color @color/purple_500
-//        int colorId = R.color.purple_500;
-//        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
-//
-//        for(Light l : settingsViewModel.getListOfLights().getValue())
-//        {
-//            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
-//            {
-//                try {
-//                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
-//                    if(holder != null) {
-//                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
-//                    } else { Timber.d("Could not create marker. Holder is null"); }
-//                } catch (IOException e) {
-//                    Timber.e(e);
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
      * Users' position should be displayed only if they are on the selected floor, and should be refreshed once every second.
      */
-    private void displayUsers(int position) {
-        int colorId = R.color.orange_500;
+    private void displayUsers() {
+        thread = new UserPositionAcquisition();
+        handler.postDelayed(thread, USER_POSITION_REFRESH_RATE);
     }
 
 
@@ -192,8 +169,8 @@ public class LiveMapFragment extends Fragment {
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
 
-        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
+//        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
 
         try {
             List<String> rooms = settingsViewModel.getListOfRooms();
@@ -245,5 +222,31 @@ public class LiveMapFragment extends Fragment {
 
     public void setFloorDescription(String description) {
         this.lbl_floorTitle.getEditText().setText(description);
+    }
+
+    private class UserPositionAcquisition implements Runnable
+    {
+        public void run() {
+            // get the frequency
+            double frequency = 200;
+            Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
+            // display marker on the map
+
+            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
+                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
+                if (holder != null) {
+                    if(closestLight == null){
+//                        Random r = new Random();
+//                        holder.moveMarker(holder.getMarker(), r.nextInt(500), r.nextInt(500), 100);
+                        holder.moveMarker(holder.getMarker(), 0, 0, 100);
+                    }
+                    else{
+                        holder.moveMarker(holder.getMarker(), closestLight.getPosX(), closestLight.getPosY(), 100);
+                    }
+                }
+            }
+
+            handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
+        }
     }
 }

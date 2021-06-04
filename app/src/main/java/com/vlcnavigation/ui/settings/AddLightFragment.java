@@ -81,8 +81,8 @@ public class AddLightFragment extends Fragment {
                 {
                     // Add a new light
                     Light newLight = new Light.Builder(
-                            Double.parseDouble(txtInputLayout_newLightXPos.getEditText().getText().toString()),
-                            Double.parseDouble(txtInputLayout_newLightYPos.getEditText().getText().toString()),
+                            Integer.parseInt(txtInputLayout_newLightXPos.getEditText().getText().toString()),
+                            Integer.parseInt(txtInputLayout_newLightYPos.getEditText().getText().toString()),
                             settingsViewModel.findFloor(Integer.parseInt(txtInputLayout_newLightFloor.getText().toString())),
                             Double.parseDouble(txtInputLayout_newLightLambda.getEditText().getText().toString()))
                             .setDescription(txtInputLayout_newLightDescription.getEditText().getText().toString()).build();
