@@ -18,6 +18,7 @@ import com.vlcnavigation.module.utils.Util;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -52,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
         Timber.plant(new CustomDebugTree());
 
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+//        toolbar.setTitle(R.string.app_name);
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.

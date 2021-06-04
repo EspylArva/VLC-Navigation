@@ -52,13 +52,11 @@ public class Light {
     public boolean isOnFloor(Floor f) { return f.equals(this.floor); }
     public static Light getLightFromFrequency(double measuredFrequency, double delta, List<Light> lights)
     {
-        Timber.e("Number of lights: %s", lights.size());
-        Timber.e("Measured freq: %s | Delta: %s", measuredFrequency, delta);
+        Timber.d("Measured freq: %s | Delta: %s", measuredFrequency, delta);
         for(Light light : lights)
         {
             if(measuredFrequency + delta > light.getLambda() && measuredFrequency - delta < light.getLambda())
             {
-                Timber.e("Returning light %s", light.description);
                 return light;
             }
         }

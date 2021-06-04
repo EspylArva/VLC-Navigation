@@ -57,7 +57,7 @@ public class LiveMapFragment extends Fragment {
     private MaterialAutoCompleteTextView txt_roomSearchField;
 
     private final Handler handler = new Handler();
-    private final int USER_POSITION_REFRESH_RATE = 1000;
+    private final int USER_POSITION_REFRESH_RATE = 500;
     private UserPositionAcquisition thread;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -232,19 +232,21 @@ public class LiveMapFragment extends Fragment {
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
 
-            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
-                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
+//            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
+//                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
+                FloorDisplayAdapter.FloorDisplayHolder holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
                 if (holder != null) {
                     if(closestLight == null){
 //                        Random r = new Random();
 //                        holder.moveMarker(holder.getMarker(), r.nextInt(500), r.nextInt(500), 100);
                         holder.moveMarker(holder.getMarker(), 0, 0, 100);
                     }
-                    else{
+                    else if (holder.getFloor().getOrder() == closestLight.getFloor().getOrder()){
+//                        holder.get
                         holder.moveMarker(holder.getMarker(), closestLight.getPosX(), closestLight.getPosY(), 100);
                     }
                 }
-            }
+//            }
 
             handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
