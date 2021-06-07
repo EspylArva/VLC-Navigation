@@ -14,9 +14,11 @@ import com.nambimobile.widgets.efab.FabOption;
 import com.pixplicity.sharp.SharpDrawable;
 import com.pixplicity.sharp.SharpPicture;
 import com.vlcnavigation.module.audiorecord.AudioRecorder;
+import com.vlcnavigation.module.utils.Util;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.navigation.NavController;
@@ -51,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
         Timber.plant(new CustomDebugTree());
 
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+//        toolbar.setTitle(R.string.app_name);
+
         BottomNavigationView navView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -89,10 +96,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 record.setValue(!record.getValue());
-                Timber.d(String.valueOf(record));
                 if(record.getValue())
                 {
-                    fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.green)));
+                    fab_record.setBackgroundTintList(ColorStateList.valueOf(Util.getAttrColor(v.getContext(), R.attr.colorPrimary)));
                     audioRecorder = new AudioRecorder(record, findViewById(R.id.signalview));
                     audioRecorder.start();
                 }
@@ -134,11 +140,11 @@ public class MainActivity extends AppCompatActivity {
         boolean permissionNeeded = false;
         if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
         {
-            opt_readFiles.setFabOptionColor(getColor(R.color.green));
+            opt_readFiles.setFabOptionColor(Util.getAttrColor(this, R.attr.colorPrimary));
         } else { permissionNeeded = true; }
         if(checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
         {
-            opt_microphone.setFabOptionColor(getColor(R.color.green));
+            opt_microphone.setFabOptionColor(Util.getAttrColor(this, R.attr.colorPrimary));
         } else { permissionNeeded = true; }
 
         if(!permissionNeeded) { container_fabs.removeAllViews(); }
@@ -148,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Timber.d("%s - %s - %s", requestCode, Arrays.toString(permissions), Arrays.toString(grantResults));
         checkPermissions();
     }

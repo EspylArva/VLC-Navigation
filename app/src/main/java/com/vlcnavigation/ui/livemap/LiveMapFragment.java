@@ -5,6 +5,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -44,6 +45,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 import timber.log.Timber;
 
@@ -55,6 +57,9 @@ public class LiveMapFragment extends Fragment {
     private TextInputLayout lbl_floorTitle;
     private MaterialAutoCompleteTextView txt_roomSearchField;
 
+    private final Handler handler = new Handler();
+    private final int USER_POSITION_REFRESH_RATE = 500;
+    private UserPositionAcquisition thread;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -68,63 +73,34 @@ public class LiveMapFragment extends Fragment {
 //        recycler_floors.smoothScrollToPosition(1);
 
 //        refreshUI();
-
-//        try{
-//            Trilateration.triangulate();
-//        } catch (Exception ex){ Timber.e(ex);}
+        displayUsers();
 
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        handler.removeCallbacks(thread);
+
+    }
 
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
-        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
-        Timber.d("%s", position);
+        recycler_floors.smoothScrollToPosition(position);
         position = settingsViewModel.findZeroFloor();
-        recycler_floors.smoothScrollToPosition(position); // FIXME: Should scroll to the position closest to 0 (RDC/Floor)
+        recycler_floors.smoothScrollToPosition(position);
         Timber.d("%s", position);
-
-//        ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(position)).getTv().setBackgroundResource(R.drawable.ic_item_highlighted);
-
-        // Display lights. According to documentation, the color should be purple.
-//        displayLights(position);
-        // Display users. According to documentation, the color should be orange.
-//        displayUsers(position);
     }
-
-//    /**
-//     * Display lights as a purple circle on the map. Lights are registered in the SettingsViewModel.
-//     * Lights' position should be refreshed on light edit and on floor selection change.
-//     */
-//    private void displayLights(int position) {
-//        // Use color @color/purple_500
-//        int colorId = R.color.purple_500;
-//        int color = Util.modifyAlpha(ContextCompat.getColor(getContext(), colorId), 50);
-//
-//        for(Light l : settingsViewModel.getListOfLights().getValue())
-//        {
-//            if(l.isOnFloor(settingsViewModel.getListOfFloors().getValue().get(position)))
-//            {
-//                try {
-//                    FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder)recycler_floors.findViewHolderForAdapterPosition(position));
-//                    if(holder != null) {
-//                        holder.makeMarker(l.getPosX(), l.getPosY(), color, 100);
-//                    } else { Timber.d("Could not create marker. Holder is null"); }
-//                } catch (IOException e) {
-//                    Timber.e(e);
-//                }
-//            }
-//        }
-//    }
 
     /**
      * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
      * Users' position should be displayed only if they are on the selected floor, and should be refreshed once every second.
      */
-    private void displayUsers(int position) {
-        int colorId = R.color.orange_500;
+    private void displayUsers() {
+        thread = new UserPositionAcquisition();
+        handler.postDelayed(thread, USER_POSITION_REFRESH_RATE);
     }
 
 
@@ -144,12 +120,12 @@ public class LiveMapFragment extends Fragment {
                     if(holder != null) {
                         if (i == ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // ?attr/colorPrimary
-                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
 //                            displayLights(i);
                         } else {
-                            whiteCircle.setColor(ContextCompat.getColorStateList(requireContext(), R.color.design_default_color_primary_variant));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorSecondary));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle);
                         } // reset style
                     }
@@ -196,8 +172,8 @@ public class LiveMapFragment extends Fragment {
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
 
-        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
+//        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
 
         try {
             List<String> rooms = settingsViewModel.getListOfRooms();
@@ -249,5 +225,37 @@ public class LiveMapFragment extends Fragment {
 
     public void setFloorDescription(String description) {
         this.lbl_floorTitle.getEditText().setText(description);
+    }
+
+    private class UserPositionAcquisition implements Runnable
+    {
+        public void run() {
+            // get the frequency
+            double frequency = 210;
+            Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
+            // display marker on the map
+
+//            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
+//                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
+            try {
+
+                FloorDisplayAdapter.FloorDisplayHolder holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
+                if (holder != null) {
+                    if(closestLight == null){
+//                        Random r = new Random();
+//                        holder.moveMarker(holder.getMarker(), r.nextInt(500), r.nextInt(500), 100);
+                        holder.moveMarker(holder.getMarker(), 0, 0, 100);
+                    }
+                    else if (holder.getFloor().getOrder() == closestLight.getFloor().getOrder()){
+//                        holder.get
+                        holder.moveMarker(holder.getMarker(), closestLight.getPosX(), closestLight.getPosY(), 100);
+                    }
+                }
+//            }
+                handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
+            }
+            catch(NullPointerException e) { Timber.e(e); }
+
+        }
     }
 }

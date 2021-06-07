@@ -53,7 +53,7 @@ dependencies {
     // Loading SVG dynamically @ https://mvnrepository.com/artifact/com.pixplicity.sharp/library
      implementation group: 'com.pixplicity.sharp', name: 'library', version:'1.1.0'
 
-    // Trilateration calculus @ https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    // Trilateration calculus @ https://mvnrepository.com/artifact/com.lemmingapex.trilateration/trilateration/1.0.2
     implementation 'com.lemmingapex.trilateration:trilateration:1.0.2'
 
     // Gson (marshalling/unmarshalling) @ https://mvnrepository.com/artifact/com.google.code.gson/gson

@@ -156,7 +156,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                                 vm.getListOfLights().getValue().size(),
                                 getItemCount()
                         );
-                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosX(Double.parseDouble(s.toString()));
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosX(Integer.parseInt(s.toString()));
                         vm.saveLights();
                     }
                 }
@@ -172,7 +172,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                     else
                     {
                         txtInputLayout_posY.setErrorEnabled(false);
-                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosY(Double.parseDouble(s.toString()));
+                        vm.getListOfLights().getValue().get(getAdapterPosition()).setPosY(Integer.parseInt(s.toString()));
                         vm.saveLights();
                     }
                 }

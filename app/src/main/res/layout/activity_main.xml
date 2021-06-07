@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     >
 
+    <include layout="@layout/toolbar"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_record_mic"
         app:srcCompat="@drawable/ic_baseline_location_searching_24"
