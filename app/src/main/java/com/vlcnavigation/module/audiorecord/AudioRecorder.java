@@ -22,6 +22,20 @@ import timber.log.Timber;
 
 public class AudioRecorder extends Thread {
 
+    public static int FREQUENCY = 32000;
+
+    //    private FFTFragment fragment;
+    private SignalView signalView;
+    private static short AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+    private static short CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+    private MutableLiveData<Boolean> isRecording;
+    //public int FREQUENCY = 32000;
+    public static int buffersize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING);
+
+
+    AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, buffersize);
+
+
     public AudioRecorder(MutableLiveData<Boolean> bool, SignalView signalView) //, FFTFragment frag)
     {
         this.isRecording = bool;
@@ -29,20 +43,14 @@ public class AudioRecorder extends Thread {
 //        this.fragment = frag;
     }
 
-//    private FFTFragment fragment;
-    private SignalView signalView;
-    private short AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    private short CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
-    private MutableLiveData<Boolean> isRecording;
-    private int FREQUENCY = 32000;
+
 
     @Override
     public void run()
     {
 
 
-        int bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING);
-        AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, bufferSize);
+
 
         audioRecord.startRecording();
         Timber.d("Start recording");
@@ -51,8 +59,8 @@ public class AudioRecorder extends Thread {
 
 //            Timber.d("Recording");
 
-            short[] buffer = new short[bufferSize];
-            int bufferReadResult = audioRecord.read(buffer, 0, bufferSize);// ����bufferSize���ȵ�����
+            short[] buffer = new short[buffersize];
+            int bufferReadResult = audioRecord.read(buffer, 0, buffersize);// ����bufferSize���ȵ�����
 
             MainActivity.BUFFER = buffer;
             MainActivity.BUFFER_READ_RESULT = bufferReadResult;
@@ -89,7 +97,7 @@ public class AudioRecorder extends Thread {
             // FFT
                 // closest power of 2 to the size
             int n = (int) Math.pow(2, tmp.length == 0 ? 0 : 31 - Integer.numberOfLeadingZeros(tmp.length - 1)); //= 1024;
-            Timber.d("Size: %s (initial size: %s)", n, tmp.length);
+            //Timber.d("Size: %s (initial size: %s)", n, tmp.length);
             Complex[] x = new Complex[n];
 
             // original data
@@ -99,7 +107,7 @@ public class AudioRecorder extends Thread {
             }
 
             Complex[] y = FFT.fft(x);
-            Timber.d("Frequency: %s", getFreq(y));
+            //Timber.d("Frequency: %s", getFreq(y));
 
 
 //            // ����Decoder�࣬����
@@ -117,23 +125,5 @@ public class AudioRecorder extends Thread {
         audioRecord.release();
     }
 
-    private double getFreq(Complex[] fft)
-    {
-        Double[] doubleFFT = Arrays.stream(fft).map(Complex::abs).toArray(Double[]::new);
-        Arrays.sort(doubleFFT);
-        double peak1 = doubleFFT[doubleFFT.length-1];
-        double peak2 = doubleFFT[doubleFFT.length-2];
 
-        int index1 = 0; int index2 = 0;
-        doubleFFT = Arrays.stream(fft).map(Complex::abs).toArray(Double[]::new);
-        for(int i=0; i<fft.length; i++) {
-            if(doubleFFT[i] == peak1) {
-                index1 = i;
-            }
-            else if(doubleFFT[i] == peak2) {
-                index2 = i;
-            }
-        }
-        return (index1+index2)/2;
-    }
 }
