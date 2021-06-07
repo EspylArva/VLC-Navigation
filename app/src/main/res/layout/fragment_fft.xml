@@ -136,12 +136,32 @@
                 app:layout_constraintTop_toBottomOf="@+id/edt_name" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/tv_hintfftanalyse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="FFT Analyse"
                 app:layout_constraintBottom_toTopOf="@+id/toggleButton2"
                 app:layout_constraintStart_toStartOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_hintled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Current LED :"
+                app:layout_constraintBottom_toBottomOf="@+id/toggleButton2"
+                app:layout_constraintStart_toEndOf="@+id/toggleButton2"
+                app:layout_constraintTop_toTopOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_currentled"
+                android:layout_width="130dp"
+                android:layout_height="19dp"
+                android:layout_marginStart="12dp"
+                android:text="LED"
+                app:layout_constraintBottom_toBottomOf="@+id/toggleButton2"
+                app:layout_constraintStart_toEndOf="@+id/tv_hintled"
+                app:layout_constraintTop_toTopOf="@+id/toggleButton2" />
 
             <ToggleButton
                 android:id="@+id/toggleButton2"
@@ -154,11 +174,6 @@
                 android:textOn="STOP"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_hintwavfreq" />
-
-            <TableRow
-                android:layout_width="376dp"
-                android:layout_height="99dp"
-                tools:layout_editor_absoluteY="143dp" />
 
             <TextView
                 android:id="@+id/tv_hintlivefreq"
@@ -282,7 +297,7 @@
             android:id="@+id/plot_fft"
             style="@style/APDefacto.Dark"
             android:layout_width="393dp"
-            android:layout_height="272dp"
+            android:layout_height="262dp"
             app:domainTitle="domain"
             app:lineLabelRotationBottom="-45"
             app:lineLabels="left|bottom"

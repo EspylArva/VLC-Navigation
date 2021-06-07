@@ -35,6 +35,7 @@ import com.vlcnavigation.module.svg2vector.SvgSplitter;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 import com.vlcnavigation.module.utils.Util;
+import com.vlcnavigation.ui.fft.FFTFragment;
 import com.vlcnavigation.ui.settings.FloorAdapter;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
 
@@ -62,6 +63,8 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
+        //double d = FFTFragment.getLiveFrequency();
+        //Timber.d(String.valueOf(Double.valueOf(d)));
 //        recycler_floors.smoothScrollToPosition(1);
 
 //        refreshUI();

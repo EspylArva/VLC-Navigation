@@ -1,6 +1,7 @@
 package com.vlcnavigation.ui.fft;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -26,9 +27,13 @@ import androidx.lifecycle.ViewModelProvider;
 
 //import com.android.ide.common.vectordrawable.Svg2Vector;
 import com.androidplot.xy.BoundaryMode;
+import com.androidplot.xy.CatmullRomInterpolator;
 import com.androidplot.xy.LineAndPointFormatter;
+import com.androidplot.xy.PanZoom;
 import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
+import com.androidplot.xy.XYSeries;
 import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.audiorecord.AudioRecorder;
@@ -40,6 +45,9 @@ import org.jtransforms.fft.DoubleFFT_1D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 import java.util.Arrays;
 
 import timber.log.Timber;
@@ -57,13 +65,14 @@ public class FFTFragment extends Fragment {
     protected TextView tvWavFreq;
     protected TextView tvLiveFreq, tvLiveFreq2, tvLiveFreq3;
     protected TextView tvAmpl, tvAmpl2, tvAmpl3;
-    private Handler updateUIHandler = null;
-
-
+    protected TextView tvCurrentLED;
+    protected String currentLED;
 
 
     //threads
     private static final int MESSAGE_UPDATE_TEXT_CHILD_THREAD = 1;
+    protected Handler updateUIHandler = null;
+    protected Handler handlerThread = null;
 
 
 
@@ -78,7 +87,7 @@ public class FFTFragment extends Fragment {
 
     protected short sData[] = new short[buffersize];
     protected double sDataAverage=0;
-    protected double fftData[]= new double[buffersize];
+    protected double[] fftData = new double[buffersize];
     protected int[] oldSentData=new int[3];
     protected SimpleXYSeries series1;
     protected double liveFrequency = 0;
@@ -88,6 +97,8 @@ public class FFTFragment extends Fragment {
     double[] fftIndex = new double[buffersize];
     double[] fftPeaks = new double[buffersize];
     double[] fftFrequencies = new double[buffersize];
+    double[] fftDistinctFrequencies = new double[buffersize];
+    BigDecimal[] fftFrequenciesBigDecimal = new BigDecimal[buffersize];
 
     //distance computing
     private double[][] rssData;
@@ -186,13 +197,6 @@ public class FFTFragment extends Fragment {
 
 
 
-
-
-
-
-
-
-
         return root;
     }
 
@@ -238,6 +242,7 @@ public class FFTFragment extends Fragment {
         tvAmpl = root.findViewById(R.id.tv_ampl);
         tvAmpl2 = root.findViewById(R.id.tv_ampl2);
         tvAmpl3 = root.findViewById(R.id.tv_ampl3);
+        tvCurrentLED = root.findViewById(R.id.tv_currentled);
 
 
         //edit texts
@@ -327,21 +332,12 @@ public class FFTFragment extends Fragment {
 
 
 
+
+
         recordingThread = new Thread(new Runnable() {
-
-
-
-
-
 
             public void run() {
 
-
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
 
                 while (isRecording) {
@@ -379,6 +375,36 @@ public class FFTFragment extends Fragment {
                         FFTFragment.this.liveFrequency = calculateFrequency(fftData, liveOffset,false);
                         //Timber.d("Frequency : %s", liveFrequency);
 
+                        /*
+
+                        firstBigDecimal.compareTo(secondBigDecimal) < 0 // "<"
+                        firstBigDecimal.compareTo(secondBigDecimal) > 0 // ">"
+                        firstBigDecimal.compareTo(secondBigDecimal) == 0 // "=="
+                        firstBigDecimal.compareTo(secondBigDecimal) >= 0 // ">="
+
+                        */
+
+                        //finding First LED name
+                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) > 0){
+                            if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1300.00")) < 0){
+                                currentLED = "LED 1200 Hz";
+
+                            }
+                        }
+                        else if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("900.00")) > 0){
+                            if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) < 0){
+                                currentLED = "LED 1000 Hz";
+                            }
+                        }
+                        else {
+                            currentLED = "None";
+                        }
+
+
+
+
+
+                        //update GUI
                         Message freqMsg = new Message();
                         freqMsg.what = MESSAGE_UPDATE_TEXT_CHILD_THREAD;
 
@@ -389,6 +415,64 @@ public class FFTFragment extends Fragment {
 
 
 
+                        //Create a arrays of y-value to plot:
+                        final Number[] domainLabels = {1,2,3,6,7,8,9,10,13,14};
+                        //Number[] series1Numbers = {1,4,2,8,88,16,8,32,16,64};
+                        final Number[] series1Numbers = new Number[fftData.length];
+                        final Number[] series2Numbers = new Number[1024/powOf2temp];
+
+
+                        //series2Numbers = ;
+
+                        // Turn the above arrays into XYSeries
+                        SimpleXYSeries series1 = new SimpleXYSeries(Arrays.asList(series1Numbers),
+                                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,"Series 1");
+                        XYSeries series2 = new SimpleXYSeries(Arrays.asList(series2Numbers),
+                                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,"Series 2");
+
+
+
+                        //initilize the serie 1
+                        for (int j=0;j<series1Numbers.length;j++) {
+                            series1Numbers[j]=fftData[j];
+                        }
+
+                        LineAndPointFormatter series1Format = new LineAndPointFormatter(Color.RED,Color.GREEN,null,null);
+                        LineAndPointFormatter series2Format = new LineAndPointFormatter(Color.YELLOW,Color.BLUE,null,null);
+
+                        series1Format.setInterpolationParams(new CatmullRomInterpolator.Params(10,
+                                CatmullRomInterpolator.Type.Centripetal));
+                        series2Format.setInterpolationParams(new CatmullRomInterpolator.Params(10,
+                                CatmullRomInterpolator.Type.Centripetal));
+
+                        plot_fft.addSeries(series1,series1Format);
+                        plot_fft.addSeries(series2,series2Format);
+
+                        // Update plot //
+                        for (int j = 0; j < series1.size(); j++) {
+                            series1.removeFirst();
+                            //series1.addLast(null, fftData[j * powOf2temp] * powOf2temp);
+                            series1.addLast(null, fftData[j]);
+                        }
+
+                        plot_fft.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
+                            @Override
+                            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
+                                int i = Math.round( ((Number)obj).floatValue() );
+                                return toAppendTo.append(domainLabels[i]);
+                            }
+
+                            @Override
+                            public Object parseObject(String source, ParsePosition pos) {
+                                return null;
+                            }
+                        });
+
+                        PanZoom.attach(plot_fft);
+
+
+
+                        /*
 
                         // Update plot //
                         for (int j = 0; j < series1.size(); j++) {
@@ -418,6 +502,7 @@ public class FFTFragment extends Fragment {
 
                             oldSentData[freqDomain] = dataToSend[freqDomain];
                         }
+                        */
 
                         /*
                         runOnUiThread(new Runnable() {
@@ -435,7 +520,11 @@ public class FFTFragment extends Fragment {
 
 
 
+            //FFTFragment.this.handlerThread
+
+
         }, "AudioRecorder Thread");
+        //handlerThread.postDelayed(recordingThread,500);
         recordingThread.start();
         ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -574,8 +663,7 @@ public class FFTFragment extends Fragment {
 
 
         //filtering frequencies (to find distinct frequencies)
-        double[] fftDistinctFrequencies = new double[fftSorted.length];
-        BigDecimal[] fftFrequenciesBigDecimal = new BigDecimal[fftSorted.length];
+
 
         //convert BigDecimal value to compare values
 
@@ -587,6 +675,14 @@ public class FFTFragment extends Fragment {
         }
 
         System.out.println("fftFrequenciesBigDecimal = "+ Arrays.toString(fftFrequenciesBigDecimal));
+
+/*
+        for(int i=0; i<fftFrequenciesBigDecimal.length; i++) {
+            if (fftFrequenciesBigDecimal[i].subtract(fftFrequenciesBigDecimal[i+1]) < new BigDecimal("0.0") ){
+
+            }
+        }
+        */
 
 
         /*
@@ -743,12 +839,25 @@ public class FFTFragment extends Fragment {
         tvAmpl2.setText(String.valueOf(fftPeaks[1]));
         tvAmpl3.setText(String.valueOf(fftPeaks[2]));
 
+        tvCurrentLED.setText(currentLED);
+
         plot_fft.redraw();
         //Timber.d("plot redrawn");
     }
 
 
 
+
+    /*
+    public static double getLiveFrequency(){
+
+        createUpdateUiHandler();
+        liveAudioFFT();
+
+        return liveFrequency;
+    }
+
+     */
 
 
 
