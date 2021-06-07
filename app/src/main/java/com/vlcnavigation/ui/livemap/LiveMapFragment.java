@@ -69,7 +69,7 @@ public class LiveMapFragment extends Fragment {
         initListeners();
 
 
-        refreshUI();
+//        refreshUI();
         displayUsers();
 
         return root;
@@ -228,12 +228,14 @@ public class LiveMapFragment extends Fragment {
     {
         public void run() {
             // get the frequency
-            double frequency = 200;
+            double frequency = 210;
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
 
 //            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
 //                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
+            try {
+
                 FloorDisplayAdapter.FloorDisplayHolder holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
                 if (holder != null) {
                     if(closestLight == null){
@@ -247,8 +249,10 @@ public class LiveMapFragment extends Fragment {
                     }
                 }
 //            }
+                handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
+            }
+            catch(NullPointerException e) { Timber.e(e); }
 
-            handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
     }
 }
