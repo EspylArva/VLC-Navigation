@@ -413,6 +413,7 @@ public class FFTFragment extends Fragment {
 
 
 
+                        /*
 
 
                         //Create a arrays of y-value to plot:
@@ -469,6 +470,7 @@ public class FFTFragment extends Fragment {
                         });
 
                         PanZoom.attach(plot_fft);
+                        */
 
 
 
