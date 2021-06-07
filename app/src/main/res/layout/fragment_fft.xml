@@ -135,6 +135,14 @@
                 app:layout_constraintStart_toEndOf="@+id/tv_hintwavfreq"
                 app:layout_constraintTop_toBottomOf="@+id/edt_name" />
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="FFT Analyse"
+                app:layout_constraintBottom_toTopOf="@+id/toggleButton2"
+                app:layout_constraintStart_toStartOf="@+id/toggleButton2" />
+
             <ToggleButton
                 android:id="@+id/toggleButton2"
                 android:layout_width="103dp"
@@ -142,47 +150,131 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
                 android:text="ToggleButton"
+                android:textOff="RUN"
+                android:textOn="STOP"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_hintwavfreq" />
+
+            <TableRow
+                android:layout_width="376dp"
+                android:layout_height="99dp"
+                tools:layout_editor_absoluteY="143dp" />
 
             <TextView
                 android:id="@+id/tv_hintlivefreq"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Frequency :"
-                app:layout_constraintEnd_toEndOf="@+id/toggleButton2"
+                android:layout_marginTop="8dp"
+                android:text="Frequency 1 :"
+                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
                 app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
 
             <TextView
                 android:id="@+id/tv_livefreq"
-                android:layout_width="193dp"
+                android:layout_width="70dp"
                 android:layout_height="19dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="12dp"
                 app:layout_constraintStart_toEndOf="@+id/tv_hintlivefreq"
                 app:layout_constraintTop_toTopOf="@+id/tv_hintlivefreq" />
 
-            <SeekBar
-                android:id="@+id/seekBarSmooth"
-                android:layout_width="300dp"
+            <TextView
+                android:id="@+id/tv_hintlivefreq2"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:indeterminate="false"
-                android:max="64"
-                android:progress="0"
-                app:layout_constraintBottom_toTopOf="@+id/seekBar"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginTop="32dp"
+                android:text="Frequency 2 :"
+                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="300dp"
+            <TextView
+                android:id="@+id/tv_livefreq2"
+                android:layout_width="70dp"
+                android:layout_height="19dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_hintlivefreq"
+                app:layout_constraintTop_toTopOf="@+id/tv_hintlivefreq" />
+
+            <TextView
+                android:id="@+id/tv_hintlivefreq3"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="0"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                android:layout_marginTop="56dp"
+                android:text="Frequency 3 :"
+                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_livefreq3"
+                android:layout_width="70dp"
+                android:layout_height="19dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="48dp"
+                app:layout_constraintStart_toEndOf="@+id/tv_hintlivefreq"
+                app:layout_constraintTop_toTopOf="@+id/tv_hintlivefreq" />
+
+            <TextView
+                android:id="@+id/tv_hintampl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="12dp"
+                android:text="Amplitude 1 :"
+                app:layout_constraintEnd_toStartOf="@+id/tv_ampl"
+                app:layout_constraintHorizontal_bias="0.516"
+                app:layout_constraintStart_toEndOf="@+id/tv_livefreq"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_ampl"
+                android:layout_width="70dp"
+                android:layout_height="19dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_hintampl2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="12dp"
+                android:text="Amplitude 2 :"
+                app:layout_constraintEnd_toStartOf="@+id/tv_ampl2"
+                app:layout_constraintHorizontal_bias="0.516"
+                app:layout_constraintStart_toEndOf="@+id/tv_livefreq2"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_ampl2"
+                android:layout_width="70dp"
+                android:layout_height="19dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_hintampl3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="56dp"
+                android:layout_marginEnd="12dp"
+                android:text="Amplitude 3 :"
+                app:layout_constraintEnd_toStartOf="@+id/tv_ampl3"
+                app:layout_constraintHorizontal_bias="0.516"
+                app:layout_constraintStart_toEndOf="@+id/tv_livefreq3"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+
+            <TextView
+                android:id="@+id/tv_ampl3"
+                android:layout_width="70dp"
+                android:layout_height="19dp"
+                android:layout_marginTop="56dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
