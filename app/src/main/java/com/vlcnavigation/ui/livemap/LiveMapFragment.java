@@ -31,11 +31,13 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
+import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgSplitter;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
 import com.vlcnavigation.module.utils.Util;
+import com.vlcnavigation.ui.fft.FFTComputing;
 import com.vlcnavigation.ui.fft.FFTFragment;
 import com.vlcnavigation.ui.settings.FloorAdapter;
 import com.vlcnavigation.ui.settings.SettingsViewModel;
@@ -68,8 +70,7 @@ public class LiveMapFragment extends Fragment {
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
-        //double d = FFTFragment.getLiveFrequency();
-        //Timber.d(String.valueOf(Double.valueOf(d)));
+
 //        recycler_floors.smoothScrollToPosition(1);
 
 //        refreshUI();
@@ -232,6 +233,10 @@ public class LiveMapFragment extends Fragment {
         public void run() {
             // get the frequency
             double frequency = 210;
+            if (MainActivity.fftBoolCompute){
+                frequency = MainActivity.fftComputing.getLiveFrequency();
+            }
+
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
 

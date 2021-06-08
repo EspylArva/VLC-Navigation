@@ -53,6 +53,12 @@ public class AudioRecorder extends Thread {
 
         audioRecord.startRecording();
         Timber.d("Start recording");
+        //start fft
+        //FFTFragment fftFragment = new FFTFragment();
+
+
+
+
 
         while(isRecording.getValue()) {
 
@@ -63,6 +69,8 @@ public class AudioRecorder extends Thread {
 
             MainActivity.BUFFER = buffer;
             MainActivity.BUFFER_READ_RESULT = bufferReadResult;
+
+            //FFTFragment.isRecording = true;
 
 
             if(signalView != null)
@@ -120,6 +128,7 @@ public class AudioRecorder extends Thread {
         }
 
         Timber.d("Stopped recording");
+        //FFTFragment.isRecording = false;
         audioRecord.stop();
         audioRecord.release();
     }

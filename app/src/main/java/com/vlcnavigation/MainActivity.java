@@ -1,9 +1,12 @@
 package com.vlcnavigation;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,10 +14,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nambimobile.widgets.efab.ExpandableFabLayout;
 import com.nambimobile.widgets.efab.FabOption;
-import com.pixplicity.sharp.SharpDrawable;
-import com.pixplicity.sharp.SharpPicture;
 import com.vlcnavigation.module.audiorecord.AudioRecorder;
 import com.vlcnavigation.module.utils.Util;
+import com.vlcnavigation.ui.fft.FFTComputing;
+import com.vlcnavigation.ui.fft.FFTFragment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,10 +43,17 @@ public class MainActivity extends AppCompatActivity {
 
     private AudioRecorder audioRecorder;
 
-    private MutableLiveData<Boolean> record;
 
+    private MutableLiveData<Boolean> record;
+    public static Boolean fftBoolCompute;
+
+    public static FFTComputing fftComputing;
     public static short[] BUFFER;
     public static int BUFFER_READ_RESULT;
+
+    //threads
+    private static final int MESSAGE_UPDATE_TEXT_CHILD_THREAD = 1;
+    protected Handler updateUIHandler = null;
 
 
     @Override
@@ -70,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
         initListeners();
+
+
     }
 
     private void initViews()
@@ -82,6 +94,11 @@ public class MainActivity extends AppCompatActivity {
 
         record = new MutableLiveData<Boolean>();
         record.setValue(false);
+
+
+        fftBoolCompute = false;
+
+
 
         if(!checkPermissions())
         {
@@ -96,16 +113,43 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 record.setValue(!record.getValue());
+
                 if(record.getValue())
                 {
                     fab_record.setBackgroundTintList(ColorStateList.valueOf(Util.getAttrColor(v.getContext(), R.attr.colorPrimary)));
                     audioRecorder = new AudioRecorder(record, findViewById(R.id.signalview));
                     audioRecorder.start();
+
+                    fftBoolCompute = true;
+
+
+
+
+
+
+                    final Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Do something after 5s = 5000ms
+                            fftComputing = new FFTComputing(fftBoolCompute);
+                            fftComputing.start();
+                            //init the handler to record audio
+                            createUpdateUiHandler();
+                        }
+                    }, 500);
+
+
+
                 }
                 else
                 {
                     fab_record.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getApplicationContext(), R.color.red)));
                     audioRecorder.interrupt();
+
+                    fftBoolCompute = false;
+                    fftComputing.isRecording = false;
+                    fftComputing.interrupt();
                 }
 
             }
@@ -173,4 +217,30 @@ public class MainActivity extends AppCompatActivity {
             );
         }
     }
+
+
+
+
+    /* Create Handler object in main thread. */
+    @SuppressLint("HandlerLeak")
+    private void createUpdateUiHandler()
+    {
+        if(updateUIHandler == null)
+        {
+            fftComputing.updateUIHandler = new Handler()
+            {
+                @Override
+                public void handleMessage(Message msg) {
+                    // Means the message is sent from child thread.
+                    if(msg.what == MESSAGE_UPDATE_TEXT_CHILD_THREAD)
+                    {
+                        // Update ui in main thread.
+                        //FFTFragment.updateText();
+                    }
+                }
+            };
+        }
+    }
+
+
 }

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.provider.VoicemailContract;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 //import com.android.ide.common.vectordrawable.Svg2Vector;
@@ -92,6 +94,8 @@ public class FFTFragment extends Fragment {
     protected SimpleXYSeries series1;
     protected double liveFrequency = 0;
     protected double wavFrequency = 0;
+    // Fast Fourier Transform from JTransforms
+    final DoubleFFT_1D fft = new DoubleFFT_1D(sData.length);
 
     //frequency computing
     double[] fftIndex = new double[buffersize];
@@ -117,7 +121,7 @@ public class FFTFragment extends Fragment {
     //audio record
     private AudioRecord audioInput = null;
     private Thread recordingThread = null;
-    private boolean isRecording = false;
+    public static boolean isRecording = false;
 
 
     //wav file reader
@@ -140,200 +144,7 @@ public class FFTFragment extends Fragment {
         initPlot();
 
 
-
-        //start the thread to read microphone live audio fft and then plot
-        //the trigger is the toggle button
-        liveAudioFFT();
-
-
-
-
-        //start the wav file audio FFT (results in an array, printed in the terminal)
-        btnAnalyse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String sampleRate = edtSampleRate.getText().toString();
-
-                if (sampleRate.matches("")) {
-
-                    Timber.d(TAG,FFTFragment.this.sampleRate);
-                    FFTFragment.this.sampleRate = FFTFragment.sampleRate;
-                }
-                else {
-                    FFTFragment.this.sampleRate = (int) Double.parseDouble(edtSampleRate.getText().toString());
-                }
-
-                String offset = edtOffset.getText().toString();
-
-                if (offset.matches("")) {
-                    FFTFragment.this.liveOffset = 21.428;
-                    Timber.d(TAG,FFTFragment.this.liveOffset);
-
-                }
-                else {
-                    FFTFragment.this.liveOffset = Double.parseDouble(edtOffset.getText().toString());
-                }
-
-
-                String filename = edtName.getText().toString();
-
-                if (filename.matches("")) {
-                    Toast.makeText(getActivity(), "You did not enter a filename", Toast.LENGTH_SHORT).show();
-                    Timber.w("No filename entered");
-                    return;
-                }
-                else {
-                    //launch wav audio file fft
-                    wavAudioFFT(filename);
-                }
-
-
-            }
-        });
-
-
-
-
-
-
-        return root;
-    }
-
-    private void initObservers() {
-    }
-
-    private void initListeners() {
-
-
-        //this is the trigger of the liveAudioFFT function (this function waits for this button to be clicked)
-
-        tB.setOnContextClickListener(new View.OnContextClickListener() {
-            @Override
-            public boolean onContextClick(View v) {
-
-
-
-
-
-                return false;
-            }
-        });
-
-    }
-
-    private View initViews(LayoutInflater inflater, ViewGroup container) {
-        View root = inflater.inflate(R.layout.fragment_fft, container, false);
-
-        //signal views
-        signalView = root.findViewById(R.id.signalview);
-        plot_fft = root.findViewById(R.id.plot_fft);
-
-
-        //buttons
-        btnAnalyse = root.findViewById(R.id.btn_analyse);
-        tB = root.findViewById(R.id.toggleButton2);
-
-        //textviews
-        tvWavFreq = root.findViewById(R.id.tv_wavfreq);
-        tvLiveFreq = root.findViewById(R.id.tv_livefreq);
-        tvLiveFreq2 = root.findViewById(R.id.tv_livefreq2);
-        tvLiveFreq3 = root.findViewById(R.id.tv_livefreq3);
-        tvAmpl = root.findViewById(R.id.tv_ampl);
-        tvAmpl2 = root.findViewById(R.id.tv_ampl2);
-        tvAmpl3 = root.findViewById(R.id.tv_ampl3);
-        tvCurrentLED = root.findViewById(R.id.tv_currentled);
-
-
-        //edit texts
-        edtName = root.findViewById(R.id.edt_name);
-        edtOffset= root.findViewById(R.id.edt_liveoffset);
-        edtSampleRate= root.findViewById(R.id.edt_samplerate);
-
-        //init the handler to record audio
-        createUpdateUiHandler();
-
-
-
-        //signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
-
-
-
-        return root;
-    }
-
-
-
-    private void initPlot(){
-
-
-        // Create a couple arrays of y-values to plot:
-        final Number[] series1Numbers = new Number[buffersize/powOf2temp];
-
-        for (int j=0;j<series1Numbers.length;j++) {
-            series1Numbers[j]=j;
-        }
-
-        // Turn the above arrays into XYSeries':
-        series1 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers),          // SimpleXYSeries takes a List so turn our array into a List
-                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use the element index as the x value
-                "Series1");                             // Set the display title of the series
-
-        // Create a formatter to use for drawing a series using LineAndPointRenderer
-        // and configure it from xml:
-        final LineAndPointFormatter series1Format = new LineAndPointFormatter();
-        series1Format.setPointLabelFormatter(null);
-        series1Format.configure(getActivity(),
-                R.xml.line_point_formatter);
-
-        // add a new series' to the xyplot:
-        plot_fft.addSeries(series1, series1Format);
-
-
-        // reduce the number of range labels
-
-        /*
-        plot_fft.setTicksPerRangeLabel(9);
-        plot_fft.getGraphWidget().setDomainLabelOrientation(-45);
-        plot_fft.getLegendWidget().setVisible(false);
-        */
-
-        // set axis limits
-        plot_fft.setRangeBoundaries(0, 100000, BoundaryMode.FIXED);
-        plot_fft.setDomainBoundaries(0, 255, BoundaryMode.FIXED);
-        ////////////////////////////////////////////////////////////////////////////////////////////
-    }
-
-
-
-
-
-
-
-    private void liveAudioFFT(){
-
-
-        int RECORDER_CHANNELS = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-        int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-        int RECORDER_SAMPLERATE= sampleRate;
-        int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
-        audioInput = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
-
-        // Fast Fourier Transform from JTransforms
-        final DoubleFFT_1D fft = new DoubleFFT_1D(sData.length);
-
-
-
-        // Start recording
-        audioInput.startRecording();
-        isRecording = true;
-
-
-
-
-
-
+/*
         recordingThread = new Thread(new Runnable() {
 
             public void run() {
@@ -341,75 +152,58 @@ public class FFTFragment extends Fragment {
 
 
                 while (isRecording) {
-                    if (tB.isChecked()) {
+                    //if (tB.isChecked()) {
 
-                        // Record audio input
-                        audioInput.read(sData, 0, sData.length);
+                    // Record audio input
+                    audioInput.read(sData, 0, sData.length);
 
 
 
-                        /* BKP Convert and put sData short array into fftData double array to perform FFT
-                        for (int j = 0; j < sData.length; j++) {
-                            fftData[j] = (double) sData[j];
+
+
+
+                    // Convert and put sData short array into fftData double array to perform FFT
+                    for (int j = 0; j < MainActivity.BUFFER.length; j++) {
+                        fftData[j] = (double) MainActivity.BUFFER[j];
+                    }
+
+                    // Perform 1D fft
+                    fft.realForward(fftData);
+                    //Timber.d("fftData before = "+Arrays.toString(fftData));
+
+                    //convert abs values
+                    for (int j = 0; j < fftData.length; j++) fftData[j] = Math.abs(fftData[j]);
+                    //Timber.d("fftData = "+Arrays.toString(fftData));
+
+                    //Timber.d("fftData = "+Arrays.toString(fftData));
+
+                    //Frequency calculation
+                    FFTFragment.this.liveFrequency = calculateFrequency(fftData, liveOffset, false);
+                    //Timber.d("Frequency : %s", liveFrequency);
+
+
+
+                    //finding First LED name
+                    if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) > 0) {
+                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1300.00")) < 0) {
+                            currentLED = "LED 1200 Hz";
+
                         }
-
-                        */
-
-
-                        // Convert and put sData short array into fftData double array to perform FFT
-                        for (int j = 0; j < MainActivity.BUFFER.length; j++) {
-                            fftData[j] = (double) MainActivity.BUFFER[j];
+                    } else if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("900.00")) > 0) {
+                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) < 0) {
+                            currentLED = "LED 1000 Hz";
                         }
-
-                        // Perform 1D fft
-                        fft.realForward(fftData);
-                        //Timber.d("fftData before = "+Arrays.toString(fftData));
-
-                        //convert abs values
-                        for (int j = 0; j < fftData.length; j++) fftData[j] = Math.abs(fftData[j]);
-                        //Timber.d("fftData = "+Arrays.toString(fftData));
-
-                        //Timber.d("fftData = "+Arrays.toString(fftData));
-
-                        //Frequency calculation
-                        FFTFragment.this.liveFrequency = calculateFrequency(fftData, liveOffset,false);
-                        //Timber.d("Frequency : %s", liveFrequency);
-
-                        /*
-
-                        firstBigDecimal.compareTo(secondBigDecimal) < 0 // "<"
-                        firstBigDecimal.compareTo(secondBigDecimal) > 0 // ">"
-                        firstBigDecimal.compareTo(secondBigDecimal) == 0 // "=="
-                        firstBigDecimal.compareTo(secondBigDecimal) >= 0 // ">="
-
-                        */
-
-                        //finding First LED name
-                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) > 0){
-                            if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1300.00")) < 0){
-                                currentLED = "LED 1200 Hz";
-
-                            }
-                        }
-                        else if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("900.00")) > 0){
-                            if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) < 0){
-                                currentLED = "LED 1000 Hz";
-                            }
-                        }
-                        else {
-                            currentLED = "None";
-                        }
+                    } else {
+                        currentLED = "None";
+                    }
 
 
+                    //update GUI
+                    Message freqMsg = new Message();
+                    freqMsg.what = MESSAGE_UPDATE_TEXT_CHILD_THREAD;
 
 
-
-                        //update GUI
-                        Message freqMsg = new Message();
-                        freqMsg.what = MESSAGE_UPDATE_TEXT_CHILD_THREAD;
-
-
-                        updateUIHandler.sendMessage(freqMsg);
+                    updateUIHandler.sendMessage(freqMsg);
 
 
 
@@ -515,8 +309,8 @@ public class FFTFragment extends Fragment {
 
                                 //sendData("R" + dataToSend[0] + "G" + dataToSend[1] + "B" + dataToSend[2]);
                             }
-                        });*/
-                    }
+                        });
+                    //}
                 }
             }
 
@@ -525,7 +319,188 @@ public class FFTFragment extends Fragment {
             //FFTFragment.this.handlerThread
 
 
-        }, "AudioRecorder Thread");
+        }, "AudioRecorder Thread"); */
+
+
+
+        //start the thread to read microphone live audio fft and then plot
+        //the trigger is the toggle button
+
+        //liveAudioFFT();
+
+
+
+
+
+
+        //start the wav file audio FFT (results in an array, printed in the terminal)
+        btnAnalyse.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String sampleRate = edtSampleRate.getText().toString();
+
+                if (sampleRate.matches("")) {
+
+                    Timber.d(TAG,FFTFragment.this.sampleRate);
+                    FFTFragment.this.sampleRate = FFTFragment.sampleRate;
+                }
+                else {
+                    FFTFragment.this.sampleRate = (int) Double.parseDouble(edtSampleRate.getText().toString());
+                }
+
+                String offset = edtOffset.getText().toString();
+
+                if (offset.matches("")) {
+                    FFTFragment.this.liveOffset = 21.428;
+                    Timber.d(TAG,FFTFragment.this.liveOffset);
+
+                }
+                else {
+                    FFTFragment.this.liveOffset = Double.parseDouble(edtOffset.getText().toString());
+                }
+
+
+                String filename = edtName.getText().toString();
+
+                if (filename.matches("")) {
+                    Toast.makeText(getActivity(), "You did not enter a filename", Toast.LENGTH_SHORT).show();
+                    Timber.w("No filename entered");
+                    return;
+                }
+                else {
+                    //launch wav audio file fft
+                    wavAudioFFT(filename);
+                }
+
+
+            }
+        });
+
+
+
+
+
+
+
+        return root;
+    }
+
+    private void initObservers() {
+    }
+
+    private void initListeners() {
+
+
+
+    }
+
+    private View initViews(LayoutInflater inflater, ViewGroup container) {
+        View root = inflater.inflate(R.layout.fragment_fft, container, false);
+
+        //signal views
+        signalView = root.findViewById(R.id.signalview);
+        plot_fft = root.findViewById(R.id.plot_fft);
+
+
+        //buttons
+        btnAnalyse = root.findViewById(R.id.btn_analyse);
+        tB = root.findViewById(R.id.toggleButton2);
+
+        //textviews
+        tvWavFreq = root.findViewById(R.id.tv_wavfreq);
+        tvLiveFreq = root.findViewById(R.id.tv_livefreq);
+        tvLiveFreq2 = root.findViewById(R.id.tv_livefreq2);
+        tvLiveFreq3 = root.findViewById(R.id.tv_livefreq3);
+        tvAmpl = root.findViewById(R.id.tv_ampl);
+        tvAmpl2 = root.findViewById(R.id.tv_ampl2);
+        tvAmpl3 = root.findViewById(R.id.tv_ampl3);
+        tvCurrentLED = root.findViewById(R.id.tv_currentled);
+
+
+        //edit texts
+        edtName = root.findViewById(R.id.edt_name);
+        edtOffset= root.findViewById(R.id.edt_liveoffset);
+        edtSampleRate= root.findViewById(R.id.edt_samplerate);
+
+
+
+
+
+        //signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
+
+
+
+        return root;
+    }
+
+
+
+    private void initPlot(){
+
+
+        // Create a couple arrays of y-values to plot:
+        final Number[] series1Numbers = new Number[buffersize/powOf2temp];
+
+        for (int j=0;j<series1Numbers.length;j++) {
+            series1Numbers[j]=j;
+        }
+
+        // Turn the above arrays into XYSeries':
+        series1 = new SimpleXYSeries(
+                Arrays.asList(series1Numbers),          // SimpleXYSeries takes a List so turn our array into a List
+                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use the element index as the x value
+                "Series1");                             // Set the display title of the series
+
+        // Create a formatter to use for drawing a series using LineAndPointRenderer
+        // and configure it from xml:
+        final LineAndPointFormatter series1Format = new LineAndPointFormatter();
+        series1Format.setPointLabelFormatter(null);
+        series1Format.configure(getActivity(),
+                R.xml.line_point_formatter);
+
+        // add a new series' to the xyplot:
+        plot_fft.addSeries(series1, series1Format);
+
+
+        // reduce the number of range labels
+
+        /*
+        plot_fft.setTicksPerRangeLabel(9);
+        plot_fft.getGraphWidget().setDomainLabelOrientation(-45);
+        plot_fft.getLegendWidget().setVisible(false);
+        */
+
+        // set axis limits
+        plot_fft.setRangeBoundaries(0, 100000, BoundaryMode.FIXED);
+        plot_fft.setDomainBoundaries(0, 255, BoundaryMode.FIXED);
+        ////////////////////////////////////////////////////////////////////////////////////////////
+    }
+
+
+
+
+
+
+
+    public void liveAudioFFT(){
+
+
+        int RECORDER_CHANNELS = AudioFormat.CHANNEL_CONFIGURATION_MONO;
+        int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
+        int RECORDER_SAMPLERATE= sampleRate;
+        int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
+        audioInput = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
+
+
+
+
+
+        // Start recording
+        audioInput.startRecording();
+        isRecording = true;
+
+
         //handlerThread.postDelayed(recordingThread,500);
         recordingThread.start();
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -808,29 +783,10 @@ public class FFTFragment extends Fragment {
 
 
 
-    /* Create Handler object in main thread. */
-    @SuppressLint("HandlerLeak")
-    private void createUpdateUiHandler()
-    {
-        if(updateUIHandler == null)
-        {
-            updateUIHandler = new Handler()
-            {
-                @Override
-                public void handleMessage(Message msg) {
-                    // Means the message is sent from child thread.
-                    if(msg.what == MESSAGE_UPDATE_TEXT_CHILD_THREAD)
-                    {
-                        // Update ui in main thread.
-                        updateText();
-                    }
-                }
-            };
-        }
-    }
+
 
     /* Update ui text.*/
-    private void updateText()
+    public void updateText()
     {
        //String userInputText = changeTextEditor.getText().toString();
         tvLiveFreq.setText(String.valueOf(liveFrequency));
