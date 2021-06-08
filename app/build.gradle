@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
 }
 
+
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -69,7 +71,7 @@ dependencies {
 
     // FFT & Complex numbers implementation
     implementation 'com.googlecode.princeton-java-algorithms:algorithms:4.0.1'
-    compile 'com.github.wendykierp:JTransforms:3.0'     // FFT
+    implementation 'com.github.wendykierp:JTransforms:3.0'     // FFT
 
     // Plotting  figures @ https://github.com/halfhp/androidplot/
     implementation 'com.androidplot:androidplot-core:1.5.7'
