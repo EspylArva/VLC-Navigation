@@ -71,6 +71,7 @@ public class LiveMapFragment extends Fragment {
         initObservers();
         initListeners();
 
+
         refreshUI();
         displayUsers();
 
@@ -87,13 +88,10 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
-        if(settingsViewModel.getListOfFloors().getValue().size() > 0)
-        {
-            recycler_floors.smoothScrollToPosition(position);
-            position = settingsViewModel.findZeroFloor();
-            recycler_floors.smoothScrollToPosition(position);
-        }
-//        setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(position).getDescription());
+        recycler_floors.smoothScrollToPosition(position);
+        position = settingsViewModel.findZeroFloor();
+        recycler_floors.smoothScrollToPosition(position);
+        Timber.d("%s", position);
     }
 
     /**
@@ -173,10 +171,6 @@ public class LiveMapFragment extends Fragment {
 
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
-        if(settingsViewModel.getListOfFloors().getValue().size()>0)
-        {
-            setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(0).getDescription());
-        }
 
 //        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 //        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
@@ -240,7 +234,6 @@ public class LiveMapFragment extends Fragment {
             double frequency = 210;
             if (MainActivity.fftBoolCompute){
                 frequency = FFTFragment.firstFreqAverageValue;
-
             }
 
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());

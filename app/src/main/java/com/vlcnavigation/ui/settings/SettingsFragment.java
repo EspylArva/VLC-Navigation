@@ -82,15 +82,11 @@ public class SettingsFragment extends Fragment {
         return root;
     }
 
-    /**
-     * Refresh the recycler view holding the list of lights
-     */
-    public void notifyLightRecycler() { manager.refreshLights(); collapse(); }
-
-    /**
-     * Refresh the recycler view holding the list of floors
-     */
-    public void notifyFloorRecycler() { manager.refreshFloors(); collapse();}
+    // FIXME: issue with notification when user adds an item and size of collection is 0
+    public void notifyLightRecycler(int index) { manager.getLightRecycler().getAdapter().notifyItemInserted(index); collapse(); }
+    public void notifyFloorRecycler(int index) { manager.getFloorRecycler().getAdapter().notifyItemInserted(index); collapse(); }
+    public void notifyLightRecycler() { manager.getLightRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfLights().getValue().size() -1); collapse();}
+    public void notifyFloorRecycler() { manager.getFloorRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfFloors().getValue().size() -1); collapse();}
 
 
     /**
@@ -148,14 +144,6 @@ public class SettingsFragment extends Fragment {
                 Util.hideKeyboard(getActivity());
             }
         });
-
-//        btn_export.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                // get sharedPreferences
-//                // write to a file // TODO
-//            }
-//        });
 
         btn_loadFromFile.setOnClickListener(new View.OnClickListener() {
             @Override
