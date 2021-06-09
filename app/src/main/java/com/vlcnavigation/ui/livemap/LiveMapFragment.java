@@ -1,397 +1,270 @@
 package com.vlcnavigation.ui.livemap;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
-import android.os.AsyncTask;
+import android.content.res.Resources;
+import android.graphics.drawable.GradientDrawable;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.pixplicity.sharp.Sharp;
-import com.pixplicity.sharp.SharpDrawable;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputLayout;
+import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.R;
-import com.vlcnavigation.module.svg2vector.Utils;
-import com.vlcnavigation.module.trilateration.Trilateration;
+import com.vlcnavigation.module.svg2vector.SvgSplitter;
+import com.vlcnavigation.module.trilateration.Floor;
+import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
+import com.vlcnavigation.ui.fft.FFTComputing;
+import com.vlcnavigation.ui.fft.FFTFragment;
+import com.vlcnavigation.ui.settings.FloorAdapter;
+import com.vlcnavigation.ui.settings.SettingsViewModel;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 import timber.log.Timber;
 
+//TODO: Javadoc
 public class LiveMapFragment extends Fragment {
 
-    // FIXME: https://github.com/brandonlw/magstripereader
+    private SettingsViewModel settingsViewModel;
+    private RecyclerView recycler_floors, recycler_availableFloors;
+    private TextInputLayout lbl_floorTitle;
+    private MaterialAutoCompleteTextView txt_roomSearchField;
 
-
-    private static final int FREQUENCY = 44100;
-    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-    private static final int AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-    private int _bufferSize;
-    private AudioRecord _audioRecord;
-
-    private AsyncTask<Void, Void, ParseResult> _task;
-
-    private TextView textView;
-    private ConstraintLayout container_map;
-    private FloatingActionButton fab1, fab2, fab3;
-
-    private LiveMapViewModel liveMapViewModel;
-
-    private List<String> svgs;
+    private final Handler handler = new Handler();
+    private final int USER_POSITION_REFRESH_RATE = 500;
+    private UserPositionAcquisition thread;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
+        // liveMapViewModel = new ViewModelProvider(this).get(LiveMapViewModel.class);
+        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
 
-        this.svgs = Utils.listSvgAsString(getResources().openRawResource(R.raw.isep_map));
-        if(svgs != null) { for(String s : svgs) { System.out.println(s); } }
-        else { System.out.println("ARRAY NULL"); }
 
+        refreshUI();
+        displayUsers();
 
-//        try{
-//            Trilateration.triangulate();
-//        } catch (Exception ex){ Timber.e(ex);}
-
-
-
-
-
-
-
-//        try
-//        {
-//            _bufferSize = AudioRecord.getMinBufferSize(FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING) * 8;
-//
-//            Timber.d("Current settings:" + '\n' +
-//                    "FREQUENCY | CHANNEL_CONFIG | AUDIO_ENCODING | BUFFER_SIZE"+ '\n' +
-//                    "%9s | %14s | %14s | %11s", FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, _bufferSize);
-//
-//            _audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, FREQUENCY, CHANNEL_CONFIG, AUDIO_ENCODING, _bufferSize);
-//
-//            if(_audioRecord != null)
-//            {
-//                _audioRecord.startRecording();
-//                _task = new MonitorAudioTask();
-//                _task.execute(null, null, null);
-//            }
-//
-//        }
-//        catch (Exception ex)
-//        {
-//            Timber.e(ex);
-//        }
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        handler.removeCallbacks(thread);
 
-    @SuppressLint("ClickableViewAccessibility")
-    private void makeMap(String str) throws IOException {
+    }
 
-        ImageView mapPart = new ImageView(getContext());
-        mapPart.setId(View.generateViewId());
+    private void refreshUI() {
+        // Sets the FloorPicker hint
+        int position = recycler_floors.getAdapter().getItemCount() -1;
+        recycler_floors.smoothScrollToPosition(position);
+        position = settingsViewModel.findZeroFloor();
+        recycler_floors.smoothScrollToPosition(position);
+        Timber.d("%s", position);
+    }
 
-        mapPart.setDrawingCacheEnabled(true);
-        mapPart.setClickable(false);
-        Timber.d("%s", mapPart.isClickable());
-
-        mapPart.setOnTouchListener(
-                new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent event) {  // FIXME: view is clickable despite line 129 ( mapPart.setClickable(false); )
-                        if(event.getAction() == MotionEvent.ACTION_DOWN)
-                        {
-                            Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache());
-                            int color = bmp.getPixel((int) event.getX(), (int) event.getY());
-                            boolean transparent = true;
-                            if (color != Color.TRANSPARENT) { transparent = false; }
-
-                            Timber.d("Transparent for %s: %s (color: %s)", mapPart.getId(), transparent, color);
-                            Timber.d("%s", view.isClickable());
-                            return !transparent;
-                        } return false;
-                    }
-                });
-
-        Timber.d("Id: %s", mapPart.getId());
-
-//        ConstraintSet constraintSet = new ConstraintSet();
-//        constraintSet.clone(container_map);
-//        constraintSet.constrainDefaultHeight(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
-//        constraintSet.constrainDefaultWidth(mapPart.getId(), ConstraintSet.MATCH_CONSTRAINT_SPREAD);
-//        constraintSet.applyTo(container_map);
-
-        mapPart.setLayoutParams(new ConstraintLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        Drawable drawable;
-        if(str.equals("")) {
-            drawable = Sharp.loadResource(getResources(), R.raw.isep_map).getDrawable();
-        }
-        else {
-            InputStream is = new ByteArrayInputStream(str.getBytes());
-            drawable = Sharp.loadInputStream(is).getDrawable();
-            is.close();
-        }
-
-        mapPart.setImageDrawable(drawable);
-
-        mapPart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
-
-        container_map.addView(mapPart);
+    /**
+     * Display users as an orange circle on the map. Lights are registered in the SettingsViewModel.
+     * Users' position should be displayed only if they are on the selected floor, and should be refreshed once every second.
+     */
+    private void displayUsers() {
+        thread = new UserPositionAcquisition();
+        handler.postDelayed(thread, USER_POSITION_REFRESH_RATE);
     }
 
 
-
+    /**
+     * Initialises user input listeners: touch, click, drag...
+     */
     private void initListeners() {
-        fab1.setOnClickListener(new View.OnClickListener() {
+        recycler_floors.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
-            public void onClick(View v) {
-                try {
-                    for(String svg : svgs)
-                    {
-//                        Timber.w(svg);
-                        makeMap(svg);
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++)
+                {
+//                    Timber.e("Focused child: %s", recycler_availableFloors.findViewHolderForLayoutPosition().);
+
+                    FloorHintAdapter.StringHolder holder = ((FloorHintAdapter.StringHolder)recycler_availableFloors.findViewHolderForAdapterPosition(i));
+                    GradientDrawable whiteCircle = (GradientDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.ic_circle, requireContext().getTheme());
+                    if(holder != null) {
+                        if (i == ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
+                            // ?attr/colorPrimary
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
+                            holder.getTv().setBackground(whiteCircle);
+                            setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
+//                            displayLights(i);
+                        } else {
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorSecondary));
+                            holder.getTv().setBackgroundResource(R.drawable.ic_circle);
+                        } // reset style
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        });
-
-        fab2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    String svg = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                            "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n" +
-                            "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" width=\"522px\" height=\"202px\" viewBox=\"-0.5 -0.5 522 202\" content=\"&lt;mxfile host=&quot;Electron&quot; modified=&quot;2021-03-09T10:38:23.073Z&quot; agent=&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/11.3.0 Chrome/76.0.3809.139 Electron/6.0.7 Safari/537.36&quot; etag=&quot;4RtL0t270lhN2_pML5CD&quot; version=&quot;11.3.0&quot; type=&quot;device&quot; pages=&quot;1&quot;&gt;&lt;diagram id=&quot;ITolrCyJ6mziRDKKo1it&quot; name=&quot;Page-1&quot;&gt;3Zddr5sgGMc/jZdLVPDtdl17tmQnS06TnWsKjy8ZiqE42336oaLV1aY9J7VbdmPg/wDCj78PaKFVfniSpEyfBQNuuTY7WOiT5bp+FOhnIxw7AUVRJyQyY53knIRt9guMaBu1yhjsJw2VEFxl5VSkoiiAqolGpBT1tFks+PStJUngTNhSws/V14yptFNDNzjpnyFL0v7Njm/Wl5O+sVnJPiVM1CMJrS20kkKorpQfVsAbdj2Xrt/mQnSYmIRC3dJhvREvG/wNP5Xbr68oCV6+o+cPZpSfhFdmwWay6tgTkKIqGDSD2Bb6WKeZgm1JaBOt9ZZrLVU51zVHF+OM85XgQrZ9URzHLqVa3yspfsAowvyd7/k6YiYAUsHh4sqcgZf2GYgclDzqJn0H3yA2HsOmWo82zEjpaK96jRiLJMPAJ4q6YEC+Aaq7LFRGIIxnofo0hF18J6juFOpQH1HF9gxWvBTW8DpW/Y2VTTEnRUX4l6Ks1HW8+y7p4GYnpFBEZaLQ9cg+Rw8O8yCYQx/5ASJ38nP4B3n/L/s5uh08FbIAeZ15ez60xNuDIZxhHYcU5nPHLvSwZy/C+sbUMXwMd2fdn3tLuXyW9EOyNP7XbO0snKcfkywGy152sDuXppfDiv6HOwW+jvWxZsULU31ItvXcd1F9x5VCV09X6zY2+j9B698=&lt;/diagram&gt;&lt;/mxfile&gt;\" style=\"background-color: rgb(255, 255, 255);\"><defs/><g><rect x=\"40\" y=\"80\" width=\"400\" height=\"40\" fill=\"#dae8fc\" stroke=\"#6c8ebf\" pointer-events=\"none\"/></g></svg>";
-
-                    Timber.w(svg);
-
-
-                    makeMap(svg);
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         });
-
-        fab3.setOnClickListener(new View.OnClickListener() {
+        txt_roomSearchField.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { }
             @Override
-            public void onClick(View v) {
+            public void afterTextChanged(Editable s) {
+                Timber.d("Searching for: %s", s);
                 try {
-                    makeMap("");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    Floor f = settingsViewModel.findRoom(s.toString());
+                    if(f != null) {
+                        String log = String.format("Floor: %s (%s)", f.getDescription(), f.getOrder());
+                        Timber.d(log);
+                        Util.hideKeyboardFromView(getView());
+                        txt_roomSearchField.dismissDropDown();
+                        Snackbar.make(getContext(), getView(), log, BaseTransientBottomBar.LENGTH_SHORT).show();
+                    } else { Timber.d("Room not found"); }
+                } catch (IOException e) { Timber.e(e); }
             }
         });
     }
 
+    /**
+     * Observe LiveData from the ViewModel.
+     */
+    private void initObservers() { }
 
-    private void initObservers() {
-        liveMapViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
-    }
-
+    /**
+     * Binds views to the XML layout
+     */
     private View initViews(LayoutInflater inflater, ViewGroup container) {
         View root = inflater.inflate(R.layout.fragment_live_map, container, false);
 
-        textView = root.findViewById(R.id.text_home);
-        container_map = root.findViewById(R.id.container_map);
+        recycler_floors = root.findViewById(R.id.recycler_display_floors);
+        recycler_availableFloors = root.findViewById(R.id.recycler_available_floors);
+        lbl_floorTitle = root.findViewById(R.id.lbl_floor_title);
+        txt_roomSearchField = root.findViewById(R.id.txtInputLayout_roomSearchField);
 
-        fab1 = root.findViewById(R.id.fab_generateTestData_map_1);
-        fab2 = root.findViewById(R.id.fab_generateTestData_map_2);
-        fab3 = root.findViewById(R.id.fab_generateTestData_map_3);
+
+        setRecyclerDisplayFloors();
+        setRecyclerAvailableFloors();
+
+        if(settingsViewModel.getListOfFloors().getValue().size() > 0)
+        {
+            setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(0).getDescription());
+        }
+
+//        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+//        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
+
+        try {
+            List<String> rooms = settingsViewModel.getListOfRooms();
+            ArrayAdapter<String> autocompletionAdapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_list_item_1, rooms);
+            txt_roomSearchField.setAdapter(autocompletionAdapter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return root;
     }
 
-    private class MonitorAudioTask extends AsyncTask<Void, Void, ParseResult>
+
+    /**
+     * Settings for the indoor map.
+     * Every ViewHolder is associated to a storey level.
+     * Other parameters include the orientation of the recycler view and behaviours related to a carousel
+     */
+    private void setRecyclerDisplayFloors() {
+        recycler_floors.setHasFixedSize(true);
+        //  Values
+        FloorDisplayAdapter floorAdapter = new FloorDisplayAdapter(settingsViewModel, this);
+        recycler_floors.setAdapter(floorAdapter);
+        // Orientation
+        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
+        recycler_layout.setOrientation(LinearLayoutManager.VERTICAL);
+        recycler_layout.setReverseLayout(true);
+        recycler_floors.setLayoutManager(recycler_layout);
+        // Snapping on a viewholder
+        SnapHelper snap = new PagerSnapHelper();
+        snap.attachToRecyclerView(recycler_floors);
+    }
+
+    private void setRecyclerAvailableFloors() {
+        // FIXME: rework with settingsViewModel.getFloorLevels().getValue()
+        recycler_availableFloors.setHasFixedSize(true);
+        //  Values
+        FloorHintAdapter floorAdapter = new FloorHintAdapter(settingsViewModel, recycler_floors);
+        recycler_availableFloors.setAdapter(floorAdapter);
+        // Orientation
+        LinearLayoutManager recycler_layout = new LinearLayoutManager(getContext());
+        recycler_layout.setOrientation(LinearLayoutManager.VERTICAL);
+        recycler_layout.setReverseLayout(true);
+        recycler_availableFloors.setLayoutManager(recycler_layout);
+        // Snapping on a viewholder
+        SnapHelper snap = new PagerSnapHelper();
+        snap.attachToRecyclerView(recycler_availableFloors);
+    }
+
+    public void setFloorDescription(String description) {
+        this.lbl_floorTitle.getEditText().setText(description);
+    }
+
+    private class UserPositionAcquisition implements Runnable
     {
-        @Override
-        protected ParseResult doInBackground(Void... params)
-        {
-            final double QUIET_THRESHOLD = 32768.0 * 0.02; //anything higher than 0.02% is considered non-silence
-            final double QUIET_WAIT_TIME_SAMPLES = FREQUENCY * 0.25; //~0.25 seconds of quiet time before parsing
-            short[] buffer = new short[_bufferSize];
-            Long bufferReadResult = null;
-            boolean nonSilence = false;
-            ParseResult result = null;
-
-            while (!nonSilence)
-            {
-                if (isCancelled())
-                    break;
-
-                bufferReadResult = new Long(_audioRecord.read(buffer, 0, _bufferSize));
-                if (bufferReadResult > 0)
-                {
-                    for (int i = 0; i < bufferReadResult; i++)
-                        if (buffer[i] >= QUIET_THRESHOLD)
-                        {
-                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                            long silentSamples = 0;
-
-                            //Save this data so far
-                            for (int j = i; j < bufferReadResult; j++)
-                            {
-                                stream.write(buffer[j] & 0xFF);
-                                stream.write(buffer[j] >> 8);
-                            }
-
-                            //Keep reading until we've reached a certain amount of silence
-                            boolean continueLoop = true;
-                            while (continueLoop)
-                            {
-                                bufferReadResult = new Long(_audioRecord.read(buffer, 0, _bufferSize));
-                                if (bufferReadResult < 0)
-                                    continueLoop = false;
-
-                                for (int k = 0; k < bufferReadResult; k++)
-                                {
-                                    stream.write(buffer[k] & 0xFF);
-                                    stream.write(buffer[k] >> 8);
-                                    if (buffer[k] >= QUIET_THRESHOLD || buffer[k] <= -QUIET_THRESHOLD)
-                                        silentSamples = 0;
-                                    else
-                                        silentSamples++;
-                                }
-
-                                if (silentSamples >= QUIET_WAIT_TIME_SAMPLES)
-                                    continueLoop = false;
-                            }
-
-                            //Convert to array of 16-bit shorts
-                            byte[] array = stream.toByteArray();
-                            short[] samples = new short[array.length / 2];
-                            for (int k = 0; k < samples.length; k++)
-                                samples[k] = (short)((short)(array[k * 2 + 0] & 0xFF) | (short)(array[k * 2 + 1] << 8));
-
-                            //Try parsing the data now!
-                            result = CardDataParser.Parse(samples);
-                            if (result.errorCode != 0)
-                            {
-                                //Reverse the array and try again (maybe it was swiped backwards)
-                                for (int k = 0; k < samples.length / 2; k++)
-                                {
-                                    short temp = samples[k];
-                                    samples[k] = samples[samples.length - k - 1];
-                                    samples[samples.length - k - 1] = temp;
-                                }
-                                result = CardDataParser.Parse(samples);
-                            }
-
-                            nonSilence = true;
-                            break;
-                        }
-                }
-                else
-                    break;
+        public void run() {
+            // get the frequency
+            double frequency = 210;
+            if (MainActivity.fftBoolCompute){
+                frequency = FFTFragment.firstFreqAverageValue;
             }
 
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(ParseResult result)
-        {
-            if (result != null)
-            {
-                String str = "Data:\r\n" + result.data + "\r\n\r\n";
-                if (result.errorCode == 0)
-                    str += "Success";
-                else
+            Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
+            // display marker on the map
+            try {
+                FloorDisplayAdapter.FloorDisplayHolder holder = null;
+                if(settingsViewModel.getListOfFloors().getValue() != null && settingsViewModel.getListOfFloors().getValue().size() > 0)
                 {
-                    String err = Integer.toString(result.errorCode);
-                    switch (result.errorCode)
-                    {
-                        case -1:
-                        {
-                            err = "NOT_ENOUGH_PEAKS";
-                            break;
-                        }
-                        case -2:
-                        {
-                            err = "START_SENTINEL_NOT_FOUND";
-                            break;
-                        }
-                        case -3:
-                        {
-                            err = "PARITY_BIT_CHECK_FAILED";
-                            break;
-                        }
-                        case -4:
-                        {
-                            err = "LRC_PARITY_BIT_CHECK_FAILED";
-                            break;
-                        }
-                        case -5:
-                        {
-                            err = "LRC_INVALID";
-                            break;
-                        }
-                        case -6:
-                        {
-                            err = "NOT_ENOUGH_DATA_FOR_LRC_CHECK";
-                            break;
-                        }
+                    holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
+                }
+                if (holder != null) {
+                    if(closestLight == null){
+//                        Random r = new Random();
+//                        holder.moveMarker(holder.getMarker(), r.nextInt(500), r.nextInt(500), 100);
+                        holder.moveMarker(holder.getMarker(), 0, 0, 100);
                     }
-
-                    str += "Error: " + err;
+                    else if (holder.getFloor().getOrder() == closestLight.getFloor().getOrder()){
+//                        holder.get
+                        holder.moveMarker(holder.getMarker(), closestLight.getPosX(), closestLight.getPosY(), 100);
+                        //display light name in FFT debug section
+                        MainActivity.fftComputing.setCurrentLED(closestLight.getDescription());
+                    }
                 }
-
-                liveMapViewModel.setText(str);
             }
-            else
-                liveMapViewModel.setText("[Parse Error]");
-
-            //Now start the task again
-            _task = new MonitorAudioTask();
-            _task.execute(null, null, null);
+            catch (NullPointerException e) { Timber.e(e, "Could not find viewholder"); }
+            handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
     }
 }

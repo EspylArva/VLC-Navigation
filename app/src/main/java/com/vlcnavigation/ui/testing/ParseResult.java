@@ -1,4 +1,4 @@
-package com.vlcnavigation.ui.livemap;
+package com.vlcnavigation.ui.testing;
 
 public class ParseResult
 {

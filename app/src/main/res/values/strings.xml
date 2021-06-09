@@ -1,43 +1,65 @@
 <resources>
     <string name="app_name">VLC Navigation</string>
+    <!-- Menus -->
     <string name="title_live_map">Map of positions</string>
     <string name="title_fft">FFTs</string>
     <string name="title_settings">Settings</string>
 
+    <!-- String resources -->
     <string name="lorem">Lorem ipsum</string>
 
-    <!-- Text field hints -->
-<!--    <string name="add_a_light">Add a light</string>-->
+    <!-- Text field hints & Titles-->
+        <!-- Permission requests -->
+    <string name="manage_permissions">Manage your permissions</string>
+    <string name="permission_read_internal_file">Permission: read internal files</string>
+    <string name="permission_listen_microphone">Permission: listen to the microphone</string>
+    <string name="permission_all">Permission: give all the permissions</string>
+        <!-- Fragment Live Map -->
+    <string name="room_search">Search for a room</string>
+        <!-- Fragment Settings -->
+            <!-- Backdrop -->
+    <string name="title_backdrop_header">Add a Light or a Storey</string>
+    <string name="title_addFloor">Add a storey</string>
+    <string name="title_addLight">Add a light</string>
+    <string name="import_sample">Add sample data</string>
+    <string name="import_from_json">Load data from file (json)</string>
+            <!-- Recycler lights -->
     <string name="light_description">Description</string>
     <string name="light_lambda">Wavelength</string>
     <string name="light_posX">Position X</string>
     <string name="light_posY">Position Y</string>
-    <string name="light_floor">Floor</string>
+    <string name="light_floor">Storey</string>
     <string name="light_distance">Distance to captor</string>
-
-    <string name="light_wavelength">Light\'s wavelength</string>
-    <string name="floor_order">Floor localization</string>
-    <string name="floor_description">Floor description</string>
-    <string name="floor_path">Path to resource file</string>
+            <!-- Recycler floors -->
+    <string name="floor_order">Storey level</string>
+    <string name="floor_description">Description</string>
+    <string name="floor_path">Path to resource file (svg)</string>
 
     <!-- Toasts and GUI feedbacks -->
-    <string name="floor_added">Added a new floor</string>
+    <string name="floor_added">Successfully added a new storey!</string>
     <string name="light_added">Successfully added a new light!</string>
+    <string name="permission_already_granted">Permission has already been granted</string>
 
     <!-- Errors (text input empty) -->
     <string name="light_x_null">Position X is required</string>
     <string name="light_y_null">Position Y is required</string>
     <string name="light_lambda_null">Wavelength is required</string>
     <string name="light_floor_null">Floor is required</string>
-    <string name="floor_order_null">Floor localization is required</string>
+    <string name="floor_order_null">Floor localisation is required</string>
     <string name="floor_description_null">Floor description is required</string>
     <string name="floor_path_null">Please select a file</string>
 
     <!-- Errors (others) -->
-    <string name="floor_already_exists">Another floor at this localization already exists</string>
+    <string name="floor_already_exists">Another floor at this localisation already exists</string>
 
     <!-- Shared Preferences -->
     <string name="sp_base">com.vlcnavigation</string>
     <string name="sp_lights">com.vlcnavigation.lights</string>
-    <string name="sp_map">com.vlcnavigation.floors</string>
+    <string name="sp_floors">com.vlcnavigation.floors</string>
+    <string name="floor_does_not_exist">\"Seems like this floor no longer exists\"</string>
+    <string name="fast_fourier_transform">Fast Fourier Transform</string>
+    <string name="load_data_from_file">Load data from file</string>
+    <string name="add_sample_data">Add sample data</string>
+
+
 </resources>

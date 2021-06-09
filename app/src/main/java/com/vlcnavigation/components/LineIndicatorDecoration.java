@@ -11,8 +11,11 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
+/**
+ * Resource taken from
+ * https://stackoverflow.com/questions/33841363/how-to-make-a-page-indicator-for-horizontal-recyclerview/46084182
+ */
 public class LineIndicatorDecoration extends RecyclerView.ItemDecoration {
-
 
     private int colorActive = 0xFFFFFFFF;
     private int colorInactive = 0x66FFFFFF;

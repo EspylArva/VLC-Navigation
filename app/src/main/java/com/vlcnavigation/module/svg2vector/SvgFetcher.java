@@ -1,20 +1,19 @@
 package com.vlcnavigation.module.svg2vector;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.provider.DocumentsContract;
-
-import androidx.core.app.ActivityCompat;
-
-import timber.log.Timber;
-
-import static android.app.Activity.RESULT_OK;
-
 
 public class SvgFetcher {
     public static final int READ_SVG_REQUEST_CODE = 303;
     public static final int ADD_SVG_REQUEST_CODE = 304;
 
+    /**
+     * Opens an activity to let the user select a SVG file.
+     * Code associated with this request should be
+     *     - READ_SVG_REQUEST_CODE (303) if it is called from FloorAdapter.FloorHolder and handled in FloorsLightsManagerFragment
+     *     - ADD_SVG_REQUEST_CODE (304) if it is called from AddFloorFragment and handled in AddFloorFragment
+     *
+     * @return Intent to open through startActivityForResult.
+     */
     public static Intent lookForSvgIntent() {
         // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

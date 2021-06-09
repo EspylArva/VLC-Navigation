@@ -22,6 +22,7 @@ import android.widget.ListPopupWindow;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -34,6 +35,7 @@ import com.vlcnavigation.R;
 import com.vlcnavigation.module.svg2vector.SvgFetcher;
 import com.vlcnavigation.module.trilateration.Floor;
 import com.vlcnavigation.module.trilateration.Light;
+import com.vlcnavigation.module.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,25 +46,17 @@ import timber.log.Timber;
 import static android.app.Activity.RESULT_OK;
 import static com.vlcnavigation.module.svg2vector.SvgFetcher.READ_SVG_REQUEST_CODE;
 
+//TODO: Javadoc
 public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>{
 
     private final SettingsViewModel vm;
-    private final SettingsFragment fragment;
+    private final FloorsLightsManagerFragment fragment;
 
-    public FloorAdapter(SettingsViewModel vm, SettingsFragment fragment)
+    public FloorAdapter(SettingsViewModel vm, FloorsLightsManagerFragment fragment)
     {
         this.vm = vm;
         this.fragment = fragment;
     }
-
-//    @Override
-//    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-//        super.onAttachedToRecyclerView(recyclerView);
-//        if(vm == null)
-//        {
-//            vm = new ViewModelProvider((ViewModelStoreOwner)recyclerView.getContext()).get(SettingsViewModel.class);
-//        }
-//    }
 
     @NonNull
     @Override
@@ -83,25 +77,19 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
     }
 
     public class FloorHolder extends RecyclerView.ViewHolder {
-        // Field values
-//        private String description, filePath;
-//        private int order;
 
-        private final SettingsViewModel vm;
-        private final SettingsFragment fragment;
-        private Floor floor;
+        private final SettingsViewModel vm;                 // Data
+        private final FloorsLightsManagerFragment fragment; // Necessary to handle the callback
+        private Floor floor;                                // Not necessary, but makes the code shorter
 
         // Views
         private TextInputLayout txtInputLayout_order, txtInputLayout_description, txtInputLayout_filePath;
-        private ImageView img_deleteEntry;
+        private AppCompatButton btn_deleteEntry;
 
-        public FloorHolder(@NonNull View itemView, SettingsViewModel vm, SettingsFragment fragment) {
+        public FloorHolder(@NonNull View itemView, SettingsViewModel vm, FloorsLightsManagerFragment fragment) {
             super(itemView);
             this.vm = vm;
             this.fragment = fragment;
-            initViews(itemView);
-//            initOnClickListener();
-//            init
             initViews(itemView);        // Instantiate views
             initOnClickListeners();     // Click listeners. Currently: 2 (Remove button, File path TextInputEditText)
             initTextChangeListener();   // When a text field is changed, we want to save it to SP
@@ -116,14 +104,17 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
             this.txtInputLayout_order = itemView.findViewById(R.id.txtInputLayout_floor_order);
             this.txtInputLayout_description = itemView.findViewById(R.id.txtInputLayout_floor_description);
             this.txtInputLayout_filePath = itemView.findViewById(R.id.txtInputLayout_filePath);
-            this.img_deleteEntry = itemView.findViewById(R.id.img_deleteFloorEntry);
+            this.btn_deleteEntry = itemView.findViewById(R.id.btn_deleteFloorEntry);
         }
 
         public void refreshUI()
         {
             this.txtInputLayout_order.getEditText().setText(String.valueOf(floor.getOrder()));
             this.txtInputLayout_description.getEditText().setText(floor.getDescription());
-            this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath());
+            if(floor.getFilePath() != null && !floor.getFilePath().isEmpty())
+            {
+                this.txtInputLayout_filePath.getEditText().setText(floor.getFilePath().split("%2F")[floor.getFilePath().split("%2F").length-1]);
+            }
         }
 
         private void initTextChangeListener(){
@@ -170,22 +161,6 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                     }
                 }
             });
-            txtInputLayout_filePath.getEditText().addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-                @Override public void afterTextChanged(Editable s) { }
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (s.length() == 0) {
-                        txtInputLayout_filePath.setError(itemView.getContext().getResources().getString(R.string.floor_path_null));
-                        txtInputLayout_filePath.setErrorEnabled(true);
-                    }
-                    else
-                    {
-                        txtInputLayout_filePath.setErrorEnabled(false);
-                        vm.getListOfFloors().getValue().get(getAdapterPosition()).setFilePath(s.toString());
-                        vm.saveFloors();
-                    }
-                }
-            });
         }
 
         private void initOnClickListeners()
@@ -198,18 +173,16 @@ public class FloorAdapter extends RecyclerView.Adapter<FloorAdapter.FloorHolder>
                 }
             });
 
-            img_deleteEntry.setOnClickListener(new View.OnClickListener() {
+            btn_deleteEntry.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position > -1)
                     {
-//                    floors.remove(position);
+                        Util.hideKeyboardFromView(v);
                         vm.removeFloorAt(position);
                         notifyItemRemoved(position);
                         notifyItemRangeChanged(position,  vm.getListOfFloors().getValue().size());
-
-//                    holder.saveInSharedPreferences(floors);
                     }
                 }
             });
