@@ -68,7 +68,12 @@ public class LiveMapFragment extends Fragment {
         initObservers();
         initListeners();
 
+<<<<<<< HEAD
         refreshUI();
+=======
+
+//        refreshUI();
+>>>>>>> f32153c3ccffa151a89adf922cc046fef60fe2ec
         displayUsers();
 
         return root;
@@ -234,11 +239,9 @@ public class LiveMapFragment extends Fragment {
     {
         public void run() {
             // get the frequency
-            double frequency = 200;
+            double frequency = 210;
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
-
-
             try {
 
                 FloorDisplayAdapter.FloorDisplayHolder holder = null;
@@ -259,8 +262,6 @@ public class LiveMapFragment extends Fragment {
                 }
             }
             catch (NullPointerException e) { Timber.e(e, "Could not find viewholder"); }
-//            }
-
             handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
     }

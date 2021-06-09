@@ -166,6 +166,8 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             ImageView mapPart = new ImageView(itemView.getContext());
             mapPart.setId(View.generateViewId());
 
+            Timber.d("%s - %s", entry.getKey(), entry.getValue());
+
             mapPart.setDrawingCacheEnabled(true);
             mapPart.setClickable(false);
             mapPart.setScaleType(ImageView.ScaleType.FIT_START);
