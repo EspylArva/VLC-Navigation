@@ -234,11 +234,13 @@ public class LiveMapFragment extends Fragment {
             // get the frequency
             double frequency = 210;
             if (MainActivity.fftBoolCompute){
-                frequency = MainActivity.fftComputing.getLiveFrequency();
+                frequency = FFTFragment.firstFreqAverageValue;
+
             }
 
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
+
 
 //            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
 //                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
@@ -254,6 +256,8 @@ public class LiveMapFragment extends Fragment {
                     else if (holder.getFloor().getOrder() == closestLight.getFloor().getOrder()){
 //                        holder.get
                         holder.moveMarker(holder.getMarker(), closestLight.getPosX(), closestLight.getPosY(), 100);
+                        //display light name in FFT debug section
+                        MainActivity.fftComputing.setCurrentLED(closestLight.getDescription());
                     }
                 }
 //            }

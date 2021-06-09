@@ -18,6 +18,7 @@ import com.vlcnavigation.module.audiorecord.AudioRecorder;
 import com.vlcnavigation.module.utils.Util;
 import com.vlcnavigation.ui.fft.FFTComputing;
 import com.vlcnavigation.ui.fft.FFTFragment;
+import com.vlcnavigation.ui.fft.FFTViewModel;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private MutableLiveData<Boolean> record;
     public static Boolean fftBoolCompute;
 
-    public static FFTComputing fftComputing;
+    public static FFTComputing fftComputing = new FFTComputing(false);
+    public static FFTViewModel fftViewModel;
     public static short[] BUFFER;
     public static int BUFFER_READ_RESULT;
 
@@ -120,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
                     audioRecorder = new AudioRecorder(record, findViewById(R.id.signalview));
                     audioRecorder.start();
 
-                    fftBoolCompute = true;
+
+
 
 
 
@@ -132,10 +135,13 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             // Do something after 5s = 5000ms
-                            fftComputing = new FFTComputing(fftBoolCompute);
+                            fftBoolCompute = true;
+                            fftComputing.setIsRecording(fftBoolCompute);
                             fftComputing.start();
-                            //init the handler to record audio
-                            createUpdateUiHandler();
+
+                            //fftViewModel = new FFTViewModel(fftComputing.liveFrequency);
+
+
                         }
                     }, 500);
 
@@ -221,26 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    /* Create Handler object in main thread. */
-    @SuppressLint("HandlerLeak")
-    private void createUpdateUiHandler()
-    {
-        if(updateUIHandler == null)
-        {
-            fftComputing.updateUIHandler = new Handler()
-            {
-                @Override
-                public void handleMessage(Message msg) {
-                    // Means the message is sent from child thread.
-                    if(msg.what == MESSAGE_UPDATE_TEXT_CHILD_THREAD)
-                    {
-                        // Update ui in main thread.
-                        //FFTFragment.updateText();
-                    }
-                }
-            };
-        }
-    }
+
 
 
 }

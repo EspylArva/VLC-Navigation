@@ -24,7 +24,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="92dp">
+            android:layout_height="52dp">
 
             <TextView
                 android:id="@+id/tv_hintsample"
@@ -32,19 +32,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="12dp"
-                android:text="Sample Rate :"
+                android:text="Wav Sample Rate :"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_hintoffset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:text="Live offset :"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_hintsample" />
 
             <EditText
                 android:id="@+id/edt_samplerate"
@@ -69,24 +59,46 @@
                 app:layout_constraintStart_toEndOf="@+id/edt_samplerate"
                 app:layout_constraintTop_toTopOf="@+id/edt_samplerate" />
 
-            <EditText
-                android:id="@+id/edt_liveoffset"
-                android:layout_width="192dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="2dp"
-                android:ems="9"
-                android:hint="21.428"
-                android:inputType="textPersonName"
-                android:textSize="12sp"
-                app:layout_constraintStart_toStartOf="@+id/edt_samplerate"
-                app:layout_constraintTop_toBottomOf="@+id/edt_samplerate" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="377dp"
-            android:layout_height="242dp"
+            android:layout_height="289dp"
             tools:layout_editor_absoluteY="187dp">
+
+            <TextView
+                android:id="@+id/tv_hintdisplaydelay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="Display delay :"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/edt_displaydelay"
+                app:layout_constraintVertical_bias="0.4" />
+
+            <EditText
+                android:id="@+id/edt_displaydelay"
+                android:layout_width="192dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="4dp"
+                android:ems="9"
+                android:hint="500"
+                android:inputType="numberDecimal"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/tv_hintdisplaydelay" />
+
+            <TextView
+                android:id="@+id/tv_extension2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="ms"
+                app:layout_constraintBottom_toBottomOf="@+id/edt_displaydelay"
+                app:layout_constraintStart_toEndOf="@+id/edt_displaydelay"
+                app:layout_constraintTop_toTopOf="@+id/edt_displaydelay" />
 
             <Button
                 android:id="@+id/btn_analyse"
@@ -139,19 +151,21 @@
                 android:id="@+id/tv_hintfftanalyse"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:text="FFT Analyse"
-                app:layout_constraintBottom_toTopOf="@+id/toggleButton2"
-                app:layout_constraintStart_toStartOf="@+id/toggleButton2" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_hintwavfreq" />
 
             <TextView
                 android:id="@+id/tv_hintled"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
                 android:text="Current LED :"
-                app:layout_constraintBottom_toBottomOf="@+id/toggleButton2"
-                app:layout_constraintStart_toEndOf="@+id/toggleButton2"
-                app:layout_constraintTop_toTopOf="@+id/toggleButton2" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_hintfftanalyse" />
 
             <TextView
                 android:id="@+id/tv_currentled"
@@ -159,30 +173,20 @@
                 android:layout_height="19dp"
                 android:layout_marginStart="12dp"
                 android:text="LED"
-                app:layout_constraintBottom_toBottomOf="@+id/toggleButton2"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_hintled"
                 app:layout_constraintStart_toEndOf="@+id/tv_hintled"
-                app:layout_constraintTop_toTopOf="@+id/toggleButton2" />
-
-            <ToggleButton
-                android:id="@+id/toggleButton2"
-                android:layout_width="103dp"
-                android:layout_height="41dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="32dp"
-                android:text="ToggleButton"
-                android:textOff="RUN"
-                android:textOn="STOP"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_hintwavfreq" />
+                app:layout_constraintTop_toTopOf="@+id/tv_hintled"
+                app:layout_constraintVertical_bias="0.0" />
 
             <TextView
                 android:id="@+id/tv_hintlivefreq"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:text="Frequency 1 :"
-                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_hintled" />
 
             <TextView
                 android:id="@+id/tv_livefreq"
@@ -196,10 +200,11 @@
                 android:id="@+id/tv_hintlivefreq2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
                 android:text="Frequency 2 :"
-                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_hintlivefreq" />
 
             <TextView
                 android:id="@+id/tv_livefreq2"
@@ -214,10 +219,11 @@
                 android:id="@+id/tv_hintlivefreq3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="56dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="4dp"
                 android:text="Frequency 3 :"
-                app:layout_constraintStart_toStartOf="@+id/toggleButton2"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_hintlivefreq2" />
 
             <TextView
                 android:id="@+id/tv_livefreq3"
@@ -232,64 +238,61 @@
                 android:id="@+id/tv_hintampl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="12dp"
                 android:text="Amplitude 1 :"
                 app:layout_constraintEnd_toStartOf="@+id/tv_ampl"
                 app:layout_constraintHorizontal_bias="0.516"
                 app:layout_constraintStart_toEndOf="@+id/tv_livefreq"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_livefreq" />
 
             <TextView
                 android:id="@+id/tv_ampl"
                 android:layout_width="70dp"
                 android:layout_height="19dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_hintampl" />
 
             <TextView
                 android:id="@+id/tv_hintampl2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginEnd="12dp"
                 android:text="Amplitude 2 :"
                 app:layout_constraintEnd_toStartOf="@+id/tv_ampl2"
                 app:layout_constraintHorizontal_bias="0.516"
                 app:layout_constraintStart_toEndOf="@+id/tv_livefreq2"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_livefreq2" />
 
             <TextView
                 android:id="@+id/tv_ampl2"
                 android:layout_width="70dp"
                 android:layout_height="19dp"
-                android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_hintampl2" />
 
             <TextView
                 android:id="@+id/tv_hintampl3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="56dp"
+                android:layout_marginTop="2dp"
                 android:layout_marginEnd="12dp"
                 android:text="Amplitude 3 :"
                 app:layout_constraintEnd_toStartOf="@+id/tv_ampl3"
                 app:layout_constraintHorizontal_bias="0.516"
                 app:layout_constraintStart_toEndOf="@+id/tv_livefreq3"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_livefreq3" />
 
             <TextView
                 android:id="@+id/tv_ampl3"
                 android:layout_width="70dp"
                 android:layout_height="19dp"
-                android:layout_marginTop="56dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/toggleButton2" />
+                app:layout_constraintTop_toTopOf="@+id/tv_hintampl3" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

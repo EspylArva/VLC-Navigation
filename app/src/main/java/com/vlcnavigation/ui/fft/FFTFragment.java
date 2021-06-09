@@ -1,41 +1,31 @@
 package com.vlcnavigation.ui.fft;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.media.AudioFormat;
 import android.media.AudioRecord;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
-import android.provider.VoicemailContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 //import com.android.ide.common.vectordrawable.Svg2Vector;
 import com.androidplot.xy.BoundaryMode;
-import com.androidplot.xy.CatmullRomInterpolator;
 import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.PanZoom;
 import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYGraphWidget;
 import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
 import com.vlcnavigation.MainActivity;
 import com.vlcnavigation.R;
 import com.vlcnavigation.module.audiorecord.AudioRecorder;
@@ -47,12 +37,13 @@ import org.jtransforms.fft.DoubleFFT_1D;
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigDecimal;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
 import java.util.Arrays;
+import java.util.OptionalDouble;
 
 import timber.log.Timber;
+
+import static com.vlcnavigation.MainActivity.fftBoolCompute;
+import static com.vlcnavigation.MainActivity.fftComputing;
 
 
 public class FFTFragment extends Fragment {
@@ -63,7 +54,7 @@ public class FFTFragment extends Fragment {
     private SignalView signalView;
     private ToggleButton tB;
     private Button btnAnalyse;
-    private EditText edtName,edtOffset,edtSampleRate;
+    private EditText edtName, edtDisplayDelay,edtSampleRate;
     protected TextView tvWavFreq;
     protected TextView tvLiveFreq, tvLiveFreq2, tvLiveFreq3;
     protected TextView tvAmpl, tvAmpl2, tvAmpl3;
@@ -71,10 +62,16 @@ public class FFTFragment extends Fragment {
     protected String currentLED;
 
 
+
+
     //threads
     private static final int MESSAGE_UPDATE_TEXT_CHILD_THREAD = 1;
     protected Handler updateUIHandler = null;
-    protected Handler handlerThread = null;
+    protected Handler handlerThread = new Handler();
+    final Handler handlerLoopDelay = new Handler();
+    //thread delay
+    final Handler handlerThreadDelay = new Handler();
+
 
 
 
@@ -97,6 +94,8 @@ public class FFTFragment extends Fragment {
     // Fast Fourier Transform from JTransforms
     final DoubleFFT_1D fft = new DoubleFFT_1D(sData.length);
 
+
+
     //frequency computing
     double[] fftIndex = new double[buffersize];
     double[] fftPeaks = new double[buffersize];
@@ -116,11 +115,19 @@ public class FFTFragment extends Fragment {
     protected double liveOffset = 21.428;
     protected double wavOffset = 0.07557265176877;
     static int sampleRate = AudioRecorder.FREQUENCY;
+    protected int wavSampleRate = 44100;
+
+    //delays parameters
+    public static double displayDelay;
+
+    //average
+    public static double[] firstFreqAverage = new double[AudioRecorder.buffersize];
+    public static double firstFreqAverageValue = 0.0;
 
 
     //audio record
     private AudioRecord audioInput = null;
-    private Thread recordingThread = null;
+    private Thread fftDebugThread = null;
     public static boolean isRecording = false;
 
 
@@ -130,206 +137,32 @@ public class FFTFragment extends Fragment {
 
 
 
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        FFTViewModel =
-                new ViewModelProvider(this).get(FFTViewModel.class);
+        MainActivity.fftViewModel = new ViewModelProvider(this).get(FFTViewModel.class);
 
         View root = initViews(inflater, container);
         initObservers();
         initListeners();
 
+
+
+        tvLiveFreq = root.findViewById(R.id.tv_livefreq);
+        MainActivity.fftViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                Timber.d("Text set for tvLiveFreq : %s",s);
+                tvLiveFreq.setText(s);
+            }
+        });
+
+
+
+
+
+
         //initialize the fft_plot
         initPlot();
-
-
-/*
-        recordingThread = new Thread(new Runnable() {
-
-            public void run() {
-
-
-
-                while (isRecording) {
-                    //if (tB.isChecked()) {
-
-                    // Record audio input
-                    audioInput.read(sData, 0, sData.length);
-
-
-
-
-
-
-                    // Convert and put sData short array into fftData double array to perform FFT
-                    for (int j = 0; j < MainActivity.BUFFER.length; j++) {
-                        fftData[j] = (double) MainActivity.BUFFER[j];
-                    }
-
-                    // Perform 1D fft
-                    fft.realForward(fftData);
-                    //Timber.d("fftData before = "+Arrays.toString(fftData));
-
-                    //convert abs values
-                    for (int j = 0; j < fftData.length; j++) fftData[j] = Math.abs(fftData[j]);
-                    //Timber.d("fftData = "+Arrays.toString(fftData));
-
-                    //Timber.d("fftData = "+Arrays.toString(fftData));
-
-                    //Frequency calculation
-                    FFTFragment.this.liveFrequency = calculateFrequency(fftData, liveOffset, false);
-                    //Timber.d("Frequency : %s", liveFrequency);
-
-
-
-                    //finding First LED name
-                    if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) > 0) {
-                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1300.00")) < 0) {
-                            currentLED = "LED 1200 Hz";
-
-                        }
-                    } else if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("900.00")) > 0) {
-                        if (fftFrequenciesBigDecimal[0].compareTo(new BigDecimal("1100.00")) < 0) {
-                            currentLED = "LED 1000 Hz";
-                        }
-                    } else {
-                        currentLED = "None";
-                    }
-
-
-                    //update GUI
-                    Message freqMsg = new Message();
-                    freqMsg.what = MESSAGE_UPDATE_TEXT_CHILD_THREAD;
-
-
-                    updateUIHandler.sendMessage(freqMsg);
-
-
-
-                        /*
-
-
-                        //Create a arrays of y-value to plot:
-                        final Number[] domainLabels = {1,2,3,6,7,8,9,10,13,14};
-                        //Number[] series1Numbers = {1,4,2,8,88,16,8,32,16,64};
-                        final Number[] series1Numbers = new Number[fftData.length];
-                        final Number[] series2Numbers = new Number[1024/powOf2temp];
-
-
-                        //series2Numbers = ;
-
-                        // Turn the above arrays into XYSeries
-                        SimpleXYSeries series1 = new SimpleXYSeries(Arrays.asList(series1Numbers),
-                                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,"Series 1");
-                        XYSeries series2 = new SimpleXYSeries(Arrays.asList(series2Numbers),
-                                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,"Series 2");
-
-
-
-                        //initilize the serie 1
-                        for (int j=0;j<series1Numbers.length;j++) {
-                            series1Numbers[j]=fftData[j];
-                        }
-
-                        LineAndPointFormatter series1Format = new LineAndPointFormatter(Color.RED,Color.GREEN,null,null);
-                        LineAndPointFormatter series2Format = new LineAndPointFormatter(Color.YELLOW,Color.BLUE,null,null);
-
-                        series1Format.setInterpolationParams(new CatmullRomInterpolator.Params(10,
-                                CatmullRomInterpolator.Type.Centripetal));
-                        series2Format.setInterpolationParams(new CatmullRomInterpolator.Params(10,
-                                CatmullRomInterpolator.Type.Centripetal));
-
-                        plot_fft.addSeries(series1,series1Format);
-                        plot_fft.addSeries(series2,series2Format);
-
-                        // Update plot //
-                        for (int j = 0; j < series1.size(); j++) {
-                            series1.removeFirst();
-                            //series1.addLast(null, fftData[j * powOf2temp] * powOf2temp);
-                            series1.addLast(null, fftData[j]);
-                        }
-
-                        plot_fft.getGraph().getLineLabelStyle(XYGraphWidget.Edge.BOTTOM).setFormat(new Format() {
-                            @Override
-                            public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-                                int i = Math.round( ((Number)obj).floatValue() );
-                                return toAppendTo.append(domainLabels[i]);
-                            }
-
-                            @Override
-                            public Object parseObject(String source, ParsePosition pos) {
-                                return null;
-                            }
-                        });
-
-                        PanZoom.attach(plot_fft);
-                        */
-
-
-
-                        /*
-
-                        // Update plot //
-                        for (int j = 0; j < series1.size(); j++) {
-                            series1.removeFirst();
-                            series1.addLast(null, fftData[j * powOf2temp] * powOf2temp);
-                        }
-                       // int sensBarProgress = sensBar.getProgress();
-                        //plot_fft.setRangeBoundaries(0, (100-((sensBarProgress==100)?99:sensBarProgress)) * 1000, BoundaryMode.FIXED);
-                        ////////////////
-
-                        final int dataToSend[] = new int[3];
-                       // int smoothness=sensBarSmooth.getProgress()+192;
-
-                        for (int freqDomain = 0; freqDomain < 3; freqDomain++) {
-                            sDataAverage = 0;
-                            for (int i = freqDomain * buffersize * 2 / 9; i < (freqDomain + 1) * buffersize * 2 / 9; i++)
-                                sDataAverage += fftData[i];
-                          //  sDataAverage /= buffersize / (3 * (float)sensBarProgress/500);
-
-                            // Limit the value to 255
-                            dataToSend[freqDomain] = (sDataAverage > 255) ? 255 : (int) sDataAverage;
-                            // Limit the amplitude fall
-                           // dataToSend[freqDomain] =
-                           //         (dataToSend[freqDomain]  < oldSentData[freqDomain]*(1-(float)(257-smoothness)/255)) ?
-                            //                (int)(oldSentData[freqDomain]*(1-(float)(257-smoothness)/255)) :
-                            //                dataToSend[freqDomain];
-
-                            oldSentData[freqDomain] = dataToSend[freqDomain];
-                        }
-                        */
-
-                        /*
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //TextView tv = (TextView) findViewById(R.id.textView_debug);
-                                Log.d(TAG,"Average amplitudes : " + String.valueOf(Arrays.toString(dataToSend)));
-
-                                //sendData("R" + dataToSend[0] + "G" + dataToSend[1] + "B" + dataToSend[2]);
-                            }
-                        });
-                    //}
-                }
-            }
-
-
-
-            //FFTFragment.this.handlerThread
-
-
-        }, "AudioRecorder Thread"); */
-
-
-
-        //start the thread to read microphone live audio fft and then plot
-        //the trigger is the toggle button
-
-        //liveAudioFFT();
-
-
-
 
 
 
@@ -342,23 +175,14 @@ public class FFTFragment extends Fragment {
 
                 if (sampleRate.matches("")) {
 
-                    Timber.d(TAG,FFTFragment.this.sampleRate);
-                    FFTFragment.this.sampleRate = FFTFragment.sampleRate;
-                }
-                else {
-                    FFTFragment.this.sampleRate = (int) Double.parseDouble(edtSampleRate.getText().toString());
-                }
-
-                String offset = edtOffset.getText().toString();
-
-                if (offset.matches("")) {
-                    FFTFragment.this.liveOffset = 21.428;
-                    Timber.d(TAG,FFTFragment.this.liveOffset);
+                    Timber.d(TAG,wavSampleRate);
 
                 }
                 else {
-                    FFTFragment.this.liveOffset = Double.parseDouble(edtOffset.getText().toString());
+                    wavSampleRate = (int) Double.parseDouble(edtSampleRate.getText().toString());
                 }
+
+
 
 
                 String filename = edtName.getText().toString();
@@ -377,8 +201,12 @@ public class FFTFragment extends Fragment {
             }
         });
 
+        //instanciate ui updater handler
+        createUpdateUiHandler();
 
 
+        //listener thread debug fft to update ui
+        liveAudioFFT();
 
 
 
@@ -396,6 +224,8 @@ public class FFTFragment extends Fragment {
     }
 
     private View initViews(LayoutInflater inflater, ViewGroup container) {
+
+        Timber.d("Views initialized");
         View root = inflater.inflate(R.layout.fragment_fft, container, false);
 
         //signal views
@@ -405,7 +235,7 @@ public class FFTFragment extends Fragment {
 
         //buttons
         btnAnalyse = root.findViewById(R.id.btn_analyse);
-        tB = root.findViewById(R.id.toggleButton2);
+       // tB = root.findViewById(R.id.toggleButton2);
 
         //textviews
         tvWavFreq = root.findViewById(R.id.tv_wavfreq);
@@ -420,14 +250,31 @@ public class FFTFragment extends Fragment {
 
         //edit texts
         edtName = root.findViewById(R.id.edt_name);
-        edtOffset= root.findViewById(R.id.edt_liveoffset);
+        edtDisplayDelay = root.findViewById(R.id.edt_displaydelay);
         edtSampleRate= root.findViewById(R.id.edt_samplerate);
 
 
 
 
+        /*
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 5s = 5000ms
+                fftBoolCompute = true;
+                fftComputing = new FFTComputing(fftBoolCompute);
+                fftComputing.start();
 
-        //signalView.sndAudioBuf(MainActivity.BUFFER, MainActivity.BUFFER_READ_RESULT);
+
+
+
+
+
+            }
+        }, 500);
+
+         */
 
 
 
@@ -486,23 +333,121 @@ public class FFTFragment extends Fragment {
     public void liveAudioFFT(){
 
 
-        int RECORDER_CHANNELS = AudioFormat.CHANNEL_CONFIGURATION_MONO;
-        int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
-        int RECORDER_SAMPLERATE= sampleRate;
-        int bufferSize = AudioRecord.getMinBufferSize(RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING);
-        audioInput = new AudioRecord(MediaRecorder.AudioSource.DEFAULT, RECORDER_SAMPLERATE, RECORDER_CHANNELS, RECORDER_AUDIO_ENCODING, bufferSize);
+
+
+        fftDebugThread = new Thread(new Runnable() {
+
+            public void run() {
+
+
+
+                while (true) {
+                    while (fftBoolCompute) {
+                        //if (tB.isChecked()) {
+
+                            // Record audio input
+                            //audioInput.read(sData, 0, sData.length);
+
+                            updateDisplayDelay();
+
+
+                            //setting up average array
+                            int freqAverageSize = (Double.valueOf(displayDelay).intValue()/Double.valueOf(fftComputing.computeDelay).intValue());
+                            //Timber.d("Average array size = %s",freqAverageSize);
+                            firstFreqAverage = new double[freqAverageSize];
+                            fftComputing.loopCount = 0;
+                            fftComputing.captureValue = true;
 
 
 
 
 
-        // Start recording
-        audioInput.startRecording();
-        isRecording = true;
 
 
+
+                            //DISPLAY PERIOD
+                            long futureTime = System.currentTimeMillis()+Double.valueOf(displayDelay).longValue();
+                            while(System.currentTimeMillis() < futureTime){
+                                synchronized (this){
+                                    try{
+                                        wait(futureTime-System.currentTimeMillis());
+                                    }catch (Exception e){}
+                                }
+                            }
+
+
+
+
+
+
+                            //Cleaning average array :
+
+
+                            int targetIndex = 0;
+                            for( int sourceIndex = 0;  sourceIndex < firstFreqAverage.length;  sourceIndex++ )
+                            {
+                                if( firstFreqAverage[sourceIndex] != 0.0 )
+                                    firstFreqAverage[targetIndex++] = firstFreqAverage[sourceIndex];
+                            }
+                            double[] firstFreqAverageClean = new double[targetIndex];
+                            System.arraycopy( firstFreqAverage, 0, firstFreqAverageClean, 0, targetIndex );
+
+
+
+
+                            if (firstFreqAverageClean.length != 0) {
+                                //Timber.d("Freq average values : %s",Arrays.toString(firstFreqAverage));
+                                //Timber.d("Freq average values CLEAN : %s",Arrays.toString(firstFreqAverageClean));
+                                firstFreqAverageValue = Arrays.stream(firstFreqAverageClean).average().getAsDouble();
+
+                                //double firstFreqAverageValue = firstFreqAverageValueOptional
+
+                                Timber.d("First freq average value is : %s",String.valueOf(firstFreqAverageValue));
+
+                                //update GUI
+                                //updateTextViews(fftComputing.liveFrequency, fftComputing.fftFrequencies, fftComputing.fftPeaks, fftComputing.currentLED);
+                                updateTextViews(firstFreqAverageValue, fftComputing.fftFrequencies, fftComputing.fftPeaks, fftComputing.currentLED);
+
+                            }
+                            else {
+                                Timber.d("No average value.");
+                            }
+
+
+
+
+
+
+                        //}
+                        //fftComputing.captureValue = false;
+                    }
+                    fftComputing.captureValue = false;
+
+                    //WAITING FOR BUTTON PERIOD
+                    long futureTime = System.currentTimeMillis()+500;
+                    while(System.currentTimeMillis() < futureTime){
+                        synchronized (this){
+                            try{
+                                wait(futureTime-System.currentTimeMillis());
+                            }catch (Exception e){}
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            //FFTFragment.this.handlerThread
+
+
+
+        }, "AudioRecorder Thread");
         //handlerThread.postDelayed(recordingThread,500);
-        recordingThread.start();
+        //handlerThread.postDelayed(fftDebugThread,500);
+        fftDebugThread.start();
+
         ////////////////////////////////////////////////////////////////////////////////////////////
 
     }
@@ -510,6 +455,7 @@ public class FFTFragment extends Fragment {
     private void wavAudioFFT(String filename){
 
 
+        Toast.makeText(getActivity(), "Using "+ wavSampleRate+"Hz as sample rate.", Toast.LENGTH_SHORT).show();
         File file = null;
         file = new File(Environment.getExternalStorageDirectory()+"/"+"Download/"+filename+".wav");
         if (!file.exists()) {
@@ -528,7 +474,7 @@ public class FFTFragment extends Fragment {
             throwable.printStackTrace();
         }
         System.out.println( "Wav audio file byteData"+ Arrays.toString(byteData));
-        Toast.makeText(getActivity(), "Using "+ sampleRate+"Hz as sample rate & "+this.liveOffset+" as offset.", Toast.LENGTH_SHORT).show();
+
 
         try{
             //creation of the audio array
@@ -583,160 +529,158 @@ public class FFTFragment extends Fragment {
 
     }
 
-    public double calculateFrequency(double[] fft,double offset,boolean live)
-    {
+    public double calculateFrequency(double[] fft,double offset,boolean live) {
         System.out.println("_______________________Frequency computing________________________________________");
-        System.out.println("fft brut = "+ Arrays.toString(fft));
+        System.out.println("fft brut = " + Arrays.toString(fft));
 
         double[] fftSorted = fft.clone();
         //tri ordre croissant
         Arrays.sort(fftSorted);
-        System.out.println("ordre croissant fftSorted = "+ Arrays.toString(fftSorted));
+        System.out.println("ordre croissant fftSorted = " + Arrays.toString(fftSorted));
 
         ArrayUtils.reverse(fftSorted);
 
         //affichage ordre décroissant
-        System.out.println("ordre décroissant fftSorted = "+ Arrays.toString(fftSorted));
+        System.out.println("ordre décroissant fftSorted = " + Arrays.toString(fftSorted));
 
 
         //tri ordre croissant
         ArrayUtils.reverse(fftSorted);
-        System.out.println("ordre croissant fftSorted = "+ Arrays.toString(fftSorted));
+        System.out.println("ordre croissant fftSorted = " + Arrays.toString(fftSorted));
 
 
+        if (live) {
 
-
-        double peak1 = fftSorted[fftSorted.length-1];
-        //Timber.d("Peak 1 = "+peak1);
-        double peak2 = fftSorted[fftSorted.length-2];
-        //Timber.d("Peak 2 = "+peak2);
-        double peak3 = fftSorted[fftSorted.length-3];
-        //Timber.d("Peak 2 = "+peak2);
-        double peak4 = fftSorted[fftSorted.length-4];
-        //Timber.d("Peak 2 = "+peak2);
-        double peak5 = fftSorted[fftSorted.length-5];
-        //Timber.d("Peak 2 = "+peak2);
-
-
-
-        //saving found frequencies as arrays to filter them
-        for(int i=1; i<fftSorted.length; i++) {
-            for (int j = 0; j < fft.length; j++) {
-                double peak = fftSorted[fftSorted.length-i];
-                if (fft[j] == peak) {
-                    fftPeaks[i-1] = peak;
-                    fftIndex[i-1] = j;
-                    fftFrequencies[i-1] = (((j) * sampleRate) / fft.length)/2;
+            //saving found frequencies as arrays to filter them
+            for (int i = 1; i < fftSorted.length; i++) {
+                for (int j = 0; j < fft.length; j++) {
+                    double peak = fftSorted[fftSorted.length - i];
+                    if (fft[j] == peak) {
+                        fftPeaks[i - 1] = peak;
+                        fftIndex[i - 1] = j;
+                        fftFrequencies[i - 1] = (((j) * sampleRate) / fft.length) / 2;
+                    }
                 }
             }
+
+            System.out.println("fftPeaks = " + Arrays.toString(fftPeaks));
+            System.out.println("fftIndex = " + Arrays.toString(fftIndex));
+            System.out.println("fftFrequencies = " + Arrays.toString(fftFrequencies));
+
+
+            //filtering frequencies (to find distinct frequencies)
+
+
+            //convert BigDecimal value to compare values
+
+            for (int j = 0; j < fftFrequencies.length; j++) {
+                double x = fftFrequencies[j];
+                //Timber.d("fftDataWav[j] = "+x+" | ");
+                //Timber.d("Math.abs(fftDataWav[j]) = "+Math.abs(x)+" | ");
+                fftFrequenciesBigDecimal[j] = BigDecimal.valueOf(x);
+            }
+
+            System.out.println("fftFrequenciesBigDecimal = " + Arrays.toString(fftFrequenciesBigDecimal));
+
+
+            System.out.println("Method 1 :");
+            System.out.println("Peak 1 = " + fftPeaks[0] + " | Index 1 = " + fftIndex[0] + "/" + fft.length + " | 1st frequency = " + fftFrequencies[0]);
+            System.out.println("Peak 2 = " + fftPeaks[1] + " | Index 2 = " + fftIndex[1] + "/" + fft.length + " | 2nd frequency = " + fftFrequencies[1]);
+            System.out.println("Peak 3 = " + fftPeaks[2] + " | Index 3 = " + fftIndex[2] + "/" + fft.length + " | 3rd frequency = " + fftFrequencies[2]);
+            System.out.println("Peak 4 = " + fftPeaks[3] + " | Index 4 = " + fftIndex[3] + "/" + fft.length + " | 4th frequency = " + fftFrequencies[3]);
+            System.out.println("Peak 5 = " + fftPeaks[4] + " | Index 5 = " + fftIndex[4] + "/" + fft.length + " | 5th frequency = " + fftFrequencies[4]);
+
+
+            return fftFrequencies[0];
+        } else {
+
+            Timber.d("Live fft method = false");
+
+            double peak1 = fftSorted[fftSorted.length-1];
+            //Timber.d("Peak 1 = "+peak1);
+            double peak2 = fftSorted[fftSorted.length-2];
+            //Timber.d("Peak 2 = "+peak2);
+            double peak3 = fftSorted[fftSorted.length-3];
+            //Timber.d("Peak 2 = "+peak2);
+            double peak4 = fftSorted[fftSorted.length-4];
+            //Timber.d("Peak 2 = "+peak2);
+            double peak5 = fftSorted[fftSorted.length-5];
+            //Timber.d("Peak 2 = "+peak2);
+
+            int index1 = 0; int index2 = 0; int index3 = 0;int index4 = 0;int index5 = 0;
+            for(int i=0; i<fft.length; i++) {
+                if(fft[i] == peak1) {
+                    index1 = i;
+                }
+                else if(fft[i] == peak2) {
+                    index2 = i;
+                }
+                else if(fft[i] == peak3) {
+                    index3 = i;
+                }
+                else if(fft[i] == peak4) {
+                    index4 = i;
+                }
+                else if(fft[i] == peak5) {
+                    index5 = i;
+                }
+            }
+            System.out.println("Method 1 :");
+            System.out.println("Peak 1 = "+peak1+ " | Index 1 = "+index1+"/"+fft.length+" | 1st frequency = "+(((index1) * wavSampleRate) / fft.length));
+            System.out.println("Peak 2 = "+peak2+ " | Index 2 = "+index2+"/"+fft.length+" | 2nd frequency = "+(((index2) * wavSampleRate) / fft.length));
+            System.out.println("Peak 3 = "+peak3+ " | Index 3 = "+index3+"/"+fft.length+" | 3rd frequency = "+(((index3) * wavSampleRate) / fft.length));
+            System.out.println("Peak 4 = "+peak4+ " | Index 4 = "+index4+"/"+fft.length+" | 4th frequency = "+(((index4) * wavSampleRate) / fft.length));
+            System.out.println("Peak 5 = "+peak5+ " | Index 5 = "+index5+"/"+fft.length+" | 5th frequency = "+(((index5) * wavSampleRate) / fft.length));
+
+
+
+
+            /* //USING SAME METHOD AS LIVE (arrays)
+
+            double[] fftWavIndex = new double[fft.length];
+            double[] fftWavPeaks = new double[fft.length];
+            double[] fftWavFrequencies = new double[fft.length];
+
+            //saving found frequencies as arrays to filter them
+            for(int i=1; i<fft.length; i++) {
+                for (int j = 0; j < fft.length; j++) {
+                    double peak = fftSorted[fftSorted.length-i];
+                    if (fft[j] == peak) {
+                        fftWavPeaks[i-1] = peak;
+                        fftWavIndex[i-1] = j;
+                        fftWavFrequencies[i-1] = (((j) * wavSampleRate) / fft.length)/2;
+                    }
+                }
+            }
+
+            /*
+            System.out.println("fftPeaks = "+ Arrays.toString(fftWavPeaks));
+            System.out.println("fftIndex = "+ Arrays.toString(fftWavIndex));
+            System.out.println("fftFrequencies = "+ Arrays.toString(fftWavFrequencies));
+
+             */
+
+            /*
+
+
+
+
+            System.out.println("Method 1 :");
+            System.out.println("Peak 1 = "+fftWavPeaks[0]+ " | Index 1 = "+fftWavIndex[0]+"/"+fft.length+" | 1st frequency = "+fftWavFrequencies[0]);
+            System.out.println("Peak 2 = "+fftWavPeaks[1]+ " | Index 2 = "+fftWavIndex[1]+"/"+fft.length+" | 2nd frequency = "+fftWavFrequencies[1]);
+            System.out.println("Peak 3 = "+fftWavPeaks[2]+ " | Index 3 = "+fftWavIndex[2]+"/"+fft.length+" | 3rd frequency = "+fftWavFrequencies[2]);
+            System.out.println("Peak 4 = "+fftWavPeaks[3]+ " | Index 4 = "+fftWavIndex[3]+"/"+fft.length+" | 4th frequency = "+fftWavFrequencies[3]);
+            System.out.println("Peak 5 = "+fftWavPeaks[4]+ " | Index 5 = "+fftWavIndex[4]+"/"+fft.length+" | 5th frequency = "+fftWavFrequencies[4]);
+
+
+            return fftWavFrequencies[0] ;
+
+            */
+
+            return (((index1) * wavSampleRate) / fft.length);
+
         }
 
-        System.out.println("fftPeaks = "+ Arrays.toString(fftPeaks));
-        System.out.println("fftIndex = "+ Arrays.toString(fftIndex));
-        System.out.println("fftFrequencies = "+ Arrays.toString(fftFrequencies));
-
-
-
-
-
-        //filtering frequencies (to find distinct frequencies)
-
-
-        //convert BigDecimal value to compare values
-
-        for (int j = 0; j < fftFrequencies.length; j++){
-            double x = fftFrequencies[j];
-            //Timber.d("fftDataWav[j] = "+x+" | ");
-            //Timber.d("Math.abs(fftDataWav[j]) = "+Math.abs(x)+" | ");
-            fftFrequenciesBigDecimal[j] = BigDecimal.valueOf(x);
-        }
-
-        System.out.println("fftFrequenciesBigDecimal = "+ Arrays.toString(fftFrequenciesBigDecimal));
-
-/*
-        for(int i=0; i<fftFrequenciesBigDecimal.length; i++) {
-            if (fftFrequenciesBigDecimal[i].subtract(fftFrequenciesBigDecimal[i+1]) < new BigDecimal("0.0") ){
-
-            }
-        }
-        */
-
-
-        /*
-        for(int i=0; i<fftFrequencies.length; i++) {
-
-            if (Double.compare(fftFrequencies[i], fftFrequencies[i+1]) == 0) {
-
-                System.out.println("d1=d2");
-            }
-            else if (Double.compare(fftFrequencies[i], fftFrequencies[i+1]) < 0) {
-
-                System.out.println("d1<d2");
-            }
-            else {
-
-                System.out.println("d1>d2");
-            }
-
-        }
-
-         */
-
-
-
-
-        int index1 = 0; int index2 = 0; int index3 = 0;int index4 = 0;int index5 = 0;
-        for(int i=0; i<fft.length; i++) {
-            if(fft[i] == peak1) {
-                index1 = i;
-            }
-            else if(fft[i] == peak2) {
-                index2 = i;
-            }
-            else if(fft[i] == peak3) {
-                index3 = i;
-            }
-            else if(fft[i] == peak4) {
-                index4 = i;
-            }
-            else if(fft[i] == peak5) {
-                index5 = i;
-            }
-        }
-        System.out.println("Method 1 :");
-        System.out.println("Peak 1 = "+peak1+ " | Index 1 = "+index1+"/"+fft.length+" | 1st frequency = "+(((index1) * sampleRate) / fft.length)/2);
-        System.out.println("Peak 2 = "+peak2+ " | Index 2 = "+index2+"/"+fft.length+" | 2nd frequency = "+(((index2) * sampleRate) / fft.length)/2);
-        System.out.println("Peak 3 = "+peak3+ " | Index 3 = "+index3+"/"+fft.length+" | 3rd frequency = "+(((index3) * sampleRate) / fft.length)/2);
-        System.out.println("Peak 4 = "+peak4+ " | Index 4 = "+index4+"/"+fft.length+" | 4th frequency = "+(((index4) * sampleRate) / fft.length)/2);
-        System.out.println("Peak 5 = "+peak5+ " | Index 5 = "+index5+"/"+fft.length+" | 5th frequency = "+(((index5) * sampleRate) / fft.length)/2);
-
-
-        /*
-        System.out.println("Method 2 :");
-        System.out.println("Peak 1 = "+peak1+ " | Index 1 = "+index1+"/"+fft.length+" | 1st frequency = "+((index1+index2)/2)*offset);
-        System.out.println("Peak 2 = "+peak2+ " | Index 2 = "+index2+"/"+fft.length+" | 2nd frequency = "+((index1+index2)/2)*offset);
-        System.out.println("Peak 3 = "+peak3+ " | Index 3 = "+index3+"/"+fft.length+" | 3rd frequency = "+((index1+index2)/2)*offset);
-        System.out.println("Peak 4 = "+peak4+ " | Index 4 = "+index4+"/"+fft.length+" | 4th frequency = "+((index1+index2)/2)*offset);
-        System.out.println("Peak 5 = "+peak5+ " | Index 5 = "+index5+"/"+fft.length+" | 5th frequency = "+((index1+index2)/2)*offset);
-
-         */
-
-
-
-        if (live){
-            if (offset != 0) {
-                return ((index1+index2)/2)*offset;
-            }
-            else{
-                return ((index1+index2)/2)*1;
-            }
-        }
-        else {
-
-
-            return fftFrequencies[0] ;
-
-        }
 
 
 
@@ -804,6 +748,46 @@ public class FFTFragment extends Fragment {
     }
 
 
+    /* Update ui text.*/
+    public void updateTextViews(double liveFrequency, double[] fftFrequencies, double[] fftPeaks, String currentLED)
+    {
+        //String userInputText = changeTextEditor.getText().toString();
+        tvLiveFreq.setText(String.valueOf(liveFrequency));
+        tvLiveFreq2.setText(String.valueOf(fftFrequencies[1]));
+        tvLiveFreq3.setText(String.valueOf(fftFrequencies[2]));
+
+        tvAmpl.setText(String.valueOf(fftPeaks[0]));
+        tvAmpl2.setText(String.valueOf(fftPeaks[1]));
+        tvAmpl3.setText(String.valueOf(fftPeaks[2]));
+
+        tvCurrentLED.setText(currentLED);
+
+        plot_fft.redraw();
+        //Timber.d("plot redrawn");
+    }
+
+
+
+
+    public void updateDisplayDelay(){
+        //changing the display delay
+
+        String dispDelay = edtDisplayDelay.getText().toString();
+
+        if (dispDelay.matches("")) {
+            displayDelay = 500;
+            Timber.d("Using %s as display delay",displayDelay);
+
+        }
+        else if (Integer.parseInt(dispDelay) > fftComputing.computeDelay){
+            displayDelay = Double.parseDouble(edtDisplayDelay.getText().toString());
+        }
+        else {
+            displayDelay = 500;
+        }
+    }
+
+
 
 
     /*
@@ -848,6 +832,29 @@ public class FFTFragment extends Fragment {
 
     }
 
+    /* Create Handler object in main thread. */
+    @SuppressLint("HandlerLeak")
+    private void createUpdateUiHandler()
+    {
+        if(updateUIHandler == null)
+        {
+            updateUIHandler = new Handler()
+            {
+                @Override
+                public void handleMessage(Message msg) {
+                    // Means the message is sent from child thread.
+                    if(msg.what == MESSAGE_UPDATE_TEXT_CHILD_THREAD)
+                    {
+                        // Update ui in main thread.
+                        //FFTFragment.updateText();
+                    }
+                }
+            };
+
+
+
+        }
+    }
 
 
 
