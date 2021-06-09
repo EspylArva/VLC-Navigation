@@ -90,7 +90,7 @@ public class AddLightFragment extends Fragment {
 
                     // Reset UI (Add button part)
                     resetLightPanel();                                                                                                          // Empties EditText
-                    ((SettingsFragment) getParentFragment()).notifyLightRecycler(settingsViewModel.getListOfLights().getValue().size() - 1);    // Notify adapter that item has been added and collapses the backdrop
+                    ((SettingsFragment) getParentFragment()).notifyLightRecycler();    // Notify adapter that item has been added and collapses the backdrop
                     Util.hideKeyboard(getActivity());                                                                                           // Remove soft keyboard
 
                     // UX

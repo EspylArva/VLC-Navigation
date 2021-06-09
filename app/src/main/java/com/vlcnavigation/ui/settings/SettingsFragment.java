@@ -83,10 +83,8 @@ public class SettingsFragment extends Fragment {
     }
 
     // FIXME: issue with notification when user adds an item and size of collection is 0
-    public void notifyLightRecycler(int index) { manager.getLightRecycler().getAdapter().notifyItemInserted(index); collapse(); }
-    public void notifyFloorRecycler(int index) { manager.getFloorRecycler().getAdapter().notifyItemInserted(index); collapse(); }
-    public void notifyLightRecycler() { manager.getLightRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfLights().getValue().size() -1); collapse();}
-    public void notifyFloorRecycler() { manager.getFloorRecycler().getAdapter().notifyItemRangeChanged(0, settingsViewModel.getListOfFloors().getValue().size() -1); collapse();}
+    public void notifyLightRecycler() { manager.refreshLightAdapter(); collapse();}
+    public void notifyFloorRecycler() { manager.refreshFloorAdapter(); collapse();}
 
 
     /**

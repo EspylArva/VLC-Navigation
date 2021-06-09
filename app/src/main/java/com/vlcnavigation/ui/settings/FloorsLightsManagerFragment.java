@@ -94,6 +94,15 @@ public class FloorsLightsManagerFragment extends Fragment {
     }
 
     /**
+     * Refresh data in the floor adapter
+     */
+    public void refreshFloorAdapter()
+    {
+        FloorAdapter floorAdapter = new FloorAdapter(settingsViewModel, this);
+        recycler_floors.setAdapter(floorAdapter);
+    }
+
+    /**
      * Setting the recycler view used to display registered lights.
      * The settings are set to make the recycler view look like a carousel:
      * - views snap to display one ViewHolder
@@ -117,6 +126,15 @@ public class FloorsLightsManagerFragment extends Fragment {
         // Snapping on a viewholder // TODO: Maybe a stronger snap. See SnapHelperBuilder
         SnapHelper snap = new PagerSnapHelper();
         snap.attachToRecyclerView(recycler_lights);
+    }
+
+    /**
+     * Refresh data in the light adapter
+     */
+    public void refreshLightAdapter()
+    {
+        LightAdapter lightAdapter = new LightAdapter(settingsViewModel);
+        recycler_lights.setAdapter(lightAdapter);
     }
 
     /**

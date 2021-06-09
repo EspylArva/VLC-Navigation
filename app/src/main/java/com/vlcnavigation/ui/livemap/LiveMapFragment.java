@@ -172,6 +172,11 @@ public class LiveMapFragment extends Fragment {
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
 
+        if(settingsViewModel.getListOfFloors().getValue().size() > 0)
+        {
+            setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(0).getDescription());
+        }
+
 //        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 //        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
 
