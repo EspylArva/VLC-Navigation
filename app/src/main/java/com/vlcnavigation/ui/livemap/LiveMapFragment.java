@@ -71,9 +71,7 @@ public class LiveMapFragment extends Fragment {
         initObservers();
         initListeners();
 
-//        recycler_floors.smoothScrollToPosition(1);
-
-//        refreshUI();
+        refreshUI();
         displayUsers();
 
         return root;
@@ -89,10 +87,13 @@ public class LiveMapFragment extends Fragment {
     private void refreshUI() {
         // Sets the FloorPicker hint
         int position = recycler_floors.getAdapter().getItemCount() -1;
-        recycler_floors.smoothScrollToPosition(position);
-        position = settingsViewModel.findZeroFloor();
-        recycler_floors.smoothScrollToPosition(position);
-        Timber.d("%s", position);
+        if(settingsViewModel.getListOfFloors().getValue().size() > 0)
+        {
+            recycler_floors.smoothScrollToPosition(position);
+            position = settingsViewModel.findZeroFloor();
+            recycler_floors.smoothScrollToPosition(position);
+        }
+//        setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(position).getDescription());
     }
 
     /**
@@ -172,6 +173,10 @@ public class LiveMapFragment extends Fragment {
 
         setRecyclerDisplayFloors();
         setRecyclerAvailableFloors();
+        if(settingsViewModel.getListOfFloors().getValue().size()>0)
+        {
+            setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(0).getDescription());
+        }
 
 //        recycler_floors.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
 //        Timber.e("(STARTUP) Width: %s -- Height: %s", recycler_floors.getMeasuredWidth(), recycler_floors.getMeasuredHeight());
@@ -240,13 +245,12 @@ public class LiveMapFragment extends Fragment {
 
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
-
-
-//            for(int i=0; i<recycler_floors.getAdapter().getItemCount(); i++) {
-//                FloorDisplayAdapter.FloorDisplayHolder holder = ((FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findViewHolderForAdapterPosition(i));
             try {
-
-                FloorDisplayAdapter.FloorDisplayHolder holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
+                FloorDisplayAdapter.FloorDisplayHolder holder = null;
+                if(settingsViewModel.getListOfFloors().getValue() != null && settingsViewModel.getListOfFloors().getValue().size() > 0)
+                {
+                    holder = (FloorDisplayAdapter.FloorDisplayHolder) recycler_floors.findContainingViewHolder( recycler_floors.getLayoutManager().getChildAt(0) );
+                }
                 if (holder != null) {
                     if(closestLight == null){
 //                        Random r = new Random();
@@ -260,11 +264,9 @@ public class LiveMapFragment extends Fragment {
                         MainActivity.fftComputing.setCurrentLED(closestLight.getDescription());
                     }
                 }
-//            }
-                handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
             }
-            catch(NullPointerException e) { Timber.e(e); }
-
+            catch (NullPointerException e) { Timber.e(e, "Could not find viewholder"); }
+            handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
     }
 }
