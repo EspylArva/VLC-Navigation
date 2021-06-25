@@ -222,7 +222,7 @@ public class LightAdapter extends RecyclerView.Adapter<LightAdapter.LightHolder>
                 txtInputLayout_floor.setError(itemView.getResources().getString(R.string.floor_does_not_exist));
             }
 
-            ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, R.attr.listPopupWindowStyle);
+            ListPopupWindow listPopupWindow = new ListPopupWindow(itemView.getContext(), null, android.R.attr.listPopupWindowStyle);
             listPopupWindow.setAnchorView(txtInputLayout_floor);
 
             ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(itemView.getContext(), R.layout.menu_layout_floor, vm.getListOfFloorLevels().getValue());

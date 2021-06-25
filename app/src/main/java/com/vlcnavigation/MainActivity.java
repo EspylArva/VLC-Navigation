@@ -118,17 +118,9 @@ public class MainActivity extends AppCompatActivity {
 
                 if(record.getValue())
                 {
-                    fab_record.setBackgroundTintList(ColorStateList.valueOf(Util.getAttrColor(v.getContext(), R.attr.colorPrimary)));
+                    fab_record.setBackgroundTintList(ColorStateList.valueOf(Util.getAttrColor(v.getContext(), android.R.attr.colorPrimary)));
                     audioRecorder = new AudioRecorder(record, findViewById(R.id.signalview));
                     audioRecorder.start();
-
-
-
-
-
-
-
-
 
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -190,11 +182,11 @@ public class MainActivity extends AppCompatActivity {
         boolean permissionNeeded = false;
         if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
         {
-            opt_readFiles.setFabOptionColor(Util.getAttrColor(this, R.attr.colorPrimary));
+            opt_readFiles.setFabOptionColor(Util.getAttrColor(this, android.R.attr.colorPrimary));
         } else { permissionNeeded = true; }
         if(checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
         {
-            opt_microphone.setFabOptionColor(Util.getAttrColor(this, R.attr.colorPrimary));
+            opt_microphone.setFabOptionColor(Util.getAttrColor(this, android.R.attr.colorPrimary));
         } else { permissionNeeded = true; }
 
         if(!permissionNeeded) { container_fabs.removeAllViews(); }

@@ -1,5 +1,7 @@
 package com.vlcnavigation.ui.livemap;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
@@ -87,11 +89,14 @@ public class LiveMapFragment extends Fragment {
 
     private void refreshUI() {
         // Sets the FloorPicker hint
-        int position = recycler_floors.getAdapter().getItemCount() -1;
-        recycler_floors.smoothScrollToPosition(position);
-        position = settingsViewModel.findZeroFloor();
-        recycler_floors.smoothScrollToPosition(position);
-        Timber.d("%s", position);
+        try
+        {
+            int position = recycler_floors.getAdapter().getItemCount() -1;
+            recycler_floors.smoothScrollToPosition(position);
+            position = settingsViewModel.findZeroFloor();
+            recycler_floors.smoothScrollToPosition(position);
+            Timber.d("%s", position);
+        }catch(Exception e) {Timber.e(e);}
     }
 
     /**
@@ -120,12 +125,12 @@ public class LiveMapFragment extends Fragment {
                     if(holder != null) {
                         if (i == ((LinearLayoutManager) recycler_floors.getLayoutManager()).findFirstVisibleItemPosition()) {
                             // ?attr/colorPrimary
-                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorPrimary));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), android.R.attr.colorPrimary));
                             holder.getTv().setBackground(whiteCircle);
                             setFloorDescription(settingsViewModel.getListOfFloors().getValue().get(i).getDescription());
 //                            displayLights(i);
                         } else {
-                            whiteCircle.setColor(Util.getAttrColor(getContext(), R.attr.colorSecondary));
+                            whiteCircle.setColor(Util.getAttrColor(getContext(), android.R.attr.colorSecondary));
                             holder.getTv().setBackgroundResource(R.drawable.ic_circle);
                         } // reset style
                     }
@@ -243,6 +248,7 @@ public class LiveMapFragment extends Fragment {
 
             Light closestLight = Light.getLightFromFrequency(frequency, frequency*0.2, settingsViewModel.getListOfLights().getValue());
             // display marker on the map
+
             try {
                 FloorDisplayAdapter.FloorDisplayHolder holder = null;
                 if(settingsViewModel.getListOfFloors().getValue() != null && settingsViewModel.getListOfFloors().getValue().size() > 0)
@@ -263,7 +269,7 @@ public class LiveMapFragment extends Fragment {
                     }
                 }
             }
-            catch (NullPointerException e) { Timber.e(e, "Could not find viewholder"); }
+            catch (NullPointerException | SecurityException e) { Timber.e(e, "Could not find viewholder"); }
             handler.postDelayed(this, USER_POSITION_REFRESH_RATE); // recursive call
         }
     }

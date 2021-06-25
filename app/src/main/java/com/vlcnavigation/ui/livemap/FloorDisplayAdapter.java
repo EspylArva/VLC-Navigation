@@ -204,7 +204,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
             container_map.addView(mapPart);
         }
 
-        public void makeMarker(double posX, double posY, int width, int height, @ColorInt int color, int... markerSize) throws IOException {
+        public void makeMarker(double posX, double posY, int width, int height, @ColorInt int color, int... markerSize) throws IOException, SecurityException {
 
             ImageView marker = makeMarker(color);
 
@@ -270,7 +270,7 @@ public class FloorDisplayAdapter extends RecyclerView.Adapter<FloorDisplayAdapte
                 if (l.isOnFloor(this.floor)) {
                     try {
                         makeMarker(l.getPosX(), l.getPosY(), width, height, color, 100);
-                    } catch (IOException e) {
+                    } catch (IOException | SecurityException e) {
                         Timber.e(e);
                     }
                 }
